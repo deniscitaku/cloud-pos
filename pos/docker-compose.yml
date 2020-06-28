@@ -1,0 +1,13 @@
+version: "3.1"
+services:
+  app-database:
+    image: mongo:4.2.5
+    container_name: "app-database"
+    ports:
+      - 27017:27017
+  app:
+    image: cloud-pos
+    ports:
+      - 9091:8080
+    links:
+      - app-database

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.5.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.denlir</groupId>
+    <artifactId>pos</artifactId>
+    <version>1.0</version>
+    <name>pos</name>
+    <description>Cloud POS for retail</description>
+
+    <properties>
+        <java.version>11</java.version>
+        <typescript-generator.version>2.20.583</typescript-generator.version>
+        <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
+        <org.projectlombok.version>1.18.12</org.projectlombok.version>
+        <ts.file.path>src/main/webapp/src/client/Client.ts</ts.file.path>
+        <base.api-path>http://localhost:8080/pos/</base.api-path>
+        <spring-cloud.version>Hoxton.SR5</spring-cloud.version>
+    </properties>
+
+    <dependencies>
+        <!-- Struct Mapper -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${org.projectlombok.version}</version>
+        </dependency>
+
+        <!-- MongoDB -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
+        </dependency>
+
+        <!-- Spring WebFlux -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
+        <!-- Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Eureka Client -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${org.projectlombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>generate-ts</id>
+            <build>
+                <plugins>
+                    <!-- Generate TypeScript classes plugin -->
+                    <plugin>
+                        <groupId>cz.habarta.typescript-generator</groupId>
+                        <artifactId>typescript-generator-maven-plugin</artifactId>
+                        <version>${typescript-generator.version}</version>
+                        <executions>
+                            <execution>
+                                <id>generate</id>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                                <phase>compile</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <jsonLibrary>jackson2</jsonLibrary>
+                            <classesWithAnnotations>com.denlir.pos.common.GenerateTypeScript
+                            </classesWithAnnotations>
+                            <outputFile>${project.basedir}/${ts.file.path}</outputFile>
+                            <outputFileType>implementationFile</outputFileType>
+                            <outputKind>module</outputKind>
+                            <mapClasses>asClasses</mapClasses>
+                            <generateConstructors>true</generateConstructors>
+                            <noFileComment>true</noFileComment>
+                            <generateSpringApplicationClient>true</generateSpringApplicationClient>
+                            <restResponseType><![CDATA[AxiosResponse<R>]]></restResponseType>
+                            <customTypeMappings>
+                                reactor.core.publisher.Flux[T]:Array[T],reactor.core.publisher.Mono[T]:T
+                            </customTypeMappings>
+                            <excludeClasses>
+                                java.lang.Comparable,reactor.core.CorePublisher,org.reactivestreams.Publisher
+                            </excludeClasses>
+                            <restNamespacing>perResource</restNamespacing>
+                            <removeTypeNameSuffix>Controller</removeTypeNameSuffix>
+                            <extensions>
+                                <![CDATA[cz.habarta.typescript.generator.ext.AxiosClientExtension]]></extensions>
+                            <optionalProperties>useSpecifiedAnnotations</optionalProperties>
+                            <optionalPropertiesDeclaration>questionMark</optionalPropertiesDeclaration>
+                            <importDeclarations>import {CancelToken} from "axios"</importDeclarations>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>cz.habarta.typescript-generator</groupId>
+                                <artifactId>typescript-generator-spring</artifactId>
+                                <version>2.22.595</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.google.code.maven-replacer-plugin</groupId>
+                        <artifactId>replacer</artifactId>
+                        <version>1.5.3</version>
+                        <executions>
+                            <execution>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>replace</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <file>${ts.file.path}</file>
+                            <replacements>
+                                <replacement>
+                                    <token><![CDATA[baseURL: string]]></token>
+                                    <value>baseURL: string = "${base.api-path}"</value>
+                                </replacement>
+                                <replacement>
+                                    <token>options\?: Axios\.AxiosRequestConfig</token>
+                                    <value>options\?: Axios\.AxiosRequestConfig; cancelToken\?: CancelToken</value>
+                                </replacement>
+                                <replacement>
+                                    <token>options\?: O</token>
+                                    <value>cancelToken\?: CancelToken, options\?: O</value>
+                                </replacement>
+                                <replacement>
+                                    <token>options: options</token>
+                                    <value>options: options, cancelToken: cancelToken</value>
+                                </replacement>
+                                <replacement>
+                                    <token>config.data = requestConfig.data;</token>
+                                    <value>
+                                        config.data = requestConfig.data;
+                                        config.cancelToken = requestConfig.cancelToken;
+                                    </value>
+                                </replacement>
+                            </replacements>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
