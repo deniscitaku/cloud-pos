@@ -1,6 +1,6 @@
 package com.denlir.pos.controller;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.service.BasicServiceOperation;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -8,14 +8,13 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.time.Duration;
 
 /**
  * Created on: 4/10/20
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 public abstract class BasicControllerOperations<T extends BasicServiceOperation<?, P, ?>, P> {
 
   protected final T service;

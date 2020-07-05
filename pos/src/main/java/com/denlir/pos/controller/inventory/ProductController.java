@@ -1,6 +1,6 @@
 package com.denlir.pos.controller.inventory;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.controller.BasicControllerOperations;
 import com.denlir.pos.payload.inventory.ProductPayload;
 import com.denlir.pos.service.inventory.ProductService;
@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-
-@GenerateTypeScript
+@GenerateTS
 @RestController
 @RequestMapping("inventory/product")
 public class ProductController extends BasicControllerOperations<ProductService, ProductPayload> {

@@ -1,6 +1,6 @@
 package com.denlir.pos.controller.inventory.movement.diary;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.controller.BasicControllerOperations;
 import com.denlir.pos.payload.inventory.movement.diary.SupplierPayload;
 import com.denlir.pos.service.inventory.movement.diary.SupplierService;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 @RestController
 @RequestMapping("inventory/movement/supplier")
 public class SupplierController extends BasicControllerOperations<SupplierService, SupplierPayload> {

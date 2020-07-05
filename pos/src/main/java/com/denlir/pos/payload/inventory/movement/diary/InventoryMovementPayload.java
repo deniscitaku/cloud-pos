@@ -1,6 +1,6 @@
 package com.denlir.pos.payload.inventory.movement.diary;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.entity.inventory.movement.MovementKind;
 import com.denlir.pos.payload.BaseAuditPayload;
 import com.denlir.pos.payload.domain.LocationPayload;
@@ -16,7 +16,7 @@ import java.util.List;
  **/
 @Data
 @EqualsAndHashCode(callSuper = true)
-@GenerateTypeScript
+@GenerateTS
 public class InventoryMovementPayload extends BaseAuditPayload {
 
   private String sequence;

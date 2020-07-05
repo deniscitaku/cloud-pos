@@ -1,6 +1,6 @@
 package com.denlir.pos.controller.inventory.movement.sale;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.controller.BasicControllerOperations;
 import com.denlir.pos.payload.inventory.movement.sale.TicketLinePayload;
 import com.denlir.pos.service.inventory.movement.sale.TicketLineService;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 @RestController
 @RequestMapping("inventory/movement/ticket-line")
 public class TicketLineController extends BasicControllerOperations<TicketLineService, TicketLinePayload> {

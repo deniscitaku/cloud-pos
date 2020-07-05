@@ -2,6 +2,7 @@
 /* eslint-disable */
 
 import {CancelToken} from "axios";
+                                export const axiosInstance = axios.create({ baseURL: "http://localhost:8080/api/"});;
 
 export class BasicControllerOperations<T, P> {
 
@@ -241,57 +242,65 @@ export interface HttpClient<O> {
     request<R>(requestConfig: { method: string; url: string; queryParams?: any; data?: any; copyFn?: (data: R) => R; cancelToken?: CancelToken, options?: O; }): RestResponse<R>;
 }
 
-export class UomClient<O> {
+export class TicketClient<O> {
 
     constructor(protected httpClient: HttpClient<O>) {
     }
 
     /**
-     * HTTP POST /inventory/uom
-     * Java method: com.denlir.pos.controller.inventory.UomController.create
+     * HTTP POST /inventory/movement/ticket
+     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.create
      */
-    create(arg0: UomPayload, cancelToken?: CancelToken, options?: O): RestResponse<UomPayload> {
-        return this.httpClient.request({ method: "POST", url: uriEncoding`inventory/uom`, data: arg0, options: options, cancelToken: cancelToken });
+    create(arg0: TicketPayload, cancelToken?: CancelToken, options?: O): RestResponse<TicketPayload> {
+        return this.httpClient.request({ method: "POST", url: uriEncoding`inventory/movement/ticket`, data: arg0, options: options, cancelToken: cancelToken });
     }
 
     /**
-     * HTTP DELETE /inventory/uom
-     * Java method: com.denlir.pos.controller.inventory.UomController.delete
+     * HTTP DELETE /inventory/movement/ticket
+     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.delete
      */
-    delete(arg0: UomPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/uom`, data: arg0, options: options, cancelToken: cancelToken });
+    delete(arg0: TicketPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement/ticket`, data: arg0, options: options, cancelToken: cancelToken });
     }
 
     /**
-     * HTTP PUT /inventory/uom
-     * Java method: com.denlir.pos.controller.inventory.UomController.update
+     * HTTP PUT /inventory/movement/ticket
+     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.update
      */
-    update(arg0: UomPayload, cancelToken?: CancelToken, options?: O): RestResponse<UomPayload> {
-        return this.httpClient.request({ method: "PUT", url: uriEncoding`inventory/uom`, data: arg0, options: options, cancelToken: cancelToken });
+    update(arg0: TicketPayload, cancelToken?: CancelToken, options?: O): RestResponse<TicketPayload> {
+        return this.httpClient.request({ method: "PUT", url: uriEncoding`inventory/movement/ticket`, data: arg0, options: options, cancelToken: cancelToken });
     }
 
     /**
-     * HTTP GET /inventory/uom/all
-     * Java method: com.denlir.pos.controller.inventory.UomController.findAll
+     * HTTP GET /inventory/movement/ticket/all
+     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.findAll
      */
-    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<UomPayload>> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/uom/all`, options: options, cancelToken: cancelToken });
+    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<TicketPayload>> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/ticket/all`, options: options, cancelToken: cancelToken });
     }
 
     /**
-     * HTTP DELETE /inventory/uom/{id}
-     * Java method: com.denlir.pos.controller.inventory.UomController.deleteById
+     * HTTP DELETE /inventory/movement/ticket/{id}
+     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.deleteById
      */
     deleteById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/uom/${id}`, options: options, cancelToken: cancelToken });
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement/ticket/${id}`, options: options, cancelToken: cancelToken });
     }
 
     /**
-     * HTTP GET /inventory/uom/{id}
-     * Java method: com.denlir.pos.controller.inventory.UomController.findById
+     * HTTP GET /inventory/movement/ticket/{id}
+     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.findById
      */
-    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<UomPayload> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/uom/${id}`, options: options, cancelToken: cancelToken });
+    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<TicketPayload> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/ticket/${id}`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /inventory/movement/ticket/{locationId}/open
+     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.openTicket
+     */
+    openTicket(locationId: string, cancelToken?: CancelToken, options?: O): RestResponse<TicketPayload> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/ticket/${locationId}/open`, options: options, cancelToken: cancelToken });
     }
 }
 
@@ -346,292 +355,6 @@ export class TaxClient<O> {
      */
     findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<TaxPayload> {
         return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/tax/${id}`, options: options, cancelToken: cancelToken });
-    }
-}
-
-export class InventoryMovementClient<O> {
-
-    constructor(protected httpClient: HttpClient<O>) {
-    }
-
-    /**
-     * HTTP POST /inventory/movement
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.create
-     */
-    create(arg0: InventoryMovementPayload, cancelToken?: CancelToken, options?: O): RestResponse<InventoryMovementPayload> {
-        return this.httpClient.request({ method: "POST", url: uriEncoding`inventory/movement`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP DELETE /inventory/movement
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.delete
-     */
-    delete(arg0: InventoryMovementPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP PUT /inventory/movement
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.update
-     */
-    update(arg0: InventoryMovementPayload, cancelToken?: CancelToken, options?: O): RestResponse<InventoryMovementPayload> {
-        return this.httpClient.request({ method: "PUT", url: uriEncoding`inventory/movement`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /inventory/movement/all
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.findAll
-     */
-    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<InventoryMovementPayload>> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/all`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP DELETE /inventory/movement/{id}
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.deleteById
-     */
-    deleteById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement/${id}`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /inventory/movement/{id}
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.findById
-     */
-    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<InventoryMovementPayload> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/${id}`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /inventory/movement/{kind}
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.findByKind
-     */
-    findByKind(kind: string, cancelToken?: CancelToken, options?: O): RestResponse<Array<InventoryMovementPayload>> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/${kind}`, options: options, cancelToken: cancelToken });
-    }
-}
-
-export class SupplierClient<O> {
-
-    constructor(protected httpClient: HttpClient<O>) {
-    }
-
-    /**
-     * HTTP POST /inventory/movement/supplier
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.create
-     */
-    create(arg0: SupplierPayload, cancelToken?: CancelToken, options?: O): RestResponse<SupplierPayload> {
-        return this.httpClient.request({ method: "POST", url: uriEncoding`inventory/movement/supplier`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP DELETE /inventory/movement/supplier
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.delete
-     */
-    delete(arg0: SupplierPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement/supplier`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP PUT /inventory/movement/supplier
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.update
-     */
-    update(arg0: SupplierPayload, cancelToken?: CancelToken, options?: O): RestResponse<SupplierPayload> {
-        return this.httpClient.request({ method: "PUT", url: uriEncoding`inventory/movement/supplier`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /inventory/movement/supplier/all
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.findAll
-     */
-    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<SupplierPayload>> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/supplier/all`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP DELETE /inventory/movement/supplier/{id}
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.deleteById
-     */
-    deleteById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement/supplier/${id}`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /inventory/movement/supplier/{id}
-     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.findById
-     */
-    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<SupplierPayload> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/supplier/${id}`, options: options, cancelToken: cancelToken });
-    }
-}
-
-export class CategoryClient<O> {
-
-    constructor(protected httpClient: HttpClient<O>) {
-    }
-
-    /**
-     * HTTP POST /inventory/category
-     * Java method: com.denlir.pos.controller.inventory.CategoryController.create
-     */
-    create(arg0: CategoryPayload, cancelToken?: CancelToken, options?: O): RestResponse<CategoryPayload> {
-        return this.httpClient.request({ method: "POST", url: uriEncoding`inventory/category`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP DELETE /inventory/category
-     * Java method: com.denlir.pos.controller.inventory.CategoryController.delete
-     */
-    delete(arg0: CategoryPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/category`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP PUT /inventory/category
-     * Java method: com.denlir.pos.controller.inventory.CategoryController.update
-     */
-    update(arg0: CategoryPayload, cancelToken?: CancelToken, options?: O): RestResponse<CategoryPayload> {
-        return this.httpClient.request({ method: "PUT", url: uriEncoding`inventory/category`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /inventory/category/all
-     * Java method: com.denlir.pos.controller.inventory.CategoryController.findAll
-     */
-    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<CategoryPayload>> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/category/all`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP DELETE /inventory/category/{id}
-     * Java method: com.denlir.pos.controller.inventory.CategoryController.deleteById
-     */
-    deleteById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/category/${id}`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /inventory/category/{id}
-     * Java method: com.denlir.pos.controller.inventory.CategoryController.findById
-     */
-    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<CategoryPayload> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/category/${id}`, options: options, cancelToken: cancelToken });
-    }
-}
-
-export class LocationClient<O> {
-
-    constructor(protected httpClient: HttpClient<O>) {
-    }
-
-    /**
-     * HTTP POST /domain/location
-     * Java method: com.denlir.pos.controller.domain.LocationController.create
-     */
-    create(arg0: LocationPayload, cancelToken?: CancelToken, options?: O): RestResponse<LocationPayload> {
-        return this.httpClient.request({ method: "POST", url: uriEncoding`domain/location`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP DELETE /domain/location
-     * Java method: com.denlir.pos.controller.domain.LocationController.delete
-     */
-    delete(arg0: LocationPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`domain/location`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP PUT /domain/location
-     * Java method: com.denlir.pos.controller.domain.LocationController.update
-     */
-    update(arg0: LocationPayload, cancelToken?: CancelToken, options?: O): RestResponse<LocationPayload> {
-        return this.httpClient.request({ method: "PUT", url: uriEncoding`domain/location`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /domain/location/all
-     * Java method: com.denlir.pos.controller.domain.LocationController.findAll
-     */
-    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<LocationPayload>> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`domain/location/all`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP DELETE /domain/location/{id}
-     * Java method: com.denlir.pos.controller.domain.LocationController.deleteById
-     */
-    deleteById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`domain/location/${id}`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /domain/location/{id}
-     * Java method: com.denlir.pos.controller.domain.LocationController.findById
-     */
-    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<LocationPayload> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`domain/location/${id}`, options: options, cancelToken: cancelToken });
-    }
-}
-
-export class TicketClient<O> {
-
-    constructor(protected httpClient: HttpClient<O>) {
-    }
-
-    /**
-     * HTTP POST /inventory/movement/ticket
-     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.create
-     */
-    create(arg0: TicketPayload, cancelToken?: CancelToken, options?: O): RestResponse<TicketPayload> {
-        return this.httpClient.request({ method: "POST", url: uriEncoding`inventory/movement/ticket`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP DELETE /inventory/movement/ticket
-     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.delete
-     */
-    delete(arg0: TicketPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement/ticket`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP PUT /inventory/movement/ticket
-     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.update
-     */
-    update(arg0: TicketPayload, cancelToken?: CancelToken, options?: O): RestResponse<TicketPayload> {
-        return this.httpClient.request({ method: "PUT", url: uriEncoding`inventory/movement/ticket`, data: arg0, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /inventory/movement/ticket/all
-     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.findAll
-     */
-    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<TicketPayload>> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/ticket/all`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /inventory/movement/ticket/open/{locationId}
-     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.openTicket
-     */
-    openTicket(locationId: string, cancelToken?: CancelToken, options?: O): RestResponse<TicketPayload> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/ticket/open/${locationId}`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP DELETE /inventory/movement/ticket/{id}
-     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.deleteById
-     */
-    deleteById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<void> {
-        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement/ticket/${id}`, options: options, cancelToken: cancelToken });
-    }
-
-    /**
-     * HTTP GET /inventory/movement/ticket/{id}
-     * Java method: com.denlir.pos.controller.inventory.movement.sale.TicketController.findById
-     */
-    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<TicketPayload> {
-        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/ticket/${id}`, options: options, cancelToken: cancelToken });
     }
 }
 
@@ -729,6 +452,230 @@ export class ProductClient<O> {
     }
 }
 
+export class SupplierClient<O> {
+
+    constructor(protected httpClient: HttpClient<O>) {
+    }
+
+    /**
+     * HTTP POST /inventory/movement/supplier
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.create
+     */
+    create(arg0: SupplierPayload, cancelToken?: CancelToken, options?: O): RestResponse<SupplierPayload> {
+        return this.httpClient.request({ method: "POST", url: uriEncoding`inventory/movement/supplier`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP DELETE /inventory/movement/supplier
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.delete
+     */
+    delete(arg0: SupplierPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement/supplier`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP PUT /inventory/movement/supplier
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.update
+     */
+    update(arg0: SupplierPayload, cancelToken?: CancelToken, options?: O): RestResponse<SupplierPayload> {
+        return this.httpClient.request({ method: "PUT", url: uriEncoding`inventory/movement/supplier`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /inventory/movement/supplier/all
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.findAll
+     */
+    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<SupplierPayload>> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/supplier/all`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP DELETE /inventory/movement/supplier/{id}
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.deleteById
+     */
+    deleteById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<void> {
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement/supplier/${id}`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /inventory/movement/supplier/{id}
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.SupplierController.findById
+     */
+    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<SupplierPayload> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/supplier/${id}`, options: options, cancelToken: cancelToken });
+    }
+}
+
+export class UomClient<O> {
+
+    constructor(protected httpClient: HttpClient<O>) {
+    }
+
+    /**
+     * HTTP POST /inventory/uom
+     * Java method: com.denlir.pos.controller.inventory.UomController.create
+     */
+    create(arg0: UomPayload, cancelToken?: CancelToken, options?: O): RestResponse<UomPayload> {
+        return this.httpClient.request({ method: "POST", url: uriEncoding`inventory/uom`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP DELETE /inventory/uom
+     * Java method: com.denlir.pos.controller.inventory.UomController.delete
+     */
+    delete(arg0: UomPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/uom`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP PUT /inventory/uom
+     * Java method: com.denlir.pos.controller.inventory.UomController.update
+     */
+    update(arg0: UomPayload, cancelToken?: CancelToken, options?: O): RestResponse<UomPayload> {
+        return this.httpClient.request({ method: "PUT", url: uriEncoding`inventory/uom`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /inventory/uom/all
+     * Java method: com.denlir.pos.controller.inventory.UomController.findAll
+     */
+    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<UomPayload>> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/uom/all`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP DELETE /inventory/uom/{id}
+     * Java method: com.denlir.pos.controller.inventory.UomController.deleteById
+     */
+    deleteById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<void> {
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/uom/${id}`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /inventory/uom/{id}
+     * Java method: com.denlir.pos.controller.inventory.UomController.findById
+     */
+    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<UomPayload> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/uom/${id}`, options: options, cancelToken: cancelToken });
+    }
+}
+
+export class InventoryMovementClient<O> {
+
+    constructor(protected httpClient: HttpClient<O>) {
+    }
+
+    /**
+     * HTTP POST /inventory/movement
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.create
+     */
+    create(arg0: InventoryMovementPayload, cancelToken?: CancelToken, options?: O): RestResponse<InventoryMovementPayload> {
+        return this.httpClient.request({ method: "POST", url: uriEncoding`inventory/movement`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP DELETE /inventory/movement
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.delete
+     */
+    delete(arg0: InventoryMovementPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP PUT /inventory/movement
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.update
+     */
+    update(arg0: InventoryMovementPayload, cancelToken?: CancelToken, options?: O): RestResponse<InventoryMovementPayload> {
+        return this.httpClient.request({ method: "PUT", url: uriEncoding`inventory/movement`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /inventory/movement/all
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.findAll
+     */
+    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<InventoryMovementPayload>> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/all`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP DELETE /inventory/movement/{id}
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.deleteById
+     */
+    deleteById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<void> {
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/movement/${id}`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /inventory/movement/{id}
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.findById
+     */
+    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<InventoryMovementPayload> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/${id}`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /inventory/movement/{kind}
+     * Java method: com.denlir.pos.controller.inventory.movement.diary.InventoryMovementController.findByKind
+     */
+    findByKind(kind: string, cancelToken?: CancelToken, options?: O): RestResponse<Array<InventoryMovementPayload>> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/${kind}`, options: options, cancelToken: cancelToken });
+    }
+}
+
+export class LocationClient<O> {
+
+    constructor(protected httpClient: HttpClient<O>) {
+    }
+
+    /**
+     * HTTP POST /domain/location
+     * Java method: com.denlir.pos.controller.domain.LocationController.create
+     */
+    create(arg0: LocationPayload, cancelToken?: CancelToken, options?: O): RestResponse<LocationPayload> {
+        return this.httpClient.request({ method: "POST", url: uriEncoding`domain/location`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP DELETE /domain/location
+     * Java method: com.denlir.pos.controller.domain.LocationController.delete
+     */
+    delete(arg0: LocationPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`domain/location`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP PUT /domain/location
+     * Java method: com.denlir.pos.controller.domain.LocationController.update
+     */
+    update(arg0: LocationPayload, cancelToken?: CancelToken, options?: O): RestResponse<LocationPayload> {
+        return this.httpClient.request({ method: "PUT", url: uriEncoding`domain/location`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /domain/location/all
+     * Java method: com.denlir.pos.controller.domain.LocationController.findAll
+     */
+    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<LocationPayload>> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`domain/location/all`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP DELETE /domain/location/{id}
+     * Java method: com.denlir.pos.controller.domain.LocationController.deleteById
+     */
+    deleteById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<void> {
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`domain/location/${id}`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /domain/location/{id}
+     * Java method: com.denlir.pos.controller.domain.LocationController.findById
+     */
+    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<LocationPayload> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`domain/location/${id}`, options: options, cancelToken: cancelToken });
+    }
+}
+
 export class TicketLineClient<O> {
 
     constructor(protected httpClient: HttpClient<O>) {
@@ -780,6 +727,60 @@ export class TicketLineClient<O> {
      */
     findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<TicketLinePayload> {
         return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/movement/ticket-line/${id}`, options: options, cancelToken: cancelToken });
+    }
+}
+
+export class CategoryClient<O> {
+
+    constructor(protected httpClient: HttpClient<O>) {
+    }
+
+    /**
+     * HTTP POST /inventory/category
+     * Java method: com.denlir.pos.controller.inventory.CategoryController.create
+     */
+    create(arg0: CategoryPayload, cancelToken?: CancelToken, options?: O): RestResponse<CategoryPayload> {
+        return this.httpClient.request({ method: "POST", url: uriEncoding`inventory/category`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP DELETE /inventory/category
+     * Java method: com.denlir.pos.controller.inventory.CategoryController.delete
+     */
+    delete(arg0: CategoryPayload, cancelToken?: CancelToken, options?: O): RestResponse<void> {
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/category`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP PUT /inventory/category
+     * Java method: com.denlir.pos.controller.inventory.CategoryController.update
+     */
+    update(arg0: CategoryPayload, cancelToken?: CancelToken, options?: O): RestResponse<CategoryPayload> {
+        return this.httpClient.request({ method: "PUT", url: uriEncoding`inventory/category`, data: arg0, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /inventory/category/all
+     * Java method: com.denlir.pos.controller.inventory.CategoryController.findAll
+     */
+    findAll(cancelToken?: CancelToken, options?: O): RestResponse<Array<CategoryPayload>> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/category/all`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP DELETE /inventory/category/{id}
+     * Java method: com.denlir.pos.controller.inventory.CategoryController.deleteById
+     */
+    deleteById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<void> {
+        return this.httpClient.request({ method: "DELETE", url: uriEncoding`inventory/category/${id}`, options: options, cancelToken: cancelToken });
+    }
+
+    /**
+     * HTTP GET /inventory/category/{id}
+     * Java method: com.denlir.pos.controller.inventory.CategoryController.findById
+     */
+    findById(id: string, cancelToken?: CancelToken, options?: O): RestResponse<CategoryPayload> {
+        return this.httpClient.request({ method: "GET", url: uriEncoding`inventory/category/${id}`, options: options, cancelToken: cancelToken });
     }
 }
 
@@ -850,74 +851,74 @@ class AxiosHttpClient implements HttpClient<Axios.AxiosRequestConfig> {
     }
 }
 
-export class AxiosUomClient extends UomClient<Axios.AxiosRequestConfig> {
+export class AxiosTicketClient extends TicketClient<Axios.AxiosRequestConfig> {
 
-    constructor(baseURL: string = "http://localhost:8080/pos/", axiosInstance: Axios.AxiosInstance = axios.create()) {
-        axiosInstance.defaults.baseURL = baseURL;
+    constructor() {
+        
         super(new AxiosHttpClient(axiosInstance));
     }
 }
 
 export class AxiosTaxClient extends TaxClient<Axios.AxiosRequestConfig> {
 
-    constructor(baseURL: string = "http://localhost:8080/pos/", axiosInstance: Axios.AxiosInstance = axios.create()) {
-        axiosInstance.defaults.baseURL = baseURL;
-        super(new AxiosHttpClient(axiosInstance));
-    }
-}
-
-export class AxiosInventoryMovementClient extends InventoryMovementClient<Axios.AxiosRequestConfig> {
-
-    constructor(baseURL: string = "http://localhost:8080/pos/", axiosInstance: Axios.AxiosInstance = axios.create()) {
-        axiosInstance.defaults.baseURL = baseURL;
-        super(new AxiosHttpClient(axiosInstance));
-    }
-}
-
-export class AxiosSupplierClient extends SupplierClient<Axios.AxiosRequestConfig> {
-
-    constructor(baseURL: string = "http://localhost:8080/pos/", axiosInstance: Axios.AxiosInstance = axios.create()) {
-        axiosInstance.defaults.baseURL = baseURL;
-        super(new AxiosHttpClient(axiosInstance));
-    }
-}
-
-export class AxiosCategoryClient extends CategoryClient<Axios.AxiosRequestConfig> {
-
-    constructor(baseURL: string = "http://localhost:8080/pos/", axiosInstance: Axios.AxiosInstance = axios.create()) {
-        axiosInstance.defaults.baseURL = baseURL;
-        super(new AxiosHttpClient(axiosInstance));
-    }
-}
-
-export class AxiosLocationClient extends LocationClient<Axios.AxiosRequestConfig> {
-
-    constructor(baseURL: string = "http://localhost:8080/pos/", axiosInstance: Axios.AxiosInstance = axios.create()) {
-        axiosInstance.defaults.baseURL = baseURL;
-        super(new AxiosHttpClient(axiosInstance));
-    }
-}
-
-export class AxiosTicketClient extends TicketClient<Axios.AxiosRequestConfig> {
-
-    constructor(baseURL: string = "http://localhost:8080/pos/", axiosInstance: Axios.AxiosInstance = axios.create()) {
-        axiosInstance.defaults.baseURL = baseURL;
+    constructor() {
+        
         super(new AxiosHttpClient(axiosInstance));
     }
 }
 
 export class AxiosProductClient extends ProductClient<Axios.AxiosRequestConfig> {
 
-    constructor(baseURL: string = "http://localhost:8080/pos/", axiosInstance: Axios.AxiosInstance = axios.create()) {
-        axiosInstance.defaults.baseURL = baseURL;
+    constructor() {
+        
+        super(new AxiosHttpClient(axiosInstance));
+    }
+}
+
+export class AxiosSupplierClient extends SupplierClient<Axios.AxiosRequestConfig> {
+
+    constructor() {
+        
+        super(new AxiosHttpClient(axiosInstance));
+    }
+}
+
+export class AxiosUomClient extends UomClient<Axios.AxiosRequestConfig> {
+
+    constructor() {
+        
+        super(new AxiosHttpClient(axiosInstance));
+    }
+}
+
+export class AxiosInventoryMovementClient extends InventoryMovementClient<Axios.AxiosRequestConfig> {
+
+    constructor() {
+        
+        super(new AxiosHttpClient(axiosInstance));
+    }
+}
+
+export class AxiosLocationClient extends LocationClient<Axios.AxiosRequestConfig> {
+
+    constructor() {
+        
         super(new AxiosHttpClient(axiosInstance));
     }
 }
 
 export class AxiosTicketLineClient extends TicketLineClient<Axios.AxiosRequestConfig> {
 
-    constructor(baseURL: string = "http://localhost:8080/pos/", axiosInstance: Axios.AxiosInstance = axios.create()) {
-        axiosInstance.defaults.baseURL = baseURL;
+    constructor() {
+        
+        super(new AxiosHttpClient(axiosInstance));
+    }
+}
+
+export class AxiosCategoryClient extends CategoryClient<Axios.AxiosRequestConfig> {
+
+    constructor() {
+        
         super(new AxiosHttpClient(axiosInstance));
     }
 }

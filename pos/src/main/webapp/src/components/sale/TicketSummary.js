@@ -18,9 +18,9 @@ const useStyles = makeStyles(theme =>
     }),
 );
 
-const TicketSummary = (props) => {
+const TicketSummary = ({ticketIndex}) => {
     const classes = useStyles();
-    const ticket = useSelector((state) => state.ticket)[props.ticketIndex];
+    const ticket = useSelector((state) => state.ticket)[ticketIndex];
 
     return (
         <Paper className={classes.totalPaper} variant="outlined" square>

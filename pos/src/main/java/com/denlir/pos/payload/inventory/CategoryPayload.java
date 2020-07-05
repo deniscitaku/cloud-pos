@@ -1,6 +1,6 @@
 package com.denlir.pos.payload.inventory;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.payload.BasePayload;
 import com.denlir.pos.validation.ValidName;
 import lombok.Data;
@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class CategoryPayload extends BasePayload {

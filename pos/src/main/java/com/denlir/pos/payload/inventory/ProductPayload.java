@@ -1,6 +1,6 @@
 package com.denlir.pos.payload.inventory;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.payload.BaseAuditPayload;
 import com.denlir.pos.validation.ValidName;
 import com.denlir.pos.validation.groups.Sale;
@@ -20,7 +20,7 @@ import java.math.BigDecimal;
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ProductPayload extends BaseAuditPayload {

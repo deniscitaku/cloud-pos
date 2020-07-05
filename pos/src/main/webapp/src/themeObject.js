@@ -3,7 +3,7 @@ import {useState} from "react";
 const themeObject = {
     palette: {
         primary: {
-            main: '#42a5f5',
+            main: '#69c3ff',
         },
         secondary: {
             main: '#ff80ab',

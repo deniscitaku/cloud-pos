@@ -1,6 +1,6 @@
 package com.denlir.pos.payload;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.validation.groups.CascadeCreate;
 import com.denlir.pos.validation.groups.Update;
 import lombok.Data;
@@ -13,7 +13,7 @@ import javax.validation.constraints.NotEmpty;
  * @author Denis Citaku
  **/
 @Data
-@GenerateTypeScript
+@GenerateTS
 public abstract class BasePayload {
 
   @NotEmpty(groups = {Update.class, CascadeCreate.class})

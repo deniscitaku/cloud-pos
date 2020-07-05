@@ -15,12 +15,12 @@
     <description>Cloud POS for retail</description>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>12</java.version>
         <typescript-generator.version>2.20.583</typescript-generator.version>
         <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
         <org.projectlombok.version>1.18.12</org.projectlombok.version>
         <ts.file.path>src/main/webapp/src/client/Client.ts</ts.file.path>
-        <base.api-path>http://localhost:8080/pos/</base.api-path>
+        <base.api-path>http://localhost:8080/api/</base.api-path>
         <spring-cloud.version>Hoxton.SR5</spring-cloud.version>
     </properties>
 
@@ -144,12 +144,13 @@
                         </executions>
                         <configuration>
                             <jsonLibrary>jackson2</jsonLibrary>
-                            <classesWithAnnotations>com.denlir.pos.common.GenerateTypeScript
+                            <classesWithAnnotations>com.denlir.pos.common.GenerateTS
                             </classesWithAnnotations>
                             <outputFile>${project.basedir}/${ts.file.path}</outputFile>
                             <outputFileType>implementationFile</outputFileType>
                             <outputKind>module</outputKind>
                             <mapClasses>asClasses</mapClasses>
+                            <optionalProperties>all</optionalProperties>
                             <generateConstructors>true</generateConstructors>
                             <noFileComment>true</noFileComment>
                             <generateSpringApplicationClient>true</generateSpringApplicationClient>
@@ -163,10 +164,14 @@
                             <restNamespacing>perResource</restNamespacing>
                             <removeTypeNameSuffix>Controller</removeTypeNameSuffix>
                             <extensions>
-                                <![CDATA[cz.habarta.typescript.generator.ext.AxiosClientExtension]]></extensions>
+                                <![CDATA[cz.habarta.typescript.generator.ext.AxiosClientExtension]]>
+                            </extensions>
                             <optionalProperties>useSpecifiedAnnotations</optionalProperties>
                             <optionalPropertiesDeclaration>questionMark</optionalPropertiesDeclaration>
-                            <importDeclarations>import {CancelToken} from "axios"</importDeclarations>
+                            <importDeclarations>
+                                import {CancelToken} from "axios";
+                                export const axiosInstance = axios.create({ baseURL: "${base.api-path}"});
+                            </importDeclarations>
                         </configuration>
                         <dependencies>
                             <dependency>
@@ -190,18 +195,27 @@
                         </executions>
                         <configuration>
                             <file>${ts.file.path}</file>
+                            <regex>false</regex>
                             <replacements>
                                 <replacement>
-                                    <token><![CDATA[baseURL: string]]></token>
-                                    <value>baseURL: string = "${base.api-path}"</value>
+                                    <token>baseURL: string, axiosInstance: Axios.AxiosInstance = axios.create()</token>
+                                    <value/>
+                                </replacement>
+                                <!--<replacement>
+                                    <token>constructor(())</token>
+                                    <value>constructor()</value>
+                                </replacement>-->
+                                <replacement>
+                                    <token>axiosInstance.defaults.baseURL = baseURL;</token>
+                                    <value/>
                                 </replacement>
                                 <replacement>
-                                    <token>options\?: Axios\.AxiosRequestConfig</token>
-                                    <value>options\?: Axios\.AxiosRequestConfig; cancelToken\?: CancelToken</value>
+                                    <token>options?: Axios.AxiosRequestConfig</token>
+                                    <value>options?: Axios.AxiosRequestConfig; cancelToken?: CancelToken</value>
                                 </replacement>
                                 <replacement>
-                                    <token>options\?: O</token>
-                                    <value>cancelToken\?: CancelToken, options\?: O</value>
+                                    <token>options?: O</token>
+                                    <value>cancelToken?: CancelToken, options?: O</value>
                                 </replacement>
                                 <replacement>
                                     <token>options: options</token>

@@ -1,6 +1,6 @@
 package com.denlir.pos.controller.inventory.movement.sale;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.controller.BasicControllerOperations;
 import com.denlir.pos.payload.inventory.movement.sale.TicketPayload;
 import com.denlir.pos.service.inventory.movement.sale.TicketService;
@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 @RestController
 @RequestMapping("inventory/movement/ticket")
 public class TicketController extends BasicControllerOperations<TicketService, TicketPayload> {
@@ -24,7 +24,7 @@ public class TicketController extends BasicControllerOperations<TicketService, T
     super(service);
   }
 
-  @GetMapping("/open/{locationId}")
+  @GetMapping("/{locationId}/open")
   public Mono<TicketPayload> openTicket(@PathVariable String locationId) {
     return service.openTicket(locationId);
   }

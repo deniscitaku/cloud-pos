@@ -7,8 +7,8 @@ const cancelToken: CancelTokenStatic = axios.CancelToken;
 let source: CancelTokenSource = cancelToken.source();
 
 export function fetch<T>(request: RestResponse<T>,
-                         dataResponse: (data: T | void) => T | void,
-                         errorResponse?: (error?: ValidationExceptionPayload[] | void) => any): {} | T {
+                         dataResponse: (data: T) => (void | T),
+                         errorResponse?: (error?: (ValidationExceptionPayload[] | void)) => any): {} | T {
     request.then(response => {
         return dataResponse(response.data);
     }).catch(exception => {

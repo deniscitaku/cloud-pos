@@ -1,6 +1,6 @@
 package com.denlir.pos.controller.inventory.movement.diary;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.controller.BasicControllerOperations;
 import com.denlir.pos.entity.inventory.movement.MovementKind;
 import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementPayload;
@@ -18,7 +18,7 @@ import javax.validation.constraints.NotEmpty;
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 @RestController
 @RequestMapping("inventory/movement")
 public class InventoryMovementController extends BasicControllerOperations<InventoryMovementService, InventoryMovementPayload> {

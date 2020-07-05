@@ -1,6 +1,6 @@
 package com.denlir.pos.payload.domain;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.entity.inventory.movement.MovementKind;
 import com.denlir.pos.payload.BasePayload;
 import lombok.Data;
@@ -15,7 +15,7 @@ import java.util.Map;
  **/
 @Data
 @EqualsAndHashCode(callSuper = true)
-@GenerateTypeScript
+@GenerateTS
 public class LocationPayload extends BasePayload {
 
   private String name;

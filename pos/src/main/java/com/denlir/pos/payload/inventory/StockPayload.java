@@ -1,6 +1,6 @@
 package com.denlir.pos.payload.inventory;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.payload.BasePayload;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class StockPayload extends BasePayload {

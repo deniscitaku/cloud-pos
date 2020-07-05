@@ -1,8 +1,8 @@
 package com.denlir.pos.entity.inventory.movement.sale;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 
-@GenerateTypeScript
+@GenerateTS
 public enum TicketStatus {
     OPEN, CLOSED
 }

@@ -12,10 +12,12 @@ import com.denlir.pos.service.inventory.StockService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 
 /**
@@ -67,6 +69,7 @@ public class TicketService extends BasicServiceOperation<Ticket, TicketPayload, 
                     TicketPayload ticket = new TicketPayload();
                     ticket.setSequence(x.toString());
                     ticket.setLocation(location);
+                    ticket.setTotalAmount(BigDecimal.ZERO);
                     return ticket;
                 });
     }

@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
  * @author Denis Citaku
  **/
 @Target(value = ElementType.TYPE)
-public @interface GenerateTypeScript {
+public @interface GenerateTS {
 }

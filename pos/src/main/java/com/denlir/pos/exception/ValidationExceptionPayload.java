@@ -1,6 +1,6 @@
 package com.denlir.pos.exception;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-@GenerateTypeScript
+@GenerateTS
 public class ValidationExceptionPayload {
 
     private String fieldName;

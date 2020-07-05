@@ -28,6 +28,7 @@ import Button from "@material-ui/core/Button";
 import TranslateIcon from '@material-ui/icons/Translate';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {useTranslation} from "react-i18next";
+import Purchase from "../purchase/Purchase";
 
 const drawerWidth = 240;
 
@@ -117,7 +118,7 @@ const MainDrawer = () => {
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
     const themeConfig = createMuiTheme(theme);
     const [localeMenu, setLocaleMenu] = React.useState(null);
-    const {i18n, t} = useTranslation();
+    const {i18n} = useTranslation();
     const locale = new Map([["en", "English"], ["sq", "Shqip"]])
 
     const handleProfileMenuOpen = (event) => {
@@ -334,7 +335,7 @@ const MainDrawer = () => {
                             <Switch>
                                 <Route path="/" exact component={Sale}/>
                                 <Route path="/sale" component={Sale}/>
-                                <Route path="/purchase" component={Sale}/>
+                                <Route path="/purchase" component={Purchase}/>
                                 <Route path="/reports" component={Sale}/>
                                 <Route path="/settings" component={Sale}/>
                                 <Route path="/log-out" component={Sale}/>

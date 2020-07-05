@@ -1,6 +1,6 @@
 package com.denlir.pos.payload;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.entity.domain.User;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 @Data
 @EqualsAndHashCode(callSuper = true)
 public abstract class BaseAuditPayload extends BasePayload {

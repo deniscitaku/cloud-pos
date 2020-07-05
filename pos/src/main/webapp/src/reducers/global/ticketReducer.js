@@ -1,10 +1,11 @@
-import {TicketLinePayload, TicketPayload} from "../client/Client";
+import {TicketLinePayload} from "../../client/Client";
 
 const ticketSuffix = "_TICKET";
 const ticketLineSuffix = "_TICKET_LINE";
 
 const OPEN_TICKET = `OPEN${ticketSuffix}`;
 const CLOSE_TICKET = `CLOSE${ticketSuffix}`;
+const CREATE_TICKET_LINE_FROM_PRODUCT = `CREATE${ticketLineSuffix}_FROM_PRODUCT`;
 const CREATE_TICKET_LINE = `CREATE${ticketLineSuffix}`;
 const UPDATE_TICKET_LINE = `UPDATE${ticketLineSuffix}`;
 const DELETE_TICKET_LINE = `DELETE${ticketLineSuffix}`;
@@ -24,10 +25,18 @@ export const closeTicket = (ticketIndex, dispatch) => {
     })
 }
 
-export const addTicketLine = (ticketIndex, product, dispatch) => {
+export const addTicketLineFromProduct = (ticketIndex, product, dispatch) => {
+    dispatch({
+        type: CREATE_TICKET_LINE_FROM_PRODUCT,
+        payload: product,
+        ticketIndex: ticketIndex
+    })
+}
+
+export const addTicketLine = (ticketIndex, ticketLine, dispatch) => {
     dispatch({
         type: CREATE_TICKET_LINE,
-        payload: product,
+        payload: ticketLine,
         ticketIndex: ticketIndex
     })
 }
@@ -55,6 +64,8 @@ const ticketReducer = (state = initialState, action) => {
     const ticket = clonedState[ticketIndex];
 
     switch (type) {
+        case CREATE_TICKET_LINE_FROM_PRODUCT:
+            return createTicketLineFromProduct();
         case CREATE_TICKET_LINE:
             return createTicketLine();
         case UPDATE_TICKET_LINE:
@@ -62,15 +73,23 @@ const ticketReducer = (state = initialState, action) => {
         case DELETE_TICKET_LINE:
             return deleteTicketLines();
         case OPEN_TICKET:
-            return [...state, payload];
+            state.push(payload);
+            return state;
         case CLOSE_TICKET:
-            clonedState.splice(ticketIndex, 1);
-            return clonedState;
+            state.splice(ticketIndex, 1);
+            return state;
         default:
-            return clonedState;
+            return state;
     }
 
     function createTicketLine() {
+        ticket.ticketLines = [...ticket.ticketLines, payload];
+        setTicketTotal()
+        clonedState[ticketIndex] = ticket;
+        return clonedState;
+    }
+
+    function createTicketLineFromProduct() {
         const ticketLine = new TicketLinePayload({
             lineNumber: ticket ? ticket.ticketLines.length + 1 : 1,
             product: payload,
@@ -80,7 +99,7 @@ const ticketReducer = (state = initialState, action) => {
             tax: payload.tax,
             amount: payload.priceTax
         });
-        ticket.ticketLines.push(ticketLine);
+        ticket.ticketLines = [...ticket.ticketLines, ticketLine];
         setTicketTotal();
         clonedState[ticketIndex] = ticket;
         return clonedState;
@@ -103,7 +122,7 @@ const ticketReducer = (state = initialState, action) => {
     }
 
     function setTicketTotal() {
-        ticket.totalAmount = ticket.ticketLines && ticket.ticketLines.length ?
+        ticket.totalAmount = ticket.ticketLines.length ?
             ticket.ticketLines
                 .map(x => x.amount)
                 .reduce((x, y) => x + y) : 0;

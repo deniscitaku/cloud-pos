@@ -1,6 +1,6 @@
 package com.denlir.pos.controller.domain;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.controller.BasicControllerOperations;
 import com.denlir.pos.payload.domain.LocationPayload;
 import com.denlir.pos.service.domain.LocationService;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 @RestController
 @RequestMapping("domain/location")
 public class LocationController extends BasicControllerOperations<LocationService, LocationPayload> {

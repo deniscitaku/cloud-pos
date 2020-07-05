@@ -1,10 +1,9 @@
-import React, {createRef, forwardRef, useImperativeHandle, useState} from 'react';
+import React, {createRef, forwardRef, useImperativeHandle} from 'react';
 import MaterialTable, {MTableCell} from 'material-table';
 import {AxiosProductClient} from "../../client/Client";
 import {useDispatch, useSelector} from "react-redux";
-import {addTicketLine, deleteTicketLines, updateTicketLine} from "../../reducers/ticketReducer"
+import {addTicketLine, deleteTicketLines, updateTicketLine} from "../../reducers/global/ticketReducer"
 import TextField from "@material-ui/core/TextField";
-import {fetch} from "../../services/fetch";
 import {createStyles, makeStyles} from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 
@@ -21,8 +20,7 @@ const useStyles = makeStyles(theme =>
         }
     }),
 )
-const SaleTable = forwardRef((props, ref) => {
-    const {ticketIndex} = props;
+const SaleTable = forwardRef(({ticketIndex}, ref) => {
     const dispatch = useDispatch();
     const ticket = useSelector((state) => state.ticket)[ticketIndex];
     const ticketLines = ticket ? ticket.ticketLines : [];
@@ -30,6 +28,7 @@ const SaleTable = forwardRef((props, ref) => {
     const qtyInput = createRef();
     let isQtyFocused = false;
 
+    console.log("--> Inside SaleTable", ticketIndex)
     useImperativeHandle(ref, () => ({
         focusQty() {
             if (qtyInput.current) {
@@ -37,7 +36,6 @@ const SaleTable = forwardRef((props, ref) => {
             }
         },
         isFocused() {
-            console.log("Is focused called: ")
             return isQtyFocused;
         }
     }));
@@ -48,40 +46,54 @@ const SaleTable = forwardRef((props, ref) => {
         {title: '#', field: 'tableData.id', editable: "never", width: "1%", cellStyle: {padding: 0}},
         {title: 'Code', field: "product.code", width: "20%", cellStyle: {padding: 0}},
         {title: 'Name', field: "product.name", width: "40%", cellStyle: {padding: 0}},
-        {title: 'Qty', field: 'quantity', type: 'numeric', editable: "never", initialEditValue: 1, width: "1%", cellStyle: {padding: 0}},
+        {
+            title: 'Qty',
+            field: 'quantity',
+            type: 'numeric',
+            editable: "never",
+            initialEditValue: 1,
+            width: "1%",
+            cellStyle: {padding: 0}
+        },
         {title: 'Price', field: 'product.priceTax', type: 'numeric', width: "1%", cellStyle: {padding: 0}},
-        {title: 'Amount', field: 'amount', type: 'numeric', editable: "never", width: "1%", cellStyle: {padding: "0 .5em 0 0"}},
+        {
+            title: 'Amount',
+            field: 'amount',
+            type: 'numeric',
+            editable: "never",
+            width: "1%",
+            cellStyle: {padding: "0 .5em 0 0"}
+        },
     ];
 
     function onRowAdd(newData) {
-        return fetch(productService.createFromSale(newData.product),
-            response => {
-                newData.product = response;
+        return productService.createFromSale(newData.product)
+            .then(response => {
+                newData.product = response.data;
                 newData.lineNumber = ticketLines.length;
-                newData.amount = newData.quantity * newData.product.priceTax;
-                addTicketLine(ticketIndex, newData.product, dispatch);
+                newData.amount = newData.quantity * parseFloat(newData.product.priceTax);
                 return newData;
-            });
+            }).then(ticketLine => {
+                addTicketLine(ticketIndex, ticketLine, dispatch);
+                return ticketLine;
+            })
     }
 
-    function onRowUpdate(oldData, newData) {
-        console.log("NewData: ", newData);
+    function onRowUpdate(newData, oldData) {
         return productService.updateFromSale(newData.product)
             .then(response => {
-                console.log("Product updated: ", response.data)
                 newData.product = response.data;
                 newData.amount = newData.quantity * newData.product.priceTax;
-                updateTicketLine(ticketIndex, newData, dispatch);
-                console.log("NewData1: ", newData);
                 return newData;
-            });
+            }).then(ticketLine => {
+                updateTicketLine(ticketIndex, ticketLine, dispatch);
+                return ticketLine;
+            })
     }
 
     function deleteSelectedOnAction(evt, data) {
         deleteTicketLines(ticketIndex, data, dispatch);
     }
-
-    console.log("Inside SaleTable")
 
     function handleQtyOnFocus(event) {
         event.target.select()
@@ -89,6 +101,9 @@ const SaleTable = forwardRef((props, ref) => {
     }
 
     function handleQtyOnBlur(event) {
+        if (!ticketLines.length) {
+            return;
+        }
         const qty = event.target.value;
         const ticketLine = ticketLines[ticketLines.length - 1];
         ticketLine.quantity = qty && qty > 0 ? qty : 1;
@@ -133,7 +148,7 @@ const SaleTable = forwardRef((props, ref) => {
                                 <td className={classes.tableCell}>
                                     <TextField type="number"
                                                size="small"
-                                               defaultValue={props1.rowData.quantity}
+                                               defaultValue={1}
                                                required={true}
                                                inputRef={qtyInput}
                                                onFocus={handleQtyOnFocus}

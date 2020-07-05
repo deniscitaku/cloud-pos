@@ -1,6 +1,6 @@
 package com.denlir.pos.controller.inventory;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.controller.BasicControllerOperations;
 import com.denlir.pos.payload.inventory.UomPayload;
 import com.denlir.pos.service.inventory.UomService;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 @RestController
 @RequestMapping("inventory/uom")
 public class UomController extends BasicControllerOperations<UomService, UomPayload> {

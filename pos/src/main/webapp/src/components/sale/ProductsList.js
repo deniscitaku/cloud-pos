@@ -1,6 +1,5 @@
-import React, {createRef, forwardRef, useEffect, useImperativeHandle, useRef} from 'react';
+import React, {createRef, forwardRef, useEffect, useImperativeHandle} from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {withWidth} from "@material-ui/core";
 import Divider from "@material-ui/core/Divider";
 import SearchIcon from '@material-ui/icons/Search';
 import TextField from "@material-ui/core/TextField";
@@ -34,24 +33,25 @@ const useStyles = makeStyles(theme =>
     }),
 );
 
-const ProductsList = forwardRef((props, ref) => {
+const ProductsList = forwardRef(({ticketIndex}, ref) => {
     const productClient = new AxiosProductClient();
-    const {ticketIndex} = props;
     const classes = useStyles();
     const [products, setProducts] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
     const {enqueueSnackbar} = useSnackbar();
     const searchRef = createRef();
-    const { t } = useTranslation();
+    const {t} = useTranslation();
+
+    console.log("--> Inside Products list", products)
 
     useEffect(() => {
-        fetch(productClient.findAll(), setProducts);
+        let timeout = setTimeout(() => fetch(productClient.findAll(), setProducts), 500);
+        return () => clearTimeout(timeout);
     }, []);
 
     function handleSearchButtonOnChange(event) {
         cancelerFetch(cancelToken => {
-            console.log("Cancel token: ", cancelToken);
-            return productClient.findByCodeOrName({codeOrName: event.target.value}, cancelToken);
+                return productClient.findByCodeOrName({codeOrName: event.target.value}, cancelToken);
             },
             setProducts,
             setLoading,
@@ -66,7 +66,6 @@ const ProductsList = forwardRef((props, ref) => {
         }
     }));
 
-    console.log("Inside Products list", products)
     return (
         <div className={classes.root}>
             <TextField

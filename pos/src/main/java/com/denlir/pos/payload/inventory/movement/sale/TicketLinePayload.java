@@ -1,6 +1,6 @@
 package com.denlir.pos.payload.inventory.movement.sale;
 
-import com.denlir.pos.common.GenerateTypeScript;
+import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.payload.inventory.BaseLinePayload;
 import com.denlir.pos.payload.inventory.TaxPayload;
 import lombok.Data;
@@ -13,7 +13,7 @@ import java.math.BigDecimal;
  *
  * @author Denis Citaku
  **/
-@GenerateTypeScript
+@GenerateTS
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class TicketLinePayload extends BaseLinePayload {

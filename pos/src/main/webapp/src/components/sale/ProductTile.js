@@ -5,7 +5,7 @@ import GridListTileBar from "@material-ui/core/GridListTileBar";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from '@material-ui/icons/Info';
 import noImage from '../../static/noimage.png';
-import {addTicketLine} from "../../reducers/ticketReducer";
+import {addTicketLineFromProduct} from "../../reducers/global/ticketReducer";
 import {useDispatch} from "react-redux";
 import Grow from "@material-ui/core/Grow";
 
@@ -38,7 +38,7 @@ const ProductTile = props => {
     const dispatch = useDispatch();
 
     function createTicketLine() {
-        addTicketLine(ticketIndex, product, dispatch);
+        addTicketLineFromProduct(ticketIndex, product, dispatch);
     }
 
     function handleInformationButton(event) {
