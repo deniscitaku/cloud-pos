@@ -1,10 +1,8 @@
 package com.denlir.pos.entity.inventory.movement.sale;
 
 import com.denlir.pos.entity.inventory.BaseLineEntity;
-import com.denlir.pos.entity.inventory.Tax;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
@@ -19,12 +17,5 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @Document("ticketLines")
 public class TicketLine extends BaseLineEntity {
-
-  private BigDecimal priceSell;
-
-  @DBRef
-  private Tax tax;
-
-  private BigDecimal amount;
 
 }

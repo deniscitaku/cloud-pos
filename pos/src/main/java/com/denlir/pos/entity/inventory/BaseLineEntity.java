@@ -25,6 +25,16 @@ public abstract class BaseLineEntity extends BaseEntity {
 
   private BigDecimal priceBuy;
 
+  private BigDecimal priceSell;
+
   private BigDecimal quantity;
+
+  private BigDecimal amount;
+
+  @DBRef
+  private Tax tax;
+
+  @DBRef
+  private Uom uom;
 
 }

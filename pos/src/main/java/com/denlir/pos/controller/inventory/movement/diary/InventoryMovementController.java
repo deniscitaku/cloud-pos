@@ -8,10 +8,13 @@ import com.denlir.pos.service.inventory.movement.diary.InventoryMovementService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.NotEmpty;
+import javax.ws.rs.QueryParam;
 
 /**
  * Created on: 4/13/20

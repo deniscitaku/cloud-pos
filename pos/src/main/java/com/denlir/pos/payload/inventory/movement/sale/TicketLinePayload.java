@@ -18,10 +18,4 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 public class TicketLinePayload extends BaseLinePayload {
 
-  private BigDecimal priceSell;
-
-  private TaxPayload tax;
-
-  private BigDecimal amount;
-
 }

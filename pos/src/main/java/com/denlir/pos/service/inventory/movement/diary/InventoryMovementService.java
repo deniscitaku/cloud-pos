@@ -2,8 +2,10 @@ package com.denlir.pos.service.inventory.movement.diary;
 
 import com.denlir.pos.entity.inventory.movement.MovementKind;
 import com.denlir.pos.entity.inventory.movement.diary.InventoryMovement;
+import com.denlir.pos.payload.domain.LocationPayload;
 import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementMapper;
 import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementPayload;
+import com.denlir.pos.payload.inventory.movement.sale.TicketPayload;
 import com.denlir.pos.repository.inventory.movement.diary.InventoryMovementRepository;
 import com.denlir.pos.service.BasicServiceOperation;
 import com.denlir.pos.service.domain.LocationService;
@@ -15,6 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.math.BigDecimal;
 import java.util.stream.Collectors;
 
 /**
@@ -32,12 +35,13 @@ public class InventoryMovementService extends
 
   private final StockService stockService;
 
-  protected InventoryMovementService(InventoryMovementRepository repository,
+  protected InventoryMovementService(InventoryMovementMapper inventoryMovementMapper,
+                                     InventoryMovementRepository repository,
                                      ReactiveMongoOperations reactiveOps,
                                      InventoryMovementLineService inventoryMovementLineService,
                                      LocationService locationService,
                                      StockService stockService) {
-    super(InventoryMovementMapper.INSTANCE, repository, reactiveOps);
+    super(inventoryMovementMapper, repository, reactiveOps);
     this.inventoryMovementLineService = inventoryMovementLineService;
     this.locationService = locationService;
     this.stockService = stockService;

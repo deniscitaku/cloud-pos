@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Created on: 3/1/20
@@ -41,7 +42,7 @@ public class Product extends BaseAuditEntity {
   private Tax tax;
 
   @DBRef
-  private Uom uom;
+  private List<Uom> uoms;
 
   @DBRef
   private Stock stock;

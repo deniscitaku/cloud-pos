@@ -10,9 +10,6 @@ import org.mapstruct.factory.Mappers;
  *
  * @author Denis Citaku
  **/
-@Mapper
+@Mapper(componentModel = "spring")
 public interface TaxMapper extends BaseMapper<Tax, TaxPayload> {
-
-  TaxMapper INSTANCE = Mappers.getMapper(TaxMapper.class);
-
 }

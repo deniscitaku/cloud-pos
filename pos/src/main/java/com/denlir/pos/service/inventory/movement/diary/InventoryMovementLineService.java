@@ -17,8 +17,10 @@ import org.springframework.stereotype.Service;
 public class InventoryMovementLineService extends
     BasicServiceOperation<InventoryMovementLine, InventoryMovementLinePayload, InventoryMovementLineRepository> {
 
-  protected InventoryMovementLineService(InventoryMovementLineRepository repository, ReactiveMongoOperations reactiveOps) {
-    super(InventoryMovementLineMapper.INSTANCE, repository, reactiveOps);
+  protected InventoryMovementLineService(InventoryMovementLineMapper inventoryMovementLineMapper,
+                                         InventoryMovementLineRepository repository,
+                                         ReactiveMongoOperations reactiveOps) {
+    super(inventoryMovementLineMapper, repository, reactiveOps);
   }
 
 }

@@ -5,6 +5,7 @@ import com.denlir.pos.payload.inventory.CategoryMapper;
 import com.denlir.pos.payload.inventory.CategoryPayload;
 import com.denlir.pos.repository.inventory.CategoryRepository;
 import com.denlir.pos.service.BasicServiceOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class CategoryService extends BasicServiceOperation<Category, CategoryPayload, CategoryRepository> {
 
-  protected CategoryService(CategoryRepository repository, ReactiveMongoOperations reactiveOps) {
-    super(CategoryMapper.INSTANCE, repository, reactiveOps);
+  protected CategoryService(CategoryMapper categoryMapper, CategoryRepository repository, ReactiveMongoOperations reactiveOps) {
+    super(categoryMapper, repository, reactiveOps);
   }
 
 }

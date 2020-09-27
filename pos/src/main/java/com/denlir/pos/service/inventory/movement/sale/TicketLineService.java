@@ -16,8 +16,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class TicketLineService extends BasicServiceOperation<TicketLine, TicketLinePayload, TicketLineRepository> {
 
-  public TicketLineService(TicketLineRepository ticketLineRepository, ReactiveMongoOperations mongoOperations) {
-    super(TicketLineMapper.INSTANCE, ticketLineRepository, mongoOperations);
+  public TicketLineService(TicketLineMapper ticketLineMapper,
+                           TicketLineRepository ticketLineRepository,
+                           ReactiveMongoOperations mongoOperations) {
+    super(ticketLineMapper, ticketLineRepository, mongoOperations);
   }
 
 }

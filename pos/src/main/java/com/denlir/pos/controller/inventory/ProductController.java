@@ -19,7 +19,7 @@ public class ProductController extends BasicControllerOperations<ProductService,
     super(productService);
   }
 
-  @GetMapping("/{code}")
+  @GetMapping("/code/{code}")
   public Mono<ProductPayload> findByCode(@PathVariable String code) {
     return service.findByCode(code);
   }

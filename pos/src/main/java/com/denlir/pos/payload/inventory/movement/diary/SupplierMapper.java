@@ -10,9 +10,6 @@ import org.mapstruct.factory.Mappers;
  *
  * @author Denis Citaku
  **/
-@Mapper
+@Mapper(componentModel = "spring")
 public interface SupplierMapper extends BaseMapper<Supplier, SupplierPayload> {
-
-  SupplierMapper INSTANCE = Mappers.getMapper(SupplierMapper.class);
-
 }

@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class TaxService extends BasicServiceOperation<Tax, TaxPayload, TaxRepository> {
 
-  protected TaxService(TaxRepository repository, ReactiveMongoOperations reactiveOps) {
-    super(TaxMapper.INSTANCE, repository, reactiveOps);
+  protected TaxService(TaxMapper taxMapper, TaxRepository repository, ReactiveMongoOperations reactiveOps) {
+    super(taxMapper, repository, reactiveOps);
   }
 
 }

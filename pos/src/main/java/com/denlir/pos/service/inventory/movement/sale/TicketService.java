@@ -35,11 +35,12 @@ public class TicketService extends BasicServiceOperation<Ticket, TicketPayload, 
 
   private final LocationService locationService;
 
-  protected TicketService(TicketRepository repository,
-                           ReactiveMongoOperations reactiveOps,
-                           StockService stockService,
-                           TicketLineService ticketLineService, LocationService locationService) {
-    super(TicketMapper.INSTANCE, repository, reactiveOps);
+  protected TicketService(TicketMapper ticketMapper,
+                          TicketRepository repository,
+                          ReactiveMongoOperations reactiveOps,
+                          StockService stockService,
+                          TicketLineService ticketLineService, LocationService locationService) {
+    super(ticketMapper, repository, reactiveOps);
     this.stockService = stockService;
     this.ticketLineService = ticketLineService;
     this.locationService = locationService;
@@ -61,16 +62,16 @@ public class TicketService extends BasicServiceOperation<Ticket, TicketPayload, 
         .map(mapper::entityToPayload);
   }
 
-    public Mono<TicketPayload> openTicket(String locationId) {
-        return locationService.getAndIncrementSequenceByIdAndMovementKind(locationId, MovementKind.SALE)
-                .map(x -> {
-                    LocationPayload location = new LocationPayload();
-                    location.setId(locationId);
-                    TicketPayload ticket = new TicketPayload();
-                    ticket.setSequence(x.toString());
-                    ticket.setLocation(location);
-                    ticket.setTotalAmount(BigDecimal.ZERO);
-                    return ticket;
-                });
-    }
+  public Mono<TicketPayload> openTicket(String locationId) {
+    return locationService.getAndIncrementSequenceByIdAndMovementKind(locationId, MovementKind.SALE)
+        .map(x -> {
+          LocationPayload location = new LocationPayload();
+          location.setId(locationId);
+          TicketPayload ticket = new TicketPayload();
+          ticket.setSequence(x.toString());
+          ticket.setLocation(location);
+          ticket.setTotalAmount(BigDecimal.ZERO);
+          return ticket;
+        });
+  }
 }

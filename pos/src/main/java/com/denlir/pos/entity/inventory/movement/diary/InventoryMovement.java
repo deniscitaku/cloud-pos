@@ -35,6 +35,7 @@ public class InventoryMovement extends BaseAuditEntity {
   @DBRef
   private Supplier supplier;
 
+  @DBRef
   private Location locationTo;
 
 }

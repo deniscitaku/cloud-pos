@@ -10,9 +10,7 @@ import org.mapstruct.factory.Mappers;
  *
  * @author Denis Citaku
  **/
-@Mapper
+@Mapper(componentModel = "spring")
 public interface CategoryMapper extends BaseMapper<Category, CategoryPayload> {
-
-  CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);
 
 }

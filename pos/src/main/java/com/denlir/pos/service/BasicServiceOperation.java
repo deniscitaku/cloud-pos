@@ -1,6 +1,6 @@
 package com.denlir.pos.service;
 
-import com.denlir.pos.exception.EntityDatabaseValidationException;
+import com.denlir.pos.exception.EntityValidationException;
 import com.denlir.pos.payload.BaseMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
@@ -38,7 +38,7 @@ public abstract class BasicServiceOperation<E, P, U extends ReactiveMongoReposit
         .map(mapper::entityToPayload);
   }
 
-  public Mono<P> create(P payload) throws EntityDatabaseValidationException {
+  public Mono<P> create(P payload) throws EntityValidationException {
     return doDatabaseValidationOn(payload, CrudOperation.CREATE)
             .map(mapper::payloadToEntity)
             .flatMap(repository::insert)

@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.Map;
+
 @Builder
 @Getter
 @Setter
@@ -15,12 +18,14 @@ public class ValidationExceptionPayload {
 
     private Object rejectedValue;
 
-    private String errorMessage;
+    private String message;
 
-    private String errorCode;
+    private String code;
 
-    public EntityDatabaseValidationException toEntityDatabaseValidationException() {
-        return new EntityDatabaseValidationException(this);
+    private Map<String, ValidationExceptionPayload> innerError;
+
+    public EntityValidationException toEntityValidationException() {
+        return new EntityValidationException(this);
     }
 
 }

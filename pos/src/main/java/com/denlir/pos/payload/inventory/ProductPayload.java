@@ -14,6 +14,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.groups.Default;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Created on: 3/4/20
@@ -53,7 +54,7 @@ public class ProductPayload extends BaseAuditPayload {
   private TaxPayload tax;
 
   @Valid
-  private UomPayload uom;
+  private List<UomPayload> uoms;
 
   private StockPayload stock;
 

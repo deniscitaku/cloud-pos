@@ -1,12 +1,15 @@
-import React, {useEffect, useState} from 'react';
-import SupplierDropdown from "./SupplierDropdown";
-import {AxiosSupplierClient} from "../../client/Client";
-import {fetch} from "../../services/fetch";
+import React, {useRef} from 'react';
+import PurchaseHeader from "./PurchaseHeader";
+import PurchaseTable from "./PurchaseTable";
+
 
 const Purchase = () => {
 
     return (
-        <SupplierDropdown/>
+        <React.Fragment>
+            <PurchaseHeader />
+            <PurchaseTable/>
+        </React.Fragment>
     );
 }
 

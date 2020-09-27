@@ -28,7 +28,15 @@ public abstract class BaseLinePayload extends BasePayload implements Comparable<
 
   private BigDecimal priceBuy;
 
+  private BigDecimal priceSell;
+
   private BigDecimal quantity;
+
+  private BigDecimal amount;
+
+  private TaxPayload tax;
+
+  private UomPayload uom;
 
   @JsonIgnore
   @Override

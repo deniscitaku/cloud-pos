@@ -10,9 +10,6 @@ import org.mapstruct.factory.Mappers;
  *
  * @author Denis Citaku
  **/
-@Mapper
+@Mapper(componentModel = "spring")
 public interface InventoryMovementLineMapper extends BaseMapper<InventoryMovementLine, InventoryMovementLinePayload> {
-
-  InventoryMovementLineMapper INSTANCE = Mappers.getMapper(InventoryMovementLineMapper.class);
-
 }

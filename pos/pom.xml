@@ -150,6 +150,7 @@
                             <outputFileType>implementationFile</outputFileType>
                             <outputKind>module</outputKind>
                             <mapClasses>asClasses</mapClasses>
+                            <mapEnum>asEnum</mapEnum>
                             <optionalProperties>all</optionalProperties>
                             <generateConstructors>true</generateConstructors>
                             <noFileComment>true</noFileComment>
@@ -201,10 +202,6 @@
                                     <token>baseURL: string, axiosInstance: Axios.AxiosInstance = axios.create()</token>
                                     <value/>
                                 </replacement>
-                                <!--<replacement>
-                                    <token>constructor(())</token>
-                                    <value>constructor()</value>
-                                </replacement>-->
                                 <replacement>
                                     <token>axiosInstance.defaults.baseURL = baseURL;</token>
                                     <value/>
@@ -227,6 +224,10 @@
                                         config.data = requestConfig.data;
                                         config.cancelToken = requestConfig.cancelToken;
                                     </value>
+                                </replacement>
+                                <replacement>
+                                    <token>const enum</token>
+                                    <value>enum</value>
                                 </replacement>
                             </replacements>
                         </configuration>

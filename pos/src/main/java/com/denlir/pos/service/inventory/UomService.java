@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class UomService extends BasicServiceOperation<Uom, UomPayload, UomRepository> {
 
-  protected UomService(UomRepository repository, ReactiveMongoOperations reactiveOps) {
-    super(UomMapper.INSTANCE, repository, reactiveOps);
+  protected UomService(UomMapper uomMapper, UomRepository repository, ReactiveMongoOperations reactiveOps) {
+    super(uomMapper, repository, reactiveOps);
   }
 
 }

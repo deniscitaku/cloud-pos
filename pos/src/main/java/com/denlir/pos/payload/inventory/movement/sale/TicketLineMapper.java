@@ -10,9 +10,6 @@ import org.mapstruct.factory.Mappers;
  *
  * @author Denis Citaku
  **/
-@Mapper
+@Mapper(componentModel = "spring")
 public interface TicketLineMapper extends BaseMapper<TicketLine, TicketLinePayload> {
-
-  TicketLineMapper INSTANCE = Mappers.getMapper(TicketLineMapper.class);
-
 }

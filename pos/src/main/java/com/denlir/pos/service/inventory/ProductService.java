@@ -25,8 +25,8 @@ import reactor.core.publisher.Mono;
 @Service
 public class ProductService extends BasicServiceOperation<Product, ProductPayload, ProductRepository> {
 
-    protected ProductService(ProductRepository repository, ReactiveMongoOperations mongoOperations) {
-        super(ProductMapper.INSTANCE, repository, mongoOperations);
+    protected ProductService(ProductMapper productMapper, ProductRepository repository, ReactiveMongoOperations mongoOperations) {
+        super(productMapper, repository, mongoOperations);
     }
 
     public Flux<ProductPayload> findAllByCodeOrName(String codeOrName) {
@@ -61,11 +61,11 @@ public class ProductService extends BasicServiceOperation<Product, ProductPayloa
                         if (exists) {
                             sink.error(ValidationExceptionPayload.builder()
                                     .fieldName("code")
-                                    .errorMessage("must not be duplicate")
+                                    .message("must not be duplicate")
                                     .rejectedValue(payload.getCode())
-                                    .errorCode("code.duplicate")
+                                    .code("code.duplicate")
                                     .build()
-                                    .toEntityDatabaseValidationException());
+                                    .toEntityValidationException());
                         } else {
                             sink.next(payload);
                         }

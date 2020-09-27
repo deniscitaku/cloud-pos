@@ -7,6 +7,9 @@ import com.denlir.pos.payload.domain.LocationPayload;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -21,12 +24,15 @@ public class InventoryMovementPayload extends BaseAuditPayload {
 
   private String sequence;
 
+  @NotEmpty
   private MovementKind kind;
 
   private List<InventoryMovementLinePayload> inventoryMovementLines;
 
+  @Valid
   private LocationPayload location;
 
+  @NotNull
   private SupplierPayload supplier;
 
   private LocationPayload locationTo;

@@ -6,16 +6,23 @@ import axios, {CancelToken, CancelTokenSource, CancelTokenStatic} from 'axios';
 const cancelToken: CancelTokenStatic = axios.CancelToken;
 let source: CancelTokenSource = cancelToken.source();
 
+export function fetchPromise<T>(request: RestResponse<T>,
+                                errorResponse?: (errors?: Map<string, ValidationExceptionPayload[]>) => any): Promise<void | T> {
+    return request.then(response => {
+        return response.data;
+    }).catch(exception => {
+        handleError(exception, errorResponse);
+    })
+}
+
 export function fetch<T>(request: RestResponse<T>,
-                         dataResponse: (data: T) => (void | T),
-                         errorResponse?: (error?: (ValidationExceptionPayload[] | void)) => any): {} | T {
+                         dataResponse: (data: T) => any,
+                         errorResponse?: (errors?: Map<string, ValidationExceptionPayload[]>) => any): void {
     request.then(response => {
         return dataResponse(response.data);
     }).catch(exception => {
         handleError(exception, errorResponse);
     })
-
-    return {};
 }
 
 /**
@@ -24,7 +31,7 @@ export function fetch<T>(request: RestResponse<T>,
 export function cancelerFetch<T>(request: (cancelToken: CancelToken) => RestResponse<T>,
                                  dataResponse: (data: T | void) => T | void,
                                  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-                                 errorResponse?: (error?: ValidationExceptionPayload[] | void) => any): {} | T {
+                                 errorResponse?: (errors?: Map<string, ValidationExceptionPayload[]>) => any) {
     setLoading(true)
 
     source && source.cancel();
@@ -51,7 +58,7 @@ export function cancelerFetch<T>(request: (cancelToken: CancelToken) => RestResp
 export function loadingFetch<T>(request: RestResponse<T>,
                                 dataResponse: (data: T | void) => T | void,
                                 setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-                                errorResponse?: (error?: ValidationExceptionPayload[] | void) => any): {} | T {
+                                errorResponse?: (errors?: Map<string, ValidationExceptionPayload[]>) => any) {
     setLoading(true);
     request.then(response => {
         const data = dataResponse(response.data);
@@ -65,7 +72,7 @@ export function loadingFetch<T>(request: RestResponse<T>,
     return {};
 }
 
-function handleError(exception: any, errorResponse?: (error?: ValidationExceptionPayload[] | void) => any) {
+function handleError(exception: any, errorResponse?: (error?: Map<string, ValidationExceptionPayload[]>) => any) {
     const errorHandling = new HttpErrorHandling();
 
     if (exception.status === 401) {
@@ -78,7 +85,7 @@ function handleError(exception: any, errorResponse?: (error?: ValidationExceptio
         errorHandling.handle404NotFound();
     } else {
         if (errorResponse) {
-            errorResponse(exception.response?.data?.errors);
+            errorResponse(exception.response?.data);
             return;
         }
     }

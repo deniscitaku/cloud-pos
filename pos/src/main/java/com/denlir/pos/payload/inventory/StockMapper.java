@@ -10,9 +10,6 @@ import org.mapstruct.factory.Mappers;
  *
  * @author Denis Citaku
  **/
-@Mapper
+@Mapper(componentModel = "spring")
 public interface StockMapper extends BaseMapper<Stock, StockPayload> {
-
-  StockMapper INSTANCE = Mappers.getMapper(StockMapper.class);
-
 }

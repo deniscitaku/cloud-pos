@@ -28,9 +28,10 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @Service
 public class StockService extends BasicServiceOperation<Stock, StockPayload, StockRepository> {
 
-  protected StockService(StockRepository repository,
+  protected StockService(StockMapper stockMapper,
+                         StockRepository repository,
                          ReactiveMongoOperations mongoOperations) {
-    super(StockMapper.INSTANCE, repository, mongoOperations);
+    super(stockMapper, repository, mongoOperations);
   }
 
   public Mono<Stock> updateStock(Stock stock, MovementKind kind) {
