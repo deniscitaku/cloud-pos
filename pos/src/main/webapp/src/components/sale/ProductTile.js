@@ -5,7 +5,7 @@ import GridListTileBar from "@material-ui/core/GridListTileBar";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from '@material-ui/icons/Info';
 import noImage from '../../static/noimage.png';
-import {addTicketLineFromProduct} from "../../reducers/global/ticketReducer";
+import {addTicketLineFromProduct} from "../../reducers/global/saleTabsReducer";
 import {useDispatch} from "react-redux";
 import Grow from "@material-ui/core/Grow";
 

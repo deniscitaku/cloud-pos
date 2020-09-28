@@ -1,10 +1,10 @@
 import {combineReducers} from "redux";
-import ticketReducer from "./ticketReducer";
+import saleTabsReducer from "./saleTabsReducer";
 import inventoryMovementReducer from "./inventoryMovementReducer";
 import refReducer from "./refReducer";
 
 const rootReducer = combineReducers({
-    ticket: ticketReducer,
+    tabs: saleTabsReducer,
     inventoryMovement: inventoryMovementReducer,
     refs: refReducer
 })

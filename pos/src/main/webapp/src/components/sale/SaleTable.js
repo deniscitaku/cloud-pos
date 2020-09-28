@@ -2,7 +2,7 @@ import React, {createRef, forwardRef, useImperativeHandle} from 'react';
 import MaterialTable, {MTableCell} from 'material-table';
 import {AxiosProductClient} from "../../client/Client";
 import {useDispatch, useSelector} from "react-redux";
-import {addTicketLine, deleteTicketLines, updateTicketLine} from "../../reducers/global/ticketReducer"
+import {addTicketLine, deleteTicketLines, updateTicketLine} from "../../reducers/global/saleTabsReducer"
 import TextField from "@material-ui/core/TextField";
 import {createStyles, makeStyles} from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";

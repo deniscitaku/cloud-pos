@@ -10,14 +10,13 @@ import ProductsList from "./ProductsList";
 import {Zoom} from "@material-ui/core";
 import Tools from "./Tools";
 import {useDispatch, useSelector} from "react-redux";
-import {closeTicket, openTicket} from "../../reducers/global/ticketReducer";
 import {AxiosTicketClient} from "../../client/Client";
 import TicketSummary from "./TicketSummary";
 import {fetch, loadingFetch} from "../../services/fetch";
 import ProgressButton from "../common/ProgressButton";
 import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
 import TabPanel from "./TabPanel";
-import tabReducer, {Actions} from "../../reducers/tabReducer";
+import {Actions} from "../../reducers/global/saleTabsReducer";
 import {formatMoney} from "../../services/utils";
 
 function a11yProps(index) {
@@ -65,14 +64,8 @@ export default function Sale() {
     const classes = useStyles();
     const theme = useTheme();
     const childRefs = useRef([]);
-    const [state, dispatcher] = React.useReducer(tabReducer, {tabs: [], selectedIndex: 0});
-    const tickets = useSelector((state) => {
-        if (!state.ticket.length) {
-            return [...state.ticket, {ticketLines: [], totalAmount: 0}]
-        }
-        return state.ticket;
-    });
-    const currentTicket = tickets[state.selectedIndex];
+    const {selectedIndex, tickets} = useSelector((state) => state.tabs);
+    const {selectedTicket} = tickets[selectedIndex];
 
     useEffect(() => {
         window.addEventListener('keydown', downHandler);
@@ -82,32 +75,21 @@ export default function Sale() {
     });
 
     useEffect(() => {
-        openNewTab()
+        fetch(ticketClient.openTicket("5e9d89599d4e0c79447630f4"),
+                response => dispatch({type: Actions.SET_SELECTED_TICKET, ticket: response}))
     }, []);
-
-    function openNewTab() {
-        fetch(ticketClient.openTicket("5e9d89599d4e0c79447630f4"), response => {
-            openTicket(state.selectedIndex, response, dispatch)
-            dispatcher({type: Actions.NEW_TAB, ticket: response})
-        })
-    }
-
-    function removeTab() {
-        let selectedIndex = state.selectedIndex;
-        dispatcher({type: Actions.REMOVE_TAB})
-        closeTicket(selectedIndex, dispatch);
-    }
 
     function downHandler(keyboardEvent) {
         console.log("Key pressed: ", keyboardEvent)
         if (keyboardEvent.altKey && keyboardEvent.code === 'KeyT') {
-            openNewTab();
+            fetch(ticketClient.openTicket("5e9d89599d4e0c79447630f4"),
+                response => dispatch({type: Actions.NEW_TICKET, ticket: response}));
         } else if (keyboardEvent.altKey && keyboardEvent.code === 'KeyW') {
-            removeTab();
+            dispatch({type: Actions.REMOVE_SELECTED_TICKET})
         } else if (keyboardEvent.altKey && keyboardEvent.code === 'ArrowRight') {
-            dispatcher({type: Actions.NEXT_TAB})
+            dispatch({type: Actions.NEW_TICKET})
         } else if (keyboardEvent.altKey && keyboardEvent.code === 'ArrowLeft') {
-            dispatcher({type: Actions.PREV_TAB})
+            dispatch({type: Actions.PREV_TICKET})
         } else if (keyboardEvent.key === '*' && childRefs.current[0]) {
             childRefs.current[0].focusQty();
         } else if (keyboardEvent.key === 'Enter' && childRefs.current[0] && childRefs.current[0].isFocused() && childRefs.current[1]) {
@@ -121,18 +103,14 @@ export default function Sale() {
     };
 
     function payButtonOnAction(setLoading, setSuccess) {
-        if (!currentTicket || currentTicket.totalAmount === 0) return;
-
-        loadingFetch(ticketClient.update(currentTicket),
+        loadingFetch(ticketClient.update(selectedTicket),
             () => {
-                if (state.tabs.length > 1) {
-                    removeTab();
-                } else {
-                    closeTicket(state.selectedIndex, dispatch);
+                if (tickets.length === 1) {
                     fetch(ticketClient.openTicket("5e9d89599d4e0c79447630f4"), response => {
-                        openTicket(state.selectedIndex, response, dispatch);
-                        dispatcher({type: Actions.UPDATE_TAB, ticket: response});
+                        dispatch({type: Actions.SET_SELECTED_TICKET, ticket: response});
                     });
+                } else {
+                    dispatch({type: Actions.REMOVE_SELECTED_TICKET})
                 }
                 setSuccess(true);
                 setTimeout(() => setSuccess(false), 1500);
@@ -145,20 +123,20 @@ export default function Sale() {
     return <div className={classes.root}>
         <AppBar position="static" color="default">
             <Tabs
-                value={state.selectedIndex}
+                value={selectedIndex}
                 indicatorColor="primary"
                 textColor="primary"
                 variant="fullWidth"
             >
-                {state.tabs.map((item, index) =>
+                {tickets.map((item, index) =>
                     <Tab id={index}
                          key={index}
-                         label={formatMoney(state.tabs[index].ticket.totalAmount)}
+                         label={formatMoney(item.totalAmount)}
                          style={{
                              fontSize: "2em",
                              fontWeight: "bold"
                          }}
-                         onClick={() => dispatcher({type: Actions.GOTO_TAB, selectedIndex: index})}
+                         onClick={() => dispatch({type: Actions.GOTO_TICKET, selectedIndex: index})}
                          {...a11yProps(index)}>
                     </Tab>
                 )}
@@ -166,39 +144,39 @@ export default function Sale() {
         </AppBar>
         <SwipeableViews
             axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-            index={state.selectedIndex}
-            onChangeIndex={(index => dispatcher({type: Actions.GOTO_TAB, selectedIndex: index}))}
+            index={selectedIndex}
+            onChangeIndex={(index => dispatch({type: Actions.GOTO_TICKET, selectedIndex: index}))}
         >
-            {state.tabs.map((item, index) =>
-                <TabPanel key={index} value={state.selectedIndex} index={index} {...a11yProps(index)}>
+            {tickets.map((item, index) =>
+                <TabPanel key={index} value={selectedIndex} index={index} {...a11yProps(index)}>
                     <Grid container spacing={3}>
                         <Grid className={classes.firstGridPart} key={"left-side"} item md={6} sm={12}>
                             <Tools/>
                             <SaleTable ref={e => childRefs.current[0] = e} style={{maxHeight: "200px"}}
-                                       ticketIndex={state.selectedIndex}/>
-                            <TicketSummary ticketIndex={state.selectedIndex}/>
+                                       ticketIndex={selectedIndex}/>
+                            <TicketSummary ticketIndex={selectedIndex}/>
                         </Grid>
                         <Grid key={"right-side"} className={classes.secondGridPart} item md={6} sm={12}>
-                            <ProductsList ref={e => childRefs.current[1] = e} ticketIndex={state.selectedIndex}/>
+                            <ProductsList ref={e => childRefs.current[1] = e} ticketIndex={selectedIndex}/>
                         </Grid>
                     </Grid>
                 </TabPanel>
             )}
         </SwipeableViews>
-        {state.tabs.map((tab, index) =>
+        {tickets.map((tab, index) =>
             <Zoom
                 key={index}
-                in={state.selectedIndex === index}
+                in={selectedIndex === index}
                 timeout={transitionDuration}
                 style={{
-                    transitionDelay: `${state.selectedIndex === index ? transitionDuration.exit : 0}ms`,
+                    transitionDelay: `${selectedIndex === index ? transitionDuration.exit : 0}ms`,
                 }}
                 unmountOnExit
             >
                 <ProgressButton className={classes.fab}
                                 size="large"
                                 icon={<AddShoppingCartIcon style={{fontSize: "4em"}}/>}
-                                disabled={(currentTicket.totalAmount === 0)}
+                                disabled={(selectedTicket.totalAmount === 0)}
                                 onClick={(setLoading, setSuccess) => payButtonOnAction(setLoading, setSuccess)}/>
             </Zoom>)}
     </div>;
