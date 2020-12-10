@@ -1,21 +1,20 @@
 package com.denlir.pos.entity;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.data.annotation.Id;
+import lombok.Data;
+
+import javax.persistence.*;
 
 /**
  * Created on: 4/13/20
  *
  * @author Denis Citaku
  **/
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
+@MappedSuperclass
 public abstract class BaseEntity {
 
   @Id
-  private String id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
 }

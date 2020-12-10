@@ -7,7 +7,8 @@ export default function IntTextField(props) {
 
     const handleChange = (event) => {
         setIsInt(/[0-9]+/.test(event.target.value))
-    }
+    };
+
     return (
         <TextField {...props} onChange={handleChange} error={!isInt}/>
     )

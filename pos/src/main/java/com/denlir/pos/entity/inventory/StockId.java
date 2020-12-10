@@ -2,6 +2,7 @@ package com.denlir.pos.entity.inventory;
 
 import lombok.Data;
 
+import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 /**
@@ -10,10 +11,11 @@ import java.io.Serializable;
  * @author Denis Citaku
  **/
 @Data
+@Embeddable
 public class StockId implements Serializable {
 
-  private String productId;
+  private Long productId;
 
-  private String locationId;
+  private Long locationId;
 
 }

@@ -29,14 +29,21 @@ import TranslateIcon from '@material-ui/icons/Translate';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {useTranslation} from "react-i18next";
 import Purchase from "../purchase/Purchase";
+import Uom from "../product-config/uom/Uom";
+import Tax from "../product-config/tax/Tax";
+import Category from "../product-config/category/Category";
+import SubCategory from "../product-config/sub-category/SubCategory";
+import Product from "../product-config/product/Product";
+import Supplier from "../supplier/Supplier";
+import Customer from "../customer/Customer";
 
-const drawerWidth = 240;
+const drawerWidth = 270;
 
 const useStyles = makeStyles((theme) =>
     createStyles({
         root: {
             display: 'flex',
-            height: '93.5vh'
+            height: '93.5vh',
         },
         appBar: {
             zIndex: theme.zIndex.drawer + 1,
@@ -238,6 +245,9 @@ const MainDrawer = () => {
                     <div className={classes.root}>
                         <CssBaseline/>
                         <AppBar
+                            style={{
+                                background: theme.palette.primary.mainGradient,
+                            }}
                             position="fixed"
                             className={clsx(classes.appBar, {
                                 [classes.appBarShift]: open,
@@ -335,7 +345,14 @@ const MainDrawer = () => {
                             <Switch>
                                 <Route path="/" exact component={Sale}/>
                                 <Route path="/sale" component={Sale}/>
-                                <Route path="/purchase" component={Purchase}/>
+                                <Route path="/inventory-movement/purchase" component={Purchase}/>
+                                <Route path="/products" component={Product}/>
+                                <Route path="/categories" component={Category}/>
+                                <Route path="/sub-categories" component={SubCategory}/>
+                                <Route path="/uom" component={Uom}/>
+                                <Route path="/taxes" component={Tax}/>
+                                <Route path="/suppliers" component={Supplier}/>
+                                <Route path="/customers" component={Customer}/>
                                 <Route path="/reports" component={Sale}/>
                                 <Route path="/settings" component={Sale}/>
                                 <Route path="/log-out" component={Sale}/>
@@ -346,6 +363,6 @@ const MainDrawer = () => {
             </SnackbarProvider>
         </ThemeProvider>
     );
-}
+};
 
 export default MainDrawer;

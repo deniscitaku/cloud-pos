@@ -2,23 +2,20 @@ package com.denlir.pos.service.inventory.movement.diary;
 
 import com.denlir.pos.entity.inventory.movement.MovementKind;
 import com.denlir.pos.entity.inventory.movement.diary.InventoryMovement;
+import com.denlir.pos.entity.inventory.movement.sale.Status;
 import com.denlir.pos.payload.domain.LocationPayload;
+import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementLinePayload;
 import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementMapper;
 import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementPayload;
-import com.denlir.pos.payload.inventory.movement.sale.TicketPayload;
 import com.denlir.pos.repository.inventory.movement.diary.InventoryMovementRepository;
 import com.denlir.pos.service.BasicServiceOperation;
-import com.denlir.pos.service.domain.LocationService;
+import com.denlir.pos.service.domain.SequenceHolderService;
 import com.denlir.pos.service.inventory.StockService;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import com.denlir.pos.validation.validators.UniqueValidator;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
-import java.math.BigDecimal;
-import java.util.stream.Collectors;
+import javax.transaction.Transactional;
+import java.util.Collection;
 
 /**
  * Created on: 4/13/20
@@ -31,43 +28,62 @@ public class InventoryMovementService extends
 
   private final InventoryMovementLineService inventoryMovementLineService;
 
-  private final LocationService locationService;
+  private final SequenceHolderService sequenceHolderService;
 
   private final StockService stockService;
 
   protected InventoryMovementService(InventoryMovementMapper inventoryMovementMapper,
                                      InventoryMovementRepository repository,
-                                     ReactiveMongoOperations reactiveOps,
                                      InventoryMovementLineService inventoryMovementLineService,
-                                     LocationService locationService,
+                                     SequenceHolderService sequenceHolderService,
                                      StockService stockService) {
-    super(inventoryMovementMapper, repository, reactiveOps);
+    super(inventoryMovementMapper, repository);
     this.inventoryMovementLineService = inventoryMovementLineService;
-    this.locationService = locationService;
+    this.sequenceHolderService = sequenceHolderService;
     this.stockService = stockService;
   }
 
-  public Flux<InventoryMovementPayload> findByKind(MovementKind kind) {
-    return repository.findByKind(kind)
-        .map(mapper::entityToPayload);
+  public Collection<InventoryMovementPayload> findByKind(MovementKind kind) {
+    return mapper.entitiesToPayloads(repository.findByKind(kind));
+  }
+
+  @Transactional
+  public InventoryMovementPayload openInventoryMovement(Long locationId, String kind) {
+    LocationPayload locationPayload = new LocationPayload();
+    locationPayload.setId(locationId);
+
+    InventoryMovementPayload payload = new InventoryMovementPayload();
+    payload.setLocation(locationPayload);
+    payload.setKind(MovementKind.forValue(kind));
+    payload.setStatus(Status.OPENED);
+
+    checkUniqueness(UniqueValidator.of(repository, payload));
+    InventoryMovementPayload p = beforeSave(payload);
+    InventoryMovement entity = mapper.payloadToEntity(p);
+
+    return mapper.entityToPayload(repository.save(entity));
   }
 
   @Override
-  @Transactional
-  public Mono<InventoryMovementPayload> create(InventoryMovementPayload payload) {
-    return Flux.zip(
-        stockService.updateStock(payload.getInventoryMovementLines(), payload.getLocation().getId(), payload.getKind()),
-        inventoryMovementLineService.insertAll(payload.getInventoryMovementLines()))
-        .map(Tuple2::getT2)
-        .collect(Collectors.toList())
-        .zipWith(locationService.getAndIncrementSequenceByIdAndMovementKind(payload.getLocation().getId(), payload.getKind()))
-        .map(x -> {
-          payload.setInventoryMovementLines(x.getT1());
-          payload.setSequence(String.valueOf(x.getT2()));
-          return payload;
-        })
-        .flatMap(x -> repository.save(mapper.payloadToEntity(x)))
-        .map(mapper::entityToPayload);
+  public InventoryMovementPayload beforeSave(InventoryMovementPayload payload) {
+    Long locationId = payload.getLocation().getId();
+
+    if (payload.getSequence() == null) {
+      Long sequence = sequenceHolderService.getAndIncrementSequenceByIdAndMovementKind(locationId, payload.getKind());
+      payload.setSequence(sequence);
+    }
+
+    if (payload.getInventoryMovementLines() != null && !payload.getInventoryMovementLines().isEmpty()) {
+      int lastLine = payload.getInventoryMovementLines().size() - 1;
+      InventoryMovementLinePayload inventoryMovementLinePayload = inventoryMovementLineService.beforeSave(payload.getInventoryMovementLines().get(lastLine));
+      payload.getInventoryMovementLines().set(lastLine, inventoryMovementLinePayload);
+    }
+
+    if (payload.getStatus() == Status.CLOSED) {
+      stockService.updateStock(payload.getInventoryMovementLines(), locationId, payload.getKind());
+    }
+
+    return payload;
   }
 
 }

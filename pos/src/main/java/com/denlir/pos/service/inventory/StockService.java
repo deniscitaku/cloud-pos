@@ -8,17 +8,11 @@ import com.denlir.pos.payload.inventory.StockMapper;
 import com.denlir.pos.payload.inventory.StockPayload;
 import com.denlir.pos.repository.inventory.StockRepository;
 import com.denlir.pos.service.BasicServiceOperation;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import javax.transaction.Transactional;
+import java.util.Collection;
 import java.util.List;
-
-import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 /**
  * Created on: 3/1/20
@@ -28,22 +22,17 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @Service
 public class StockService extends BasicServiceOperation<Stock, StockPayload, StockRepository> {
 
-  protected StockService(StockMapper stockMapper,
-                         StockRepository repository,
-                         ReactiveMongoOperations mongoOperations) {
-    super(stockMapper, repository, mongoOperations);
+  protected StockService(StockMapper stockMapper, StockRepository repository) {
+    super(stockMapper, repository);
   }
 
-  public Mono<Stock> updateStock(Stock stock, MovementKind kind) {
-    return reactiveOps.findAndModify(
-        query(Criteria.where("stockId").is(stock.getStockId())),
-        new Update().inc("units", stock.getUnits().multiply(kind.getStockEffect()).doubleValue()),
-        options().returnNew(true).upsert(true),
-        Stock.class);
+  private void updateStock(Stock stock, MovementKind kind) {
+    repository.updateStockByStockId(stock.getStockId().getLocationId(), stock.getStockId().getProductId(), stock.getUnits().multiply(kind.getStockEffect()));
   }
 
-  public Flux<Stock> updateStock(List<? extends BaseLinePayload> lines, String locationId, MovementKind kind) {
-    return Flux.fromStream(lines.stream())
+  @Transactional
+  public void updateStock(Collection<? extends BaseLinePayload> lines, Long locationId, MovementKind kind) {
+    lines.stream()
         .map(x -> {
           Stock stock = new Stock();
 
@@ -56,7 +45,7 @@ public class StockService extends BasicServiceOperation<Stock, StockPayload, Sto
 
           return stock;
         })
-        .flatMap(x -> updateStock(x, kind));
+        .forEach(x -> updateStock(x, kind));
   }
 
 }

@@ -1,16 +1,17 @@
 package com.denlir.pos.exception;
 
+import annotation.FluentBuilder;
 import com.denlir.pos.common.GenerateTS;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
 
-@Builder
-@Getter
-@Setter
+@FluentBuilder
+@Data
 @GenerateTS
 public class ValidationExceptionPayload {
 
@@ -22,6 +23,7 @@ public class ValidationExceptionPayload {
 
     private String code;
 
+    @FluentBuilder.Optional
     private Map<String, ValidationExceptionPayload> innerError;
 
     public EntityValidationException toEntityValidationException() {

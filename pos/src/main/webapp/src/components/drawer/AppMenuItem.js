@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import List from '@material-ui/core/List'
 
 import ListItemIcon from '@material-ui/core/ListItemIcon'
@@ -23,43 +23,45 @@ const useStyles = makeStyles(theme =>
                 },
             },
         },
+        nested: {
+            paddingLeft: theme.spacing(4),
+        }
     }),
-)
+);
 
 const AppMenuItem = props => {
-    const { divider, name, link, Icon, items = [] } = props
-    const [open, setOpen] = React.useState(false)
+    const { divider, name, link, Icon, items = [], extraPadding } = props;
+    const [open, setOpen] = useState(false);
     const classes = useStyles();
-    const isExpandable = items && items.length > 0
+    const isExpandable = items && items.length > 0;
 
     function handleClick() {
         setOpen(!open)
     }
 
     const MenuItemRoot = (
-        <AppMenuItemComponent className={classes.menuItem} link={link} onClick={handleClick} divider={!!divider}>
+        <AppMenuItemComponent className={`${classes.menuItem} ${extraPadding ? classes.nested : ''}`} link={link} onClick={handleClick} divider={!!divider}>
             {!!Icon && (
                 <ListItemIcon>
                     <Icon />
                 </ListItemIcon>
             )}
             <ListItemText primary={name} inset={!Icon} />
-            {/* Display the expand menu if the item has children */}
             {isExpandable && !open && <IconExpandMore />}
             {isExpandable && open && <IconExpandLess />}
         </AppMenuItemComponent>
-    )
+    );
 
     const MenuItemChildren = isExpandable ? (
         <Collapse in={open} timeout="auto" unmountOnExit>
             <Divider />
             <List component="div" disablePadding>
                 {items.map((item, index) => (
-                    <AppMenuItem {...item} key={index} />
+                    <AppMenuItem {...item} key={index} extraPadding/>
                 ))}
             </List>
         </Collapse>
-    ) : null
+    ) : null;
 
     return (
         <>
@@ -67,6 +69,6 @@ const AppMenuItem = props => {
             {MenuItemChildren}
         </>
     )
-}
+};
 
 export default AppMenuItem

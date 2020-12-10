@@ -4,11 +4,11 @@ import com.denlir.pos.exception.EntityValidationException;
 import com.denlir.pos.exception.ValidationExceptionPayload;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
-import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -25,24 +25,21 @@ public class ExceptionHandlerControllerAdvice {
 
   private static final Pattern pattern = Pattern.compile("(\\.[A-Za-z])");
 
-  @ExceptionHandler(WebExchangeBindException.class)
+  @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public Mono<Map<String, ?>> handleConstraintViolationException(WebExchangeBindException ex) {
-
-    var errors = ex.getBindingResult()
+  public Map<String, ?> handleConstraintViolationException(MethodArgumentNotValidException ex) {
+    return ex.getBindingResult()
         .getAllErrors()
         .stream()
         .map(x -> (FieldError) x)
         .map(this::buildValidationExceptionPayload)
         .collect(Collectors.groupingBy(ValidationExceptionPayload::getFieldName));
-
-    return Mono.just(errors);
   }
 
   @ExceptionHandler(EntityValidationException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public Mono<Map<String, ValidationExceptionPayload>> handleEntityDatabaseValidationException(EntityValidationException ex) {
-    return Mono.just(Map.of(fieldNameCorrecter(ex.getValidationExceptionPayload().getFieldName()), ex.getValidationExceptionPayload()));
+  public Map<String, ValidationExceptionPayload> handleEntityDatabaseValidationException(EntityValidationException ex) {
+    return Map.of(fieldNameCorrecter(ex.getValidationExceptionPayload().getFieldName()), ex.getValidationExceptionPayload());
   }
 
   private static String fieldNameCorrecter(String fieldName) {
@@ -54,7 +51,7 @@ public class ExceptionHandlerControllerAdvice {
   }
 
   private ValidationExceptionPayload buildValidationExceptionPayload(FieldError fieldError) {
-    ValidationExceptionPayload vep = ValidationExceptionPayload.builder().build();
+    ValidationExceptionPayload vep = new ValidationExceptionPayload();
     return recursiveValidationExceptionFiller(fieldError, fieldError.getField(), vep, vep, false, true);
   }
 
@@ -69,7 +66,7 @@ public class ExceptionHandlerControllerAdvice {
       if (isFirst) {
         recursiveValidationExceptionFiller(fieldError, fieldName, first, innerNode, true, false);
       }
-      ValidationExceptionPayload next = ValidationExceptionPayload.builder().build();
+      ValidationExceptionPayload next = new ValidationExceptionPayload();
       innerNode.setInnerError(Map.of(fieldName, next));
       recursiveValidationExceptionFiller(fieldError, fieldName, first, next, true, false);
     }

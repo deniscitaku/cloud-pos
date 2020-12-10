@@ -1,6 +1,8 @@
 package com.denlir.pos.payload.inventory;
 
+import annotation.FluentBuilder;
 import com.denlir.pos.common.GenerateTS;
+import com.denlir.pos.payload.BaseAuditPayload;
 import com.denlir.pos.payload.BasePayload;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,10 +17,11 @@ import java.math.BigDecimal;
  *
  * @author Denis Citaku
  **/
+@FluentBuilder
 @GenerateTS
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class UomPayload extends BasePayload {
+public class UomPayload extends BaseAuditPayload {
 
   @NotNull
   @Size(min = 1, max = 100)

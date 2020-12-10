@@ -3,9 +3,11 @@ package com.denlir.pos.entity.inventory.movement.sale;
 import com.denlir.pos.entity.inventory.BaseLineEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+
+import static javax.persistence.FetchType.LAZY;
 
 /**
  * Created on: 2/24/20
@@ -15,7 +17,7 @@ import java.math.BigDecimal;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Document("ticketLines")
+@Entity
 public class TicketLine extends BaseLineEntity {
 
 }

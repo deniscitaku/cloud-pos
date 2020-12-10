@@ -7,6 +7,11 @@ import Fab from '@material-ui/core/Fab';
 import CheckIcon from '@material-ui/icons/Check';
 
 const useStyles = makeStyles((theme) => ({
+    fab: {
+        position: 'absolute',
+        bottom: theme.spacing(5),
+        right: theme.spacing(5),
+    },
     wrapper: {
         margin: theme.spacing(1),
         position: 'relative',
@@ -30,30 +35,27 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const ProgressButton = (props) => {
+const ProgressButton = ({onClick, icon, size, disabled, loading, success}) => {
     const classes = useStyles();
-    const [loading, setLoading] = React.useState(false);
-    const [success, setSuccess] = React.useState(false);
-    const {className, onClick, icon, size, disabled} = props;
     let buttonSize, iconSize, circularProgressSize = 68;
 
     if (size === 'medium') {
         buttonSize = ({
             width: "5em",
             height: "5em"
-        })
+        });
         iconSize = ({
             fontSize: "3em"
-        })
+        });
         circularProgressSize = 83;
     } else if (size === 'large') {
         buttonSize = ({
             width: "8em",
             height: "8em"
-        })
+        });
         iconSize = ({
             fontSize: "5em"
-        })
+        });
         circularProgressSize = 126;
     }
 
@@ -62,11 +64,11 @@ const ProgressButton = (props) => {
     });
 
     const handleButtonClick = () => {
-        onClick(setLoading, setSuccess);
+        onClick();
     };
 
     return (
-        <div className={className}>
+        <div className={classes.fab}>
             <div className={classes.wrapper}>
                 <Fab
                     aria-label="save"
@@ -82,6 +84,6 @@ const ProgressButton = (props) => {
             </div>
         </div>
     );
-}
+};
 
 export default ProgressButton;

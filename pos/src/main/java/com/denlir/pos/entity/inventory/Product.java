@@ -4,12 +4,13 @@ package com.denlir.pos.entity.inventory;
 import com.denlir.pos.entity.BaseAuditEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.mapstruct.ap.spi.MappingExclusionProvider;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Set;
+
+import static javax.persistence.FetchType.EAGER;
 
 /**
  * Created on: 3/1/20
@@ -18,13 +19,13 @@ import java.util.List;
  **/
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Document("products")
+@Entity
 public class Product extends BaseAuditEntity {
 
-  @Indexed(unique = true)
+  @Column(unique = true)
   private String code;
 
-  @Indexed
+  @Column
   private String name;
 
   private String displayName;
@@ -35,18 +36,21 @@ public class Product extends BaseAuditEntity {
 
   private BigDecimal priceTax;
 
-  @DBRef
+  @ManyToOne
+  @JoinColumn
   private Category category;
 
-  @DBRef
+  @ManyToOne
+  @JoinColumn
+  private SubCategory subCategory;
+
+  @ManyToOne
+  @JoinColumn
   private Tax tax;
 
-  @DBRef
-  private List<Uom> uoms;
+  private BigDecimal minStock;
 
-  @DBRef
-  private Stock stock;
-
-  private int minStock;
+  @ManyToMany
+  private Set<Uom> uoms;
 
 }

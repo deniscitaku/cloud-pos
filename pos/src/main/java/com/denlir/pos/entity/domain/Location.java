@@ -1,12 +1,16 @@
 package com.denlir.pos.entity.domain;
 
-import com.denlir.pos.entity.inventory.movement.MovementKind;
+import com.denlir.pos.entity.BaseEntity;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.EqualsAndHashCode;
 
-import java.util.Map;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import java.util.Set;
+
+import static javax.persistence.CascadeType.*;
+import static javax.persistence.FetchType.EAGER;
 
 /**
  * Created on: 3/1/20
@@ -14,15 +18,15 @@ import java.util.Map;
  * @author Denis Citaku
  **/
 @Data
-@Document("locations")
-public class Location {
+@EqualsAndHashCode(callSuper = true)
+@Entity
+public class Location extends BaseEntity {
 
-  @Id
-  private String id;
-
-  @Indexed(unique = true)
   private String name;
 
-  private Map<MovementKind, Long> sequenceByMovementKind;
+  @OneToMany(orphanRemoval = true, cascade = {REMOVE, PERSIST}, fetch = EAGER)
+  @JoinColumn
+  private Set<SequenceHolder> sequenceHolders;
 
 }
+

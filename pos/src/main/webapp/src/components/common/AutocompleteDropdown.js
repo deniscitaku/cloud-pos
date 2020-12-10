@@ -1,25 +1,23 @@
-import React from "react";
+import React, {useEffect} from "react";
 import Autocomplete, {createFilterOptions} from "@material-ui/lab/Autocomplete";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import ValidTextField from "./ValidTextField";
 
 const filter = createFilterOptions();
 
-export default function AutocompleteDropdown(props) {
-    const {
-        label,
-        icon,
-        required,
-        error,
-        variant = 'outlined',
-        width = 300,
-        items,
-    } = props;
-
-    function isEmptyObject(obj) {
-        return typeof obj === 'object'
-            && Object.values(obj)?.every(x => (x === undefined || x === '' || Object.keys(x).length === 0));
-    }
+function AutocompleteDropdown({
+                                  props,
+                                  label,
+                                  icon,
+                                  required,
+                                  error,
+                                  variant = 'standard',
+                                  minWidth = 180,
+                                  items,
+                                  enableAddOption = false,
+                                  inputRef = undefined
+                              }) {
+    console.log("Inside AutocompleteDropdown");
 
     return (
         <>
@@ -29,7 +27,7 @@ export default function AutocompleteDropdown(props) {
                 filterOptions={(options, params) => {
                     const filtered = filter(options, params);
 
-                    if (params.inputValue !== '') {
+                    if (enableAddOption && params.inputValue !== '') {
                         filtered.push({
                             inputValue: params.inputValue,
                             name: `Add "${params.inputValue}"`,
@@ -47,21 +45,19 @@ export default function AutocompleteDropdown(props) {
                     if (option.inputValue) {
                         return option.inputValue;
                     }
-                    if (isEmptyObject(option)) {
-                        return '';
-                    }
                     return option.name;
                 }}
                 selectOnFocus
-                clearOnBlur
+                autoHighlight
                 clearOnEscape
                 handleHomeEndKeys
                 renderOption={(option) => option.name}
-                style={{width: width}}
+                style={{minWidth: minWidth}}
                 freeSolo
                 renderInput={(params) => (
                     icon ?
                         <ValidTextField {...params} error={error} required={required} label={label} variant={variant}
+                                        inputRef={inputRef}
                                         InputProps={{
                                             ...params.InputProps,
                                             startAdornment: (
@@ -70,10 +66,12 @@ export default function AutocompleteDropdown(props) {
                                                 </InputAdornment>
                                             ),
                                         }}/> :
-                        <ValidTextField {...params} error={error} required={required} label={label} variant={variant}/>
+                        <ValidTextField {...params} error={error} required={required} label={label} variant={variant}
+                                        inputRef={inputRef}/>
                 )}
             />
-
         </>
     );
 }
+
+export default React.memo(AutocompleteDropdown)

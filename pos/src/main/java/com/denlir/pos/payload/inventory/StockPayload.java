@@ -1,5 +1,6 @@
 package com.denlir.pos.payload.inventory;
 
+import annotation.FluentBuilder;
 import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.payload.BasePayload;
 import lombok.Data;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
  *
  * @author Denis Citaku
  **/
+@FluentBuilder
 @GenerateTS
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -22,11 +24,12 @@ public class StockPayload extends BasePayload {
   private BigDecimal units;
 
   @Data
+  @FluentBuilder
   public static class StockIdPayload {
 
-    private String productId;
+    private Long productId;
 
-    private String locationId;
+    private Long locationId;
 
   }
 

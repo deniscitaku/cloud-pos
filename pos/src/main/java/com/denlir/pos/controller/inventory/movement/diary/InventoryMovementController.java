@@ -7,14 +7,12 @@ import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementPayload;
 import com.denlir.pos.service.inventory.movement.diary.InventoryMovementService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.NotEmpty;
-import javax.ws.rs.QueryParam;
+import java.util.Collection;
 
 /**
  * Created on: 4/13/20
@@ -31,8 +29,13 @@ public class InventoryMovementController extends BasicControllerOperations<Inven
   }
 
   @GetMapping("/{kind}")
-  public Flux<InventoryMovementPayload> findByKind(@PathVariable @NotEmpty MovementKind kind) {
+  public Collection<InventoryMovementPayload> findByKind(@PathVariable @NotEmpty MovementKind kind) {
     return service.findByKind(kind);
+  }
+
+  @PostMapping("/{locationId}/{kind}/open")
+  public InventoryMovementPayload openInventoryMovement(@PathVariable Long locationId, @PathVariable String kind) {
+    return service.openInventoryMovement(locationId, kind);
   }
 
 }

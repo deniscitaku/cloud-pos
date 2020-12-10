@@ -31,8 +31,9 @@ const AppMenuItemComponent = props => {
             children={children}
             component={forwardRef((props, ref) => <NavLink exact {...props} innerRef={ref}/>)}
             to={link}
+            onClick={onClick}
         />
     )
-}
+};
 
 export default AppMenuItemComponent

@@ -11,7 +11,7 @@ export function fetchPromise<T>(request: RestResponse<T>,
     return request.then(response => {
         return response.data;
     }).catch(exception => {
-        handleError(exception, errorResponse);
+        return handleError(exception, errorResponse);
     })
 }
 
@@ -32,10 +32,10 @@ export function cancelerFetch<T>(request: (cancelToken: CancelToken) => RestResp
                                  dataResponse: (data: T | void) => T | void,
                                  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
                                  errorResponse?: (errors?: Map<string, ValidationExceptionPayload[]>) => any) {
-    setLoading(true)
+    setLoading(true);
 
     source && source.cancel();
-    // save the new request for cancellation
+    // create the new request for cancellation
     source = axios.CancelToken.source();
 
     request(source.token)
@@ -67,7 +67,7 @@ export function loadingFetch<T>(request: RestResponse<T>,
     }).catch(exception => {
         handleError(exception, errorResponse)
         setLoading(false);
-    })
+    });
 
     return {};
 }
@@ -85,8 +85,7 @@ function handleError(exception: any, errorResponse?: (error?: Map<string, Valida
         errorHandling.handle404NotFound();
     } else {
         if (errorResponse) {
-            errorResponse(exception.response?.data);
-            return;
+            return errorResponse(exception.response?.data);
         }
     }
 }

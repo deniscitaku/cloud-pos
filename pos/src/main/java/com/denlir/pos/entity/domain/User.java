@@ -1,10 +1,13 @@
 package com.denlir.pos.entity.domain;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.Document;
+import com.denlir.pos.entity.BaseEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
@@ -12,11 +15,11 @@ import java.time.LocalDateTime;
  *
  * @author Denis Citaku
  **/
-@Document
-public class User {
-
-  @Id
-  private String id;
+@EqualsAndHashCode(callSuper = true)
+@Data
+@Entity
+@Table(name = "users")
+public class User extends BaseEntity {
 
   private String name;
 
@@ -24,10 +27,10 @@ public class User {
 
   private String email;
 
-  @CreatedDate
+  @CreationTimestamp
   private LocalDateTime createdOn;
 
-  @LastModifiedDate
+  @UpdateTimestamp
   private LocalDateTime updatedOn;
 
 }

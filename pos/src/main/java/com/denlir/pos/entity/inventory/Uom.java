@@ -1,10 +1,10 @@
 package com.denlir.pos.entity.inventory;
 
-import com.denlir.pos.entity.BaseEntity;
+import com.denlir.pos.entity.BaseAuditEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.persistence.Entity;
 import java.math.BigDecimal;
 
 /**
@@ -14,8 +14,8 @@ import java.math.BigDecimal;
  **/
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Document
-public class Uom extends BaseEntity {
+@Entity
+public class Uom extends BaseAuditEntity {
 
   private String smallerUnitName;
 

@@ -1,12 +1,10 @@
 package com.denlir.pos.payload.inventory.movement.sale;
 
+import annotation.FluentBuilder;
 import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.payload.inventory.BaseLinePayload;
-import com.denlir.pos.payload.inventory.TaxPayload;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.math.BigDecimal;
 
 /**
  * Created on: 2/29/20
@@ -16,6 +14,7 @@ import java.math.BigDecimal;
 @GenerateTS
 @Data
 @EqualsAndHashCode(callSuper = true)
+@FluentBuilder
 public class TicketLinePayload extends BaseLinePayload {
 
 }

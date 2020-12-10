@@ -1,7 +1,10 @@
 package com.denlir.pos.repository.domain;
 
 import com.denlir.pos.entity.domain.Location;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import com.denlir.pos.entity.inventory.movement.MovementKind;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 /**
@@ -9,8 +12,8 @@ import reactor.core.publisher.Mono;
  *
  * @author Denis Citaku
  **/
-public interface LocationRepository extends ReactiveMongoRepository<Location, String> {
+public interface LocationRepository extends JpaRepository<Location, Long> {
 
-  Mono<Location> findByName(String name);
+  Location findByName(String name);
 
 }

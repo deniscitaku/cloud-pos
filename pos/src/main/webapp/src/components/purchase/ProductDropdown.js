@@ -1,122 +1,118 @@
-import React, {useEffect, useRef} from 'react';
-import {AxiosProductClient, InventoryMovementLinePayload, MovementKind, ProductPayload} from "../../client/Client";
-import SearchOrScanIcon from "../icons/SearchOrScanIcon";
-import TaxDropdown from "./TaxDropdown";
-import ValidTextField from "../common/ValidTextField";
-import CategoryDropdown from "./CategoryDropdown";
-import AutocompleteForm from "../common/AutocompleteForm";
-import {fetchPromise} from "../../services/fetch";
+import React, {useCallback, useRef, useState} from 'react';
+import {emptyProduct} from "../../services/EmptyObjects";
+import FastFoodIcon from '@material-ui/icons/Fastfood';
+import AutocompleteDropdown from "../common/AutocompleteDropdown";
+import NewProduct from "../product-config/product/NewProduct";
 import {useDispatch, useSelector} from "react-redux";
-import {addRef} from "../../reducers/global/refReducer";
 import {addInventoryMovementLine} from "../../reducers/global/inventoryMovementReducer";
+import {AxiosInventoryMovementClient, InventoryMovementLinePayload, MovementKind} from "../../client/Client";
+import {useSave} from "../../hooks/useFetch";
+import store from "../../store";
 
-const emptyProduct = new ProductPayload({
-    name: '',
-    code: '',
-    priceBuy: 0,
-    priceSell: 0,
-    priceTax: 0,
-    category: {},
-    tax: {},
-    uom: {},
-    stock: {}
-});
+const inventoryMovementService = new AxiosInventoryMovementClient();
+const kind = MovementKind.PURCHASE;
 
-const productClient = new AxiosProductClient();
+function ProductDropdown({products, categories, subCategories, taxes, addProduct, searchProductRef}) {
+    const [open, setOpen] = useState(false);
+    const [name, setName] = useState('');
+    const [key, resetAutocompleteInput] = useState(false);
+    const [createInventoryMovement, {loading}] = useSave((x) => inventoryMovementService.create(x));
 
-const ProductDropdown = (props) => {
+    const supplier = useSelector(x => x.inventoryMovement.get(kind).supplier);
+    const dispatch = useDispatch();
 
     console.log("Inside ProductDropdown");
 
-    const dispatch = useDispatch();
+    const handleOpenDialogChange = useCallback(x => setOpen(x), []);
+    const handleSavedProduct = useCallback(savedProduct => {
+        productChanged(savedProduct);
+        addProduct(savedProduct);
+    }, []);
+    const initialProductOnAdd = useCallback(() => ({
+        ...emptyProduct,
+        code: name,
+        tax: taxes.find(x => x.default)
+    }), [open]);
+    const handleClose = useCallback(() => setName(''), []);
+    const handleChange = useCallback((event, newValue) => {
+        event.preventDefault();
+        if (typeof newValue === 'string') {
+            const productByCode = products.find(x => x.code === newValue);
+            if (productByCode) {
+                productChanged(productByCode);
+                return;
+            }
+            setName(newValue);
+            setOpen(true);
+        } else if (newValue && newValue.inputValue) {
+            const productByCode = products.find(x => x.code === newValue.inputValue);
+            if (productByCode) {
+                productChanged(productByCode);
+                return;
+            }
+            setName(newValue.inputValue);
+            setOpen(true);
+        } else if (newValue) {
+            productChanged(newValue);
+        }
+    }, []);
+
+    const icon = useRef(<FastFoodIcon/>);
+
+    const autoCompleteProps = {
+        key: key,
+        defaultValue: emptyProduct,
+        onChange: handleChange,
+        disabled: loading || !supplier || !supplier.id
+    };
+
+    function productChanged(newValue) {
+        handleValueChange(newValue);
+        resetAutocompleteInput(prev => !prev);
+    }
 
     const handleValueChange = (value) => {
         if (value) {
-            addInventoryMovementLine(MovementKind.PURCHASE, new InventoryMovementLinePayload({
-                lineNumber: 1,
+            const purchase = store.getState().inventoryMovement.get(kind);
+            const lines = purchase.inventoryMovementLines.length;
+            const newPurchaseLine = new InventoryMovementLinePayload({
+                lineNumber: lines + 1,
                 product: value,
-                priceBuy: value.priceBuy,
-                quantity: 1,
-                amount: value.priceBuy
-            }), dispatch);
+                quantity: 1
+            });
+            const newPurchase = {...purchase, inventoryMovementLines: [...purchase.inventoryMovementLines, newPurchaseLine]};
+            createInventoryMovement(newPurchase)
+                .then(x => addInventoryMovementLine(kind, x.inventoryMovementLines[lines], dispatch))
         }
-        // TODO focus qty on purchase table
-    }
-    return (
-        <AutocompleteForm
-            label='Search product'
-            icon={<SearchOrScanIcon color={"action"}/>}
-            required={false}
-            dialogTitle={"Add product"}
-            emptyValue={emptyProduct}
-            focusFieldAfterDialogOpen={'code'}
-            preDialogOpen={(code) => fetchPromise(productClient.findByCode(code))}
-            onValueChange={val => handleValueChange(val)}
-            findAll={() => productClient.findAll()}
-            create={x => productClient.create(x)}
-            formElements={(product, setProduct, errors) => [
-                <ValidTextField
-                    error={errors.code}
-                    id="code"
-                    value={product.code}
-                    onChange={(event) => setProduct({...product, code: event.target.value})}
-                    label="Code"
+    };
 
-                />,
-                <ValidTextField
-                    autoFocus
-                    error={errors.name}
-                    id="name"
-                    value={product.name}
-                    onChange={(event) => setProduct({...product, name: event.target.value})}
-                    label="Name"
-                />,
-                <ValidTextField
-                    error={errors.displayName}
-                    required={false}
-                    id="displayName"
-                    value={product.displayName}
-                    onChange={(event) => setProduct({...product, displayName: event.target.value})}
-                    label="Display name"
-                />,
-                <ValidTextField
-                    error={errors.priceBuy}
-                    id="priceBuy"
-                    value={product.priceBuy}
-                    onChange={(event) => setProduct({
-                        ...product,
-                        priceBuy: event.target.value
-                    })}
-                    label="Price buy"
-                />,
-                <ValidTextField
-                    error={errors.priceSell}
-                    id="priceSell"
-                    value={product.priceSell}
-                    onChange={(event) => setProduct({
-                        ...product,
-                        priceSell: event.target.value
-                    })}
-                    label="Price sell"
-                />,
-                <ValidTextField
-                    error={errors.priceTax}
-                    id="priceTax"
-                    value={product.priceTax}
-                    onChange={(event) => setProduct({
-                        ...product,
-                        priceTax: event.target.value
-                    })}
-                    label="Price tax"
-                />,
-                <CategoryDropdown error={errors.category && errors.category[0].innerError} category={product.category}
-                                  setCategory={category => setProduct(({...product, category}))}/>,
-                <TaxDropdown error={errors.tax && errors.tax[0].innerError} tax={product.tax}
-                             setTax={tax => setProduct(prevState => ({...prevState, tax}))}/>,
-                /*<UomDropdown error={errors.uom && errors.uom[0].innerError} uom={product.uom} setUom={uom => setProduct(prevState => ({...prevState, uom}))}/>*/
-            ]}
-        />
+    return (
+        <>
+            <AutocompleteDropdown
+                label="Product"
+                variant="outlined"
+                icon={icon.current}
+                required
+                items={products}
+                enableAddOption
+                minWidth={250}
+                props={autoCompleteProps}
+                inputRef={searchProductRef}
+
+            />
+            <NewProduct
+                isOpen={open}
+                setOpen={handleOpenDialogChange}
+                savedProduct={handleSavedProduct}
+                initialProductOnAdd={initialProductOnAdd}
+                onClose={handleClose}
+                autoFocusIndex={1}
+                categories={categories}
+                subCategories={subCategories}
+                taxes={taxes}
+            />
+        </>
     );
 };
 
-export default ProductDropdown;
+export default React.memo(ProductDropdown);

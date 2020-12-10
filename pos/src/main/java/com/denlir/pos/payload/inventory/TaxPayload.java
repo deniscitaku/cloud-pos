@@ -1,8 +1,11 @@
 package com.denlir.pos.payload.inventory;
 
+import annotation.FluentBuilder;
 import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.payload.BasePayload;
 import com.denlir.pos.validation.Tax;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -18,6 +21,7 @@ import java.math.BigDecimal;
 @GenerateTS
 @Data
 @EqualsAndHashCode(callSuper = true)
+@FluentBuilder
 public class TaxPayload extends BasePayload {
 
   @Tax
@@ -26,5 +30,8 @@ public class TaxPayload extends BasePayload {
   @NotNull
   @Positive
   private BigDecimal taxRate;
+
+  @JsonProperty("default")
+  private boolean isDefault;
 
 }

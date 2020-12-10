@@ -1,11 +1,9 @@
 package com.denlir.pos.entity.inventory;
 
-import com.denlir.pos.entity.BaseEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
 import java.math.BigDecimal;
 
 /**
@@ -14,11 +12,10 @@ import java.math.BigDecimal;
  * @author Denis Citaku
  **/
 @Data
-@EqualsAndHashCode(callSuper = true)
-@Document
-public class Stock extends BaseEntity {
+@Entity
+public class Stock {
 
-  @Indexed(unique = true)
+  @EmbeddedId
   private StockId stockId;
 
   private BigDecimal units;

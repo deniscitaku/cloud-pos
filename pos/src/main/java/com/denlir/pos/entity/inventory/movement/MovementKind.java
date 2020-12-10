@@ -1,8 +1,12 @@
 package com.denlir.pos.entity.inventory.movement;
 
+import com.denlir.pos.exception.ValidationExceptionFluentBuilder;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 /**
  * Created on: 4/12/20
@@ -28,6 +32,20 @@ public enum MovementKind {
 
   MovementKind(int stockEffect) {
     this.stockEffect = new BigDecimal(stockEffect);
+  }
+
+  @JsonCreator
+  public static MovementKind forValue(String value) {
+    return Stream.of(values())
+        .filter(x -> x.toString().equalsIgnoreCase(value))
+        .findFirst()
+        .orElseThrow(() -> ValidationExceptionFluentBuilder.builder()
+            .fieldName("kind")
+            .rejectedValue(value)
+            .message("MovementKind " + value + " does not exist!\nPossible values are: " + Arrays.toString(values()))
+            .code("WrongEnum")
+            .build()
+            .toEntityValidationException());
   }
 
 }

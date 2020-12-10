@@ -1,11 +1,9 @@
-import {TicketLinePayload} from "../../client/Client";
-
 const MAX_TICKETS = 10;
 
 const emptyTicket = {
     ticketLines: [],
     totalAmount: 0
-}
+};
 
 const initialState = {
     selectedIndex: 0,
@@ -20,10 +18,9 @@ export const Actions = {
     SET_SELECTED_TICKET: 'SET_TICKET',
     REMOVE_SELECTED_TICKET: 'REMOVE_TICKET',
     NEW_TICKET_LINE: 'NEW_TICKET_LINE',
-    NEW_TICKET_LINE_FROM_PRODUCT: 'TICKET_LINE_FROM_PRODUCT',
     SET_TICKET_LINE: 'SET_TICKET_LINE',
     REMOVE_TICKET_LINE: 'REMOVE_TICKET_LINE'
-}
+};
 
 const saleTabsReducer = (state = initialState, action) => {
     const {type, payload} = action;
@@ -31,8 +28,6 @@ const saleTabsReducer = (state = initialState, action) => {
     const ticket = tickets[selectedIndex];
 
     switch (type) {
-        case Actions.NEW_TICKET_LINE_FROM_PRODUCT:
-            return addNewTicketLineFromProduct();
         case Actions.NEW_TICKET_LINE:
             return addNewTicketLine();
         case Actions.SET_TICKET_LINE:
@@ -42,23 +37,27 @@ const saleTabsReducer = (state = initialState, action) => {
         case Actions.NEW_TICKET:
             return addNewTicket();
         case Actions.SET_SELECTED_TICKET:
-            tickets[selectedIndex] = payload.ticket;
+            tickets[selectedIndex] = payload;
             return {...state, tickets: tickets};
         case Actions.REMOVE_SELECTED_TICKET:
             return removeSelectedTicket();
         case Actions.GOTO_TICKET:
-            return {...state, selectedIndex: payload.selectedIndex}
+            return {...state, selectedIndex: payload};
         case Actions.NEXT_TICKET :
-            return {...state, selectedIndex: (selectedIndex + 1) % tickets.length}
+            return {...state, selectedIndex: (selectedIndex + 1) % tickets.length};
         case Actions.PREV_TICKET :
-            return {...state, selectedIndex: (selectedIndex - 1 + tickets.length) % tickets.length}
+            return {...state, selectedIndex: (selectedIndex - 1 + tickets.length) % tickets.length};
         default:
-            return state;
+            return {...state};
     }
 
     function removeSelectedTicket() {
         if (selectedIndex === 0) {
-            return {...state, tickets: [emptyTicket]};
+            if (tickets.length > 1) {
+                tickets.splice(selectedIndex, 1);
+                return {...state, tickets: tickets};
+            }
+            return {...state};
         }
         tickets.splice(selectedIndex, 1);
         return {selectedIndex: selectedIndex - 1, tickets: tickets};
@@ -68,28 +67,12 @@ const saleTabsReducer = (state = initialState, action) => {
         if (tickets.length === MAX_TICKETS) {
             return {...state};
         }
-        return {selectedIndex: tickets.length - 1, tickets: [...state.tickets, payload.ticket]};
+        return {selectedIndex: tickets.length, tickets: [...state.tickets, payload]};
     }
 
     function addNewTicketLine() {
         ticket.ticketLines = [...ticket.ticketLines, payload];
         setTicketTotal()
-        tickets[selectedIndex] = ticket;
-        return {...state, tickets: tickets};
-    }
-
-    function addNewTicketLineFromProduct() {
-        const ticketLine = new TicketLinePayload({
-            lineNumber: ticket ? ticket.ticketLines.length + 1 : 1,
-            product: payload,
-            priceBuy: payload.priceBuy,
-            priceSell: payload.priceSell,
-            quantity: 1,
-            tax: payload.tax,
-            amount: payload.priceTax
-        });
-        ticket.ticketLines = [...ticket.ticketLines, ticketLine];
-        setTicketTotal();
         tickets[selectedIndex] = ticket;
         return {...state, tickets: tickets};
     }

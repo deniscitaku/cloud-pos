@@ -1,37 +1,42 @@
 package com.denlir.pos.payload.inventory;
 
+import annotation.FluentBuilder;
 import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.payload.BaseAuditPayload;
 import com.denlir.pos.validation.ValidName;
-import com.denlir.pos.validation.groups.Sale;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import javax.validation.groups.Default;
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Set;
+
+import static annotation.FluentBuilder.Optional;
 
 /**
  * Created on: 3/4/20
  *
  * @author Denis Citaku
  **/
+@FluentBuilder
 @GenerateTS
 @Data
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 public class ProductPayload extends BaseAuditPayload {
 
   @NotBlank
   private String code;
 
-  @ValidName(groups = {Sale.class, Default.class})
+  @ValidName
   private String name;
 
+  @Optional
   private String displayName;
 
   @NotNull
@@ -42,22 +47,23 @@ public class ProductPayload extends BaseAuditPayload {
   @Positive
   private BigDecimal priceSell;
 
-  @NotNull(groups = {Sale.class, Default.class})
-  @Positive(groups = {Sale.class, Default.class})
   private BigDecimal priceTax;
 
   @Valid
   private CategoryPayload category;
 
   @Valid
+  private SubCategoryPayload subCategory;
+
+  @Valid
   @NotNull
   private TaxPayload tax;
 
   @Valid
-  private List<UomPayload> uoms;
+  @Optional
+  private Set<UomPayload> uoms;
 
-  private StockPayload stock;
-
-  private int minStock;
+  @Optional
+  private BigDecimal minStock;
 
 }

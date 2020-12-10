@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  **/
 @GenerateTS
 @RestController
-@RequestMapping("inventory/movement/ticket-line")
+@RequestMapping("inventory/movement/sale/ticket-line")
 public class TicketLineController extends BasicControllerOperations<TicketLineService, TicketLinePayload> {
 
   public TicketLineController(TicketLineService ticketLineService) {

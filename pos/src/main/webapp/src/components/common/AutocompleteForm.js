@@ -21,7 +21,7 @@ export default function AutocompleteForm(props) {
         findAll,
         create,
         formElements
-    } = props
+    } = props;
 
     const [value, setValue] = useState(emptyValue);
     const [isOpen, setOpen] = useState(false);
@@ -30,7 +30,7 @@ export default function AutocompleteForm(props) {
 
     useEffect(() => {
         fetch(findAll(), setObject, setErrors);
-    }, [])
+    }, []);
 
     function handleAutocompleteValueChange(event, newValue) {
         event.preventDefault();
@@ -97,7 +97,8 @@ export default function AutocompleteForm(props) {
                 onSubmit={handleSubmit}
                 onClose={handleClose}
                 focusSubmit={focusSubmit}
-                formElements={formElements(value, setValue, errors)}/>
+                formElements={formElements(value, setValue, errors)}
+            />
         </>
     )
 }

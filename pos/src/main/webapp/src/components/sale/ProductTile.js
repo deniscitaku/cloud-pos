@@ -5,9 +5,11 @@ import GridListTileBar from "@material-ui/core/GridListTileBar";
 import IconButton from "@material-ui/core/IconButton";
 import InfoIcon from '@material-ui/icons/Info';
 import noImage from '../../static/noimage.png';
-import {addTicketLineFromProduct} from "../../reducers/global/saleTabsReducer";
 import {useDispatch} from "react-redux";
 import Grow from "@material-ui/core/Grow";
+import {Actions} from "../../reducers/global/saleTabsReducer";
+import {AxiosTicketLineClient, TicketLinePayload} from "../../client/Client";
+import {fetch} from "../../services/fetch";
 
 const useStyles = makeStyles(theme =>
     createStyles({
@@ -32,18 +34,24 @@ const useStyles = makeStyles(theme =>
     }),
 );
 
-const ProductTile = props => {
-    const { index, product, ticketIndex } = props;
+export default function ProductTile({ index, product, ticketLines}) {
     const classes = useStyles();
     const dispatch = useDispatch();
-
-    function createTicketLine() {
-        addTicketLineFromProduct(ticketIndex, product, dispatch);
-    }
+    const ticketLineClient = new AxiosTicketLineClient();
 
     function handleInformationButton(event) {
         event.preventDefault();
         return undefined;
+    }
+
+    function handleProductClick(event) {
+        let ticketLine = new TicketLinePayload({
+            lineNumber: ticketLines ? ticketLines.length + 1 : 1,
+            product: product,
+            quantity: 1,
+        });
+        console.log("TicketLine: ", ticketLine);
+        fetch(ticketLineClient.create(ticketLine), ticketLine => dispatch({type: Actions.NEW_TICKET_LINE, payload: ticketLine}));
     }
 
     return (
@@ -52,13 +60,13 @@ const ProductTile = props => {
             style={{ transformOrigin: '0 0 0'}}
               {...({timeout: index * 50})}
         >
-            <GridListTile key={product.code} className={classes.productTile} onClick={createTicketLine}>
+            <GridListTile key={product.code} className={classes.productTile} onClick={handleProductClick}>
                 <img src={product.image ? product.image : noImage} alt={product.name}/>
                 <GridListTileBar
                     title={product.name}
                     subtitle={<span>{product.code}</span>}
                     actionIcon={
-                        <IconButton aria-label={`info about ${product.name}`} onClick={e => handleInformationButton(e)}>
+                        <IconButton aria-label={`info about ${product.name}`} onClick={handleInformationButton}>
                             <InfoIcon/>
                         </IconButton>
                     }
@@ -67,5 +75,3 @@ const ProductTile = props => {
         </Grow>
     )
 }
-
-export default ProductTile;

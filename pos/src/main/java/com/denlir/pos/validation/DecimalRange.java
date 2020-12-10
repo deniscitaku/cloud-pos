@@ -20,7 +20,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface DecimalRange {
 
-  String message() default "Decimal value must be between {min} and {max}";
+  String message() default "must be between {min} and {max}";
   Class<?>[] groups() default {};
   Class<? extends Payload>[] payload() default {};
 

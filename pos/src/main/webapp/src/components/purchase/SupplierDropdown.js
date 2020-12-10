@@ -1,71 +1,74 @@
-import React from 'react';
-import {AxiosSupplierClient, SupplierPayload} from "../../client/Client";
+import React, {useCallback, useRef, useState} from 'react';
 import LocalShippingOutlinedIcon from '@material-ui/icons/LocalShippingOutlined';
-import ValidTextField from "../common/ValidTextField";
-import AutocompleteForm from "../common/AutocompleteForm";
+import AutocompleteDropdown from "../common/AutocompleteDropdown";
+import NewSupplier from "../supplier/NewSupplier";
+import {emptySupplier} from "../../services/EmptyObjects";
+import {useDispatch} from "react-redux";
+import {setSupplierToInventoryMovement} from "../../reducers/global/inventoryMovementReducer";
+import {MovementKind} from "../../client/Client";
 
-const emptySupplier = new SupplierPayload({
-    name: '',
-    nui: '',
-    phoneNumber: '',
-    email: ''
-});
+const movementKind = MovementKind.PURCHASE;
 
-const supplierClient = new AxiosSupplierClient();
+function SupplierDropdown({suppliers, addSupplier}) {
 
-export default function SupplierDropdown() {
+    console.log("Inside SupplierDropdown!");
+
+    const [open, setOpen] = useState(false);
+    const [supplier, setSupplier] = useState(emptySupplier);
+    const dispatch = useDispatch();
+    const icon = useRef(<LocalShippingOutlinedIcon/>);
+
+    const setOpenCallback = useCallback((value) => setOpen(value), []);
+    const initialSupplierOnAdd = useCallback(() => supplier, [open]);
+    const handleSavedSupplier = useCallback((savedSupplier) => {
+        setSupplier(savedSupplier);
+        setSupplierToInventoryMovement(movementKind, savedSupplier, dispatch);
+        addSupplier(savedSupplier);
+    }, []);
+    const onClose = useCallback(() => setSupplier(emptySupplier), []);
+
+    function handleChange(event, newValue) {
+        event.preventDefault();
+        if (typeof newValue === 'string') {
+            setSupplier({...emptySupplier, name: newValue});
+            setOpen(true);
+        } else if (newValue && newValue.inputValue) {
+            setSupplier({...emptySupplier, name: newValue.inputValue});
+            setOpen(true);
+        } else if (!newValue) {
+            setSupplier(emptySupplier);
+            setSupplierToInventoryMovement(movementKind, emptySupplier, dispatch);
+        } else {
+            setSupplier(newValue);
+            setSupplierToInventoryMovement(movementKind, newValue, dispatch);
+        }
+    }
 
     return (
-        <AutocompleteForm
-            label='Search supplier'
-            icon={<LocalShippingOutlinedIcon color={'action'}/>}
-            dialogTitle={"Add supplier"}
-            emptyValue={emptySupplier}
-            focusFieldAfterDialogOpen={'name'}
-            findAll={() => supplierClient.findAll()}
-            create={x => supplierClient.create(x)}
-            formElements={(supplier, setSupplier, errors) => [
-                <ValidTextField
-                    error={errors.name}
-                    id="name"
-                    value={supplier.name}
-                    onChange={(event) => setSupplier({...supplier, name: event.target.value})}
-                    label="Name"
-                    type="text"
-                />,
-                <ValidTextField
-                    error={errors.nui}
-                    required={false}
-                    autoFocus
-                    id="nui"
-                    value={supplier.nui}
-                    onChange={(event) => setSupplier({...supplier, nui: event.target.value})}
-                    label="Nui"
-                    type="text"
-                />,
-                <ValidTextField
-                    error={errors.email}
-                    required={false}
-                    id="email"
-                    value={supplier.email}
-                    onChange={(event) => setSupplier({...supplier, email: event.target.value})}
-                    label="Email"
-                    type="text"
-                />,
-                <ValidTextField
-                    error={errors.phoneNumber}
-                    required={false}
-                    id="phoneNumber"
-                    value={supplier.phoneNumber}
-                    onChange={(event) => setSupplier({
-                        ...supplier,
-                        phoneNumber: event.target.value
-                    })}
-                    label="Phone number"
-                    type="text"
-                />
-            ]
-            }
-        />
+        <>
+            <AutocompleteDropdown
+                label="Supplier"
+                variant="outlined"
+                icon={icon.current}
+                required
+                items={suppliers}
+                enableAddOption
+                minWidth={250}
+                props={{
+                    value: supplier,
+                    onChange: handleChange
+                }}
+            />
+            <NewSupplier
+                isOpen={open}
+                setOpen={setOpenCallback}
+                savedSupplier={handleSavedSupplier}
+                initialSupplierOnAdd={initialSupplierOnAdd}
+                onClose={onClose}
+                autoFocusIndex={1}
+            />
+        </>
     );
 }
+
+export default React.memo(SupplierDropdown);

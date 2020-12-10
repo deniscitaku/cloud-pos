@@ -4,11 +4,13 @@ import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.controller.BasicControllerOperations;
 import com.denlir.pos.payload.inventory.ProductPayload;
 import com.denlir.pos.service.inventory.ProductService;
-import com.denlir.pos.validation.groups.Sale;
+import com.denlir.pos.validation.groups.Partial;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import javax.validation.constraints.NotNull;
+import java.util.Collection;
+import java.util.List;
 
 @GenerateTS
 @RestController
@@ -20,28 +22,28 @@ public class ProductController extends BasicControllerOperations<ProductService,
   }
 
   @GetMapping("/code/{code}")
-  public Mono<ProductPayload> findByCode(@PathVariable String code) {
+  public ProductPayload findByCode(@PathVariable String code) {
     return service.findByCode(code);
   }
 
   @GetMapping
-  public Flux<ProductPayload> findByCodeOrName(@RequestParam String codeOrName) {
+  public Collection<ProductPayload> findByCodeOrName(@RequestParam String codeOrName) {
     return service.findAllByCodeOrName(codeOrName);
   }
 
-  @GetMapping("/stock")
-  public Flux<ProductPayload> findAllLowInStock(@RequestParam String locationId) {
-    return service.findAllLowInStock(locationId);
+  @GetMapping("/category/{categoryId}")
+  public List<ProductPayload> findByCategoryId(@PathVariable Long categoryId) {
+    return service.findAllByCategoryId(categoryId);
+  }
+
+  @GetMapping("/sub-category/{subCategoryId}")
+  public List<ProductPayload> findBySubCategoryId(@PathVariable Long subCategoryId) {
+    return service.findAllBySubCategoryId(subCategoryId);
   }
 
   @PostMapping("/sale")
-  public Mono<ProductPayload> createFromSale(@RequestBody @Validated(value = {Sale.class}) ProductPayload productPayload) {
-    return service.create(productPayload);
-  }
-
-  @PutMapping("/sale")
-  public Mono<ProductPayload> updateFromSale(@RequestBody @Validated(value = {Sale.class}) ProductPayload productPayload) {
-    return service.update(productPayload);
+  public ProductPayload saveFromSale(@RequestBody @Validated(value = {Partial.class}) ProductPayload productPayload) {
+    return service.save(productPayload);
   }
 
 }

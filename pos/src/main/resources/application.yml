@@ -1,14 +1,15 @@
 spring:
-  application:
-    name: pos
-  data:
-    mongodb:
-      host: 127.0.0.1
-      port: 27017
-      database: pos_db
-      auto-index-creation: false
-  jackson:
-    default-property-inclusion: NON_NULL
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:5432/pos_db
+    username: postgres
+    password: root
+    driverClassName: org.postgresql.Driver
 server:
   port: 8081
   servlet:

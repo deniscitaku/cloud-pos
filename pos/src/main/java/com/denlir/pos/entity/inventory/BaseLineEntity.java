@@ -1,11 +1,12 @@
 package com.denlir.pos.entity.inventory;
 
 import com.denlir.pos.entity.BaseEntity;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 /**
@@ -13,14 +14,15 @@ import java.math.BigDecimal;
  *
  * @author Denis Citaku
  **/
-@Getter
-@Setter
+@Data
 @EqualsAndHashCode(callSuper = true)
+@MappedSuperclass
 public abstract class BaseLineEntity extends BaseEntity {
 
   private Integer lineNumber;
 
-  @DBRef
+  @OneToOne
+  @JoinColumn
   private Product product;
 
   private BigDecimal priceBuy;
@@ -31,10 +33,12 @@ public abstract class BaseLineEntity extends BaseEntity {
 
   private BigDecimal amount;
 
-  @DBRef
+  @OneToOne
+  @JoinColumn
   private Tax tax;
 
-  @DBRef
+  @OneToOne
+  @JoinColumn
   private Uom uom;
 
 }

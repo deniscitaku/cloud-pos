@@ -18,13 +18,13 @@ import static java.lang.annotation.ElementType.*;
  **/
 @ReportAsSingleViolation
 @NotBlank
-@Pattern(regexp = "(\\w|\\s){6,100}")
+@Pattern(regexp = "(\\w|\\s){1,100}")
 @Constraint(validatedBy = {})
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidName {
 
-  String message() default "must not contain special characters and must be between 6 - 100 characters long.";
+  String message() default "must contain word characters and must be between 1 - 100 long.";
   Class<?>[] groups() default {};
   Class<? extends Payload>[] payload() default {};
 

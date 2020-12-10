@@ -3,10 +3,11 @@ import {useState} from "react";
 const themeObject = {
     palette: {
         primary: {
-            main: '#69c3ff',
+            main: '#26c6da',
+            mainGradient: 'linear-gradient(90deg, rgba(184,138,241,1) 0%, rgba(59,100,176,1) 40%, rgba(59,105,178,1) 60%, rgba(65,216,219,1) 100%)'
         },
         secondary: {
-            main: '#ff80ab',
+            main: '#d274a1',
         },
         type: 'dark'
     },

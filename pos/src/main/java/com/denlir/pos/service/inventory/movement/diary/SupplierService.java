@@ -1,14 +1,18 @@
 package com.denlir.pos.service.inventory.movement.diary;
 
 import com.denlir.pos.entity.inventory.movement.diary.Supplier;
-import com.denlir.pos.exception.ValidationExceptionPayload;
+import com.denlir.pos.exception.EntityValidationException;
+import com.denlir.pos.exception.ValidationExceptionFluentBuilder;
+import com.denlir.pos.payload.domain.PagePayload;
 import com.denlir.pos.payload.inventory.movement.diary.SupplierMapper;
 import com.denlir.pos.payload.inventory.movement.diary.SupplierPayload;
 import com.denlir.pos.repository.inventory.movement.diary.SupplierRepository;
 import com.denlir.pos.service.BasicServiceOperation;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import com.denlir.pos.validation.validators.UniqueValidator;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
+
+import static com.denlir.pos.service.FieldInclude.ofEntityAndMapper;
 
 /**
  * Created on: 4/13/20
@@ -18,28 +22,25 @@ import reactor.core.publisher.Mono;
 @Service
 public class SupplierService extends BasicServiceOperation<Supplier, SupplierPayload, SupplierRepository> {
 
-  protected SupplierService(SupplierMapper supplierMapper, SupplierRepository repository, ReactiveMongoOperations reactiveOps) {
-    super(supplierMapper, repository, reactiveOps);
+  protected SupplierService(SupplierMapper supplierMapper, SupplierRepository repository) {
+    super(supplierMapper, repository);
   }
 
   @Override
-  protected Mono<SupplierPayload> doDatabaseValidationOn(SupplierPayload payload, CrudOperation crudOperation) {
-    if (crudOperation == CrudOperation.CREATE) {
-      return repository.existsByName(payload.getName())
-          .handle((exists, sink) -> {
-            if (exists) {
-              sink.error(ValidationExceptionPayload.builder()
-                  .fieldName("name")
-                  .message("must not be duplicate")
-                  .rejectedValue(payload.getName())
-                  .code("code.duplicate")
-                  .build()
-                  .toEntityValidationException());
-            } else {
-              sink.next(payload);
-            }
-          });
-    }
-    return Mono.just(payload);
+  public PagePayload<SupplierPayload> findAllPagedWithSearch(String search, PageRequest pageRequest, String... includeFields) {
+    var pageWithSearch = repository.findAllPageableWithSearch(search, pageRequest)
+        .map(x -> includeFields(ofEntityAndMapper(x, mapper, includeFields)));
+
+    return PagePayload.fromPageable(pageWithSearch);
   }
+
+  @Override
+  protected void checkUniqueness(UniqueValidator<SupplierRepository, SupplierPayload> uniqueValidator) {
+    uniqueValidator.onCreate((r, p) -> r.existsByName(p.getName()))
+        .onUpdate((r, p) -> r.existsByNameAndIdIsNot(p.getName(), p.getId()))
+        .withName("name")
+        .withValue(SupplierPayload::getName)
+        .end();
+  }
+
 }

@@ -3,7 +3,10 @@ package com.denlir.pos.entity.inventory.movement.diary;
 import com.denlir.pos.entity.inventory.BaseLineEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  * Created on: 4/12/20
@@ -12,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  **/
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Document("inventoryMovementLines")
+@Entity
 public class InventoryMovementLine extends BaseLineEntity {
 
 }

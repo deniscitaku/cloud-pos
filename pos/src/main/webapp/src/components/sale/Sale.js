@@ -11,13 +11,18 @@ import {Zoom} from "@material-ui/core";
 import Tools from "./Tools";
 import {useDispatch, useSelector} from "react-redux";
 import {AxiosTicketClient} from "../../client/Client";
-import TicketSummary from "./TicketSummary";
+import Summary from "./Summary";
 import {fetch, loadingFetch} from "../../services/fetch";
 import ProgressButton from "../common/ProgressButton";
 import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
 import TabPanel from "./TabPanel";
 import {Actions} from "../../reducers/global/saleTabsReducer";
 import {formatMoney} from "../../services/utils";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from '@material-ui/icons/Menu';
+import Toolbar from "@material-ui/core/Toolbar";
+import clsx from 'clsx';
+import CategoriesDrawer from "./CategoriesDrawer";
 
 function a11yProps(index) {
     return {
@@ -33,14 +38,15 @@ const useStyles = makeStyles((theme) => ({
         height: '100%',
         flexGrow: 1,
     },
+    toolbar: {
+        display: "flex",
+    },
+    tabs: {
+        flexBasis: '100%'
+    },
     '.MuiTab-wrapper': {
         fontSize: "2em",
         fontWeight: "bold"
-    },
-    fab: {
-        position: 'absolute',
-        bottom: theme.spacing(5),
-        right: theme.spacing(5),
     },
     firstGridPart: {
         order: 1,
@@ -55,17 +61,51 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.down('sm')]: {
             order: 0,
         }
-    }
+    },
+    menuButton: {
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
+    },
+    hide: {
+        display: 'none',
+    },
+    content: {
+        flexGrow: 1,
+        padding: theme.spacing(3),
+        transition: theme.transitions.create('margin', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+        }),
+        marginRight: 0,
+    },
+    contentShift: {
+        transition: theme.transitions.create('margin', {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
+        marginRight: 280,
+    },
 }));
 
 export default function Sale() {
     const ticketClient = new AxiosTicketClient();
-    const dispatch = useDispatch();
     const classes = useStyles();
     const theme = useTheme();
-    const childRefs = useRef([]);
+    const qtyRef = useRef();
+    const qtyFocusRef = useRef(false);
+    const searchRef = useRef();
+    const dispatch = useDispatch();
     const {selectedIndex, tickets} = useSelector((state) => state.tabs);
-    const {selectedTicket} = tickets[selectedIndex];
+    const selectedTicket = tickets[selectedIndex];
+    const [open, setOpen] = React.useState(false);
+
+    const handleDrawerOpen = () => {
+        setOpen(true);
+    };
+
+    const handleDrawerClose = () => {
+        setOpen(false);
+    };
 
     useEffect(() => {
         window.addEventListener('keydown', downHandler);
@@ -75,25 +115,25 @@ export default function Sale() {
     });
 
     useEffect(() => {
-        fetch(ticketClient.openTicket("5e9d89599d4e0c79447630f4"),
-                response => dispatch({type: Actions.SET_SELECTED_TICKET, ticket: response}))
+        fetch(ticketClient.openTicket(1),
+            response => dispatch({type: Actions.SET_SELECTED_TICKET, payload: response}))
     }, []);
 
     function downHandler(keyboardEvent) {
         console.log("Key pressed: ", keyboardEvent)
         if (keyboardEvent.altKey && keyboardEvent.code === 'KeyT') {
-            fetch(ticketClient.openTicket("5e9d89599d4e0c79447630f4"),
-                response => dispatch({type: Actions.NEW_TICKET, ticket: response}));
+            fetch(ticketClient.openTicket(1),
+                response => dispatch({type: Actions.NEW_TICKET, payload: response}));
         } else if (keyboardEvent.altKey && keyboardEvent.code === 'KeyW') {
-            dispatch({type: Actions.REMOVE_SELECTED_TICKET})
+            fetch(ticketClient.deleteById(selectedTicket.id), () => dispatch({type: Actions.REMOVE_SELECTED_TICKET}))
         } else if (keyboardEvent.altKey && keyboardEvent.code === 'ArrowRight') {
-            dispatch({type: Actions.NEW_TICKET})
+            dispatch({type: Actions.NEXT_TICKET})
         } else if (keyboardEvent.altKey && keyboardEvent.code === 'ArrowLeft') {
             dispatch({type: Actions.PREV_TICKET})
-        } else if (keyboardEvent.key === '*' && childRefs.current[0]) {
-            childRefs.current[0].focusQty();
-        } else if (keyboardEvent.key === 'Enter' && childRefs.current[0] && childRefs.current[0].isFocused() && childRefs.current[1]) {
-            childRefs.current[1].focusSearch();
+        } else if (keyboardEvent.key === '*' && qtyRef.current) {
+            qtyRef.current.focus();
+        } else if (keyboardEvent.key === 'Enter' && qtyFocusRef.current && searchRef.current) {
+            searchRef.current.focus();
         }
     }
 
@@ -106,8 +146,8 @@ export default function Sale() {
         loadingFetch(ticketClient.update(selectedTicket),
             () => {
                 if (tickets.length === 1) {
-                    fetch(ticketClient.openTicket("5e9d89599d4e0c79447630f4"), response => {
-                        dispatch({type: Actions.SET_SELECTED_TICKET, ticket: response});
+                    fetch(ticketClient.openTicket(1), response => {
+                        dispatch({type: Actions.SET_SELECTED_TICKET, payload: response});
                     });
                 } else {
                     dispatch({type: Actions.REMOVE_SELECTED_TICKET})
@@ -122,42 +162,61 @@ export default function Sale() {
 
     return <div className={classes.root}>
         <AppBar position="static" color="default">
-            <Tabs
-                value={selectedIndex}
-                indicatorColor="primary"
-                textColor="primary"
-                variant="fullWidth"
-            >
-                {tickets.map((item, index) =>
-                    <Tab id={index}
-                         key={index}
-                         label={formatMoney(item.totalAmount)}
-                         style={{
-                             fontSize: "2em",
-                             fontWeight: "bold"
-                         }}
-                         onClick={() => dispatch({type: Actions.GOTO_TICKET, selectedIndex: index})}
-                         {...a11yProps(index)}>
-                    </Tab>
-                )}
-            </Tabs>
+            <Toolbar classes={classes.toolbar} disableGutters>
+                <Tabs
+                    value={selectedIndex}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    variant="fullWidth"
+                    classes={{
+                        root: classes.tabs
+                    }}
+                >
+                    {tickets.map((item, index) =>
+                        <Tab id={index}
+                             key={index}
+                             label={formatMoney(item.totalAmount)}
+                             style={{
+                                 fontSize: "2em",
+                                 fontWeight: "bold"
+                             }}
+                             onClick={() => dispatch({type: Actions.GOTO_TICKET, payload: index})}
+                             {...a11yProps(index)}>
+                        </Tab>
+                    )}
+                </Tabs>
+                <IconButton
+                    color="inherit"
+                    aria-label="open drawer"
+                    edge="start"
+                    onClick={handleDrawerOpen}
+                    className={clsx(classes.menuButton, open && classes.hide)}
+                >
+                    <MenuIcon/>
+                </IconButton>
+            </Toolbar>
         </AppBar>
+        <CategoriesDrawer open={open} handleDrawerClose={handleDrawerClose}/>
+        <main
+            style={{position: 'relative', height: '95%'}}
+            className={clsx(classes.content, {
+                [classes.contentShift]: open,
+            })}
+        >
         <SwipeableViews
             axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
             index={selectedIndex}
-            onChangeIndex={(index => dispatch({type: Actions.GOTO_TICKET, selectedIndex: index}))}
         >
             {tickets.map((item, index) =>
                 <TabPanel key={index} value={selectedIndex} index={index} {...a11yProps(index)}>
                     <Grid container spacing={3}>
                         <Grid className={classes.firstGridPart} key={"left-side"} item md={6} sm={12}>
                             <Tools/>
-                            <SaleTable ref={e => childRefs.current[0] = e} style={{maxHeight: "200px"}}
-                                       ticketIndex={selectedIndex}/>
-                            <TicketSummary ticketIndex={selectedIndex}/>
+                            <SaleTable qtyRef={qtyRef} searchRef={searchRef} qtyFocusRef={qtyFocusRef}/>
+                            <Summary total={selectedTicket.totalAmount}/>
                         </Grid>
                         <Grid key={"right-side"} className={classes.secondGridPart} item md={6} sm={12}>
-                            <ProductsList ref={e => childRefs.current[1] = e} ticketIndex={selectedIndex}/>
+                            <ProductsList searchRef={searchRef} ticketLines={selectedTicket.ticketLines}/>
                         </Grid>
                     </Grid>
                 </TabPanel>
@@ -173,11 +232,12 @@ export default function Sale() {
                 }}
                 unmountOnExit
             >
-                <ProgressButton className={classes.fab}
-                                size="large"
+                <ProgressButton size="large"
                                 icon={<AddShoppingCartIcon style={{fontSize: "4em"}}/>}
                                 disabled={(selectedTicket.totalAmount === 0)}
                                 onClick={(setLoading, setSuccess) => payButtonOnAction(setLoading, setSuccess)}/>
             </Zoom>)}
-    </div>;
+        </main>
+    </div>
+;
 }
