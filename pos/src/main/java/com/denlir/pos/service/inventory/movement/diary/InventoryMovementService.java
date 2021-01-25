@@ -7,6 +7,8 @@ import com.denlir.pos.payload.domain.LocationPayload;
 import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementLinePayload;
 import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementMapper;
 import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementPayload;
+import com.denlir.pos.payload.inventory.movement.sale.TicketLinePayload;
+import com.denlir.pos.payload.inventory.movement.sale.TicketPayload;
 import com.denlir.pos.repository.inventory.movement.diary.InventoryMovementRepository;
 import com.denlir.pos.service.BasicServiceOperation;
 import com.denlir.pos.service.domain.SequenceHolderService;
@@ -44,7 +46,11 @@ public class InventoryMovementService extends
   }
 
   public Collection<InventoryMovementPayload> findByKind(MovementKind kind) {
-    return mapper.entitiesToPayloads(repository.findByKind(kind));
+    return mapper.partialEntitiesToPayloads(repository.findByKind(kind));
+  }
+
+  public Collection<InventoryMovementPayload> findByKindAndStatus(MovementKind kind, Status status) {
+    return mapper.partialEntitiesToPayloads(repository.findByKindAndStatusOrderByUpdatedOn(kind, status));
   }
 
   @Transactional
@@ -57,11 +63,24 @@ public class InventoryMovementService extends
     payload.setKind(MovementKind.forValue(kind));
     payload.setStatus(Status.OPENED);
 
-    checkUniqueness(UniqueValidator.of(repository, payload));
-    InventoryMovementPayload p = beforeSave(payload);
-    InventoryMovement entity = mapper.payloadToEntity(p);
+    return save(payload);
+  }
 
-    return mapper.entityToPayload(repository.save(entity));
+  @Transactional
+  public InventoryMovementPayload closeInventoryMovement(InventoryMovementPayload inventoryMovementPayload) {
+    inventoryMovementPayload.setStatus(Status.CLOSED);
+    return save(inventoryMovementPayload);
+  }
+
+  @Transactional
+  public InventoryMovementPayload addInventoryMovementLine(Long inventoryMovementId, InventoryMovementLinePayload inventoryMovementLine) {
+    InventoryMovementPayload inventoryMovement = getOne(inventoryMovementId);
+
+    InventoryMovementLinePayload iml = inventoryMovementLineService.beforeSave(inventoryMovementLine);
+    iml.setLineNumber(inventoryMovement.getInventoryMovementLines().size() + 1);
+    inventoryMovement.getInventoryMovementLines().add(iml);
+
+    return save(inventoryMovement);
   }
 
   @Override
@@ -71,12 +90,6 @@ public class InventoryMovementService extends
     if (payload.getSequence() == null) {
       Long sequence = sequenceHolderService.getAndIncrementSequenceByIdAndMovementKind(locationId, payload.getKind());
       payload.setSequence(sequence);
-    }
-
-    if (payload.getInventoryMovementLines() != null && !payload.getInventoryMovementLines().isEmpty()) {
-      int lastLine = payload.getInventoryMovementLines().size() - 1;
-      InventoryMovementLinePayload inventoryMovementLinePayload = inventoryMovementLineService.beforeSave(payload.getInventoryMovementLines().get(lastLine));
-      payload.getInventoryMovementLines().set(lastLine, inventoryMovementLinePayload);
     }
 
     if (payload.getStatus() == Status.CLOSED) {

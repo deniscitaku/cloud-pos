@@ -26,8 +26,6 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 public abstract class BaseLinePayload extends BasePayload implements Comparable<BaseLinePayload> {
 
-  @NotNull
-  @PositiveOrZero
   private Integer lineNumber;
 
   @NotNull

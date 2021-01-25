@@ -1,22 +1,24 @@
-import React, {useCallback, useRef, useState} from 'react';
-import {AxiosCategoryClient} from "../../../client/Client";
+import React, {lazy, useCallback, useRef, useState} from 'react';
+import {AxiosCategoryClient, QueryKeys} from "../../../client/Client";
 import ValidTableCell from "../../common/ValidTableCell";
-import NewCategory from "./NewCategory";
 import ValidTextField from "../../common/ValidTextField";
 import CategoryIcon from '@material-ui/icons/Category';
-import Table from "../../common/Table";
+import Table from "../../common/CustomTable";
+
+const NewCategory = lazy(() => import("./NewCategory"));
 
 const categoryService = new AxiosCategoryClient();
 
-export default function Category() {
+export default function CategoryView() {
     console.log("Category rendered!");
 
     const [open, setOpen] = useState(false);
+
     const tableRef = useRef();
     const errorsRef = useRef([]);
+    const categoryIcon = useRef(<CategoryIcon/>);
 
     const openDialog = useCallback(() => setOpen(true), []);
-    const categoryIcon = useCallback(() => <CategoryIcon/>, []);
     const columns = useCallback(() => [
         {title: '#', field: 'tableData.id', editable: "never", width: "1%"},
         {
@@ -26,10 +28,6 @@ export default function Category() {
             title: 'Sub Categories', field: 'subCategories', width: "40%", editable: "never", render: category => category.subCategories?.map(x => x.name).join(', ')
         }
     ], []);
-
-    function refreshTable() {
-        tableRef.current && tableRef.current.onQueryChange();
-    }
 
     return (
         <>
@@ -42,8 +40,9 @@ export default function Category() {
                 columns={columns}
                 tableRef={tableRef}
                 errorsRef={errorsRef}
+                queryKey={QueryKeys.CATEGORIES}
             />
-            <NewCategory isOpen={open} setOpen={setOpen} refreshTable={refreshTable}/>
+            {open && <NewCategory isOpen={open} setOpen={setOpen} refreshTable={() => tableRef.current && tableRef.current.onQueryChange()}/>}
         </>
     );
 }

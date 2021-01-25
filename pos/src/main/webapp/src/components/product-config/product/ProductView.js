@@ -1,31 +1,41 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {AxiosCategoryClient, AxiosProductClient, AxiosSubCategoryClient, AxiosTaxClient} from "../../../client/Client";
+import {
+    AxiosCategoryClient,
+    AxiosProductClient,
+    AxiosSubCategoryClient,
+    AxiosTaxClient,
+    QueryKeys
+} from "../../../client/Client";
 import ValidTableCell from "../../common/ValidTableCell";
 import ValidTextField from "../../common/ValidTextField";
 import NewProduct from "./NewProduct";
-import {useMultipleFindAll} from "../../../hooks/useFetch";
 import AutocompleteDropdown from "../../common/AutocompleteDropdown";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Table from "../../common/Table";
+import Table from "../../common/CustomTable";
 import FastFoodIcon from '@material-ui/icons/Fastfood';
+import {useQueryClient} from "react-query";
 
 const productService = new AxiosProductClient();
 const categoryService = new AxiosCategoryClient();
 const subCategoryService = new AxiosSubCategoryClient();
 const taxService = new AxiosTaxClient();
 
-export default function Product() {
-    console.log("Product rendered!");
+export default function ProductView() {
+    console.log("ProductView rendered!");
 
     const tableRef = useRef();
     const errorsRef = useRef([]);
     const [open, setOpen] = useState(false);
-    const [findAll, state] = useMultipleFindAll([() => categoryService.findAll(), () => subCategoryService.findAll(), () => taxService.findAll()]);
-    const [categories, subCategories, taxes] = state.data;
+    const queryClient = useQueryClient();
 
+    useEffect(() => {
+        queryClient.prefetchQuery(QueryKeys.CATEGORIES, () => categoryService.findAll().then(x => x.data));
+        queryClient.prefetchQuery(QueryKeys.SUB_CATEGORIES, () => subCategoryService.findAll().then(x => x.data));
+        queryClient.prefetchQuery(QueryKeys.TAXES, () => taxService.findAll().then(x => x.data));
+
+    }, []);
+
+    const icon = useRef(<FastFoodIcon/>);
     const openDialog = useCallback(() => setOpen(true), []);
-    const productIcon = useCallback(() => <FastFoodIcon/>, []);
-
     const columns = useCallback(() => [
         {title: '#', field: 'tableData.id', editable: "never", width: "1%"},
         {
@@ -68,9 +78,11 @@ export default function Product() {
             width: "10%",
             render: product => product.tax?.name,
             editComponent: (props) => ValidTableCell(props, errorsRef, AutocompleteDropdown, {
-                items: taxes,
+                items: queryClient.getQueryData(QueryKeys.TAXES),
                 variant: "standard",
+                isLoading: !!queryClient.isFetching(QueryKeys.TAXES),
                 props: {
+                    value: props.value,
                     onChange: (event, newValue) => props.onChange(newValue)
                 }
             })
@@ -89,9 +101,11 @@ export default function Product() {
             width: "20%",
             render: product => product.category?.name,
             editComponent: (props) => ValidTableCell(props, errorsRef, AutocompleteDropdown, {
-                items: categories,
+                items: queryClient.getQueryData(QueryKeys.CATEGORIES),
                 variant: "standard",
+                isLoading: !!queryClient.isFetching(QueryKeys.CATEGORIES),
                 props: {
+                    value: props.value,
                     onChange: (event, newValue) => props.onChange(newValue)
                 }
             })
@@ -103,51 +117,45 @@ export default function Product() {
             required: false,
             render: product => product.subCategory?.name,
             editComponent: (props) => ValidTableCell(props, errorsRef, AutocompleteDropdown, {
-                items: subCategories,
-                variant: "standard",
-                props: {
-                    onChange: (event, newValue) => props.onChange(newValue)
-                }
-            })
+                    items: queryClient.getQueryData(QueryKeys.SUB_CATEGORIES),
+                    variant: "standard",
+                    isLoading: !!queryClient.isFetching(QueryKeys.SUB_CATEGORIES),
+                    props: {
+                        value: props.value,
+                        onChange: (event, newValue) => props.onChange(newValue)
+                    }
+                })
+
         },
         {
             title: 'Min. stock',
             field: 'minStock',
             type: 'numeric',
             required: false,
-            width: "5%"
+            width: "5%",
+            editComponent: (props) => ValidTableCell(props, errorsRef, ValidTextField)
         }
-    ], [state.data]);
-
-    useEffect(findAll, []);
-
-    if (state.progress === 'idle') {
-        return (<CircularProgress style={{position: 'absolute', left: '50%', top: '50%'}}/>)
-    }
-
-    function refreshTable() {
-        tableRef.current && tableRef.current.onQueryChange();
-    }
+    ], []);
 
     return (
         <>
             <Table
                 title="Products"
                 addNewLabel="Add product"
-                addNewIcon={productIcon}
+                addNewIcon={icon}
                 onAddNew={openDialog}
                 service={productService}
                 columns={columns}
                 tableRef={tableRef}
                 errorsRef={errorsRef}
+                queryKey={QueryKeys.PRODUCTS}
             />
-            <NewProduct isOpen={open}
-                        setOpen={setOpen}
-                        refreshTable={refreshTable}
-                        categories={categories}
-                        subCategories={subCategories}
-                        taxes={taxes}
-            />
+            {open && (
+                <NewProduct isOpen={open}
+                            setOpen={setOpen}
+                            savedProduct={() => tableRef.current && tableRef.current.onQueryChange()}
+                />
+            )}
         </>
     );
 }

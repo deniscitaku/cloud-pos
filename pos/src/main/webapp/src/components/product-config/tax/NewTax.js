@@ -1,21 +1,29 @@
-import React, {useState} from 'react';
+import React from 'react';
 import FormDialog from "../../common/FormDialog";
-import {loadingFetch} from "../../../services/fetch";
-import {AxiosTaxClient} from "../../../client/Client";
+import {AxiosTaxClient, QueryKeys} from "../../../client/Client";
 import TaxIcon from "../../icons/TaxIcon";
 import ValidCheckBox from "../../common/ValidCheckBox";
-import ValidTableCell from "../../common/ValidTableCell";
-import ValidTextField from "../../common/ValidTextField";
 import {emptyTax} from "../../../services/EmptyObjects";
-import {useSave} from "../../../hooks/useFetch";
+import {useMutation, useQueryClient} from "react-query";
 
 const taxService = new AxiosTaxClient();
 
 export default function NewTax({refreshTable, isOpen, setOpen}) {
     console.log("Inside New tax!");
 
-    const [createTax, {loading, errors}, setState] = useSave((x) => taxService.create(x));
+    const queryClient = useQueryClient();
+    const {mutate: saveTax, error, loading, reset} = useMutation(x => taxService.create(x.data), {
+        onSuccess: (data, variables) => {
+            setOpen(false);
+            variables.reset();
+            refreshTable();
+            if (queryClient.getQueryData(QueryKeys.TAXES)) {
+                queryClient.setQueryData(QueryKeys.TAXES, old => [...old, data]);
+            }
+        }
+    });
 
+    const errors = error?.response?.data;
     const fields = [
         {
             title: 'Name', field: "name"
@@ -38,16 +46,12 @@ export default function NewTax({refreshTable, isOpen, setOpen}) {
         }];
 
     function handleSubmit(event, tax, reset) {
-        createTax(tax).then(() => {
-            setOpen(false);
-            reset();
-            refreshTable();
-        });
+        saveTax({data: tax, reset: reset});
     }
 
     function handleClose() {
         setOpen(false);
-        setState(x => ({...x, errors: {}}));
+        reset();
     }
 
     return (

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created on: 3/1/20
@@ -21,7 +22,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
   List<Product> findAllByNameLike(String name);
 
-  Product findByCode(String code);
+  Optional<Product> findByCode(String code);
 
   boolean existsByCodeAndIdIsNot(String code, Long id);
 
@@ -65,14 +66,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   @Query(
       value = "SELECT p " +
           "FROM Product p " +
-          "WHERE p.category.id LIKE ?1"
+          "WHERE p.category.id = ?1"
   )
   List<Product> findAllByCategoryId(Long id);
 
   @Query(
       value = "SELECT p " +
           "FROM Product p " +
-          "WHERE p.subCategory.id LIKE ?1"
+          "WHERE p.subCategory.id = ?1"
   )
   List<Product> findAllBySubCategoryId(Long id);
 

@@ -9,8 +9,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import java.util.Set;
 
-import static javax.persistence.CascadeType.*;
-import static javax.persistence.FetchType.EAGER;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.CascadeType.REMOVE;
 
 /**
  * Created on: 3/1/20
@@ -24,8 +25,8 @@ public class Location extends BaseEntity {
 
   private String name;
 
-  @OneToMany(orphanRemoval = true, cascade = {REMOVE, PERSIST}, fetch = EAGER)
-  @JoinColumn
+  @OneToMany(orphanRemoval = true, cascade = {REMOVE, PERSIST, MERGE})
+  @JoinColumn(name = "location_id", nullable = false)
   private Set<SequenceHolder> sequenceHolders;
 
 }

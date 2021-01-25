@@ -20,7 +20,7 @@ public interface ProductMapper extends BaseMapper<Product, ProductPayload> {
   @PartialMapper
   @IgnoreUserFields
   @Mapping(target = "uoms", ignore = true)
-  @Mapping(target = "subcategory.category", qualifiedBy = PartialMapper.class)
+  @Mapping(target = "subCategory.category", qualifiedBy = PartialMapper.class)
   @Mapping(target = "category.subCategories", qualifiedBy = PartialMapper.class)
   ProductPayload partialEntityToPayload(Product entity);
 

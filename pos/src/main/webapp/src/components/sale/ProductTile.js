@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {createStyles, makeStyles} from "@material-ui/core/styles";
 import {GridListTile} from "@material-ui/core";
 import GridListTileBar from "@material-ui/core/GridListTileBar";
@@ -8,8 +8,11 @@ import noImage from '../../static/noimage.png';
 import {useDispatch} from "react-redux";
 import Grow from "@material-ui/core/Grow";
 import {Actions} from "../../reducers/global/saleTabsReducer";
-import {AxiosTicketLineClient, TicketLinePayload} from "../../client/Client";
+import {AxiosTicketClient, AxiosTicketLineClient, TicketLinePayload} from "../../client/Client";
 import {fetch} from "../../services/fetch";
+import {useSaveWithCallback} from "../../hooks/useFetch";
+import store from "../../store";
+import {useMutation} from "react-query";
 
 const useStyles = makeStyles(theme =>
     createStyles({
@@ -34,31 +37,41 @@ const useStyles = makeStyles(theme =>
     }),
 );
 
-export default function ProductTile({ index, product, ticketLines}) {
+const ticketService = new AxiosTicketClient();
+
+function addTicketLinePromise(ticketLine) {
+    const tabs = store.getState().tabs;
+    const ticketId = tabs.tickets[tabs.selectedIndex].id;
+
+    return ticketService.addTicketLine(ticketId, ticketLine).then(x => x.data)
+}
+
+export default function ProductTile({index, product, setTableLoading}) {
     const classes = useStyles();
     const dispatch = useDispatch();
-    const ticketLineClient = new AxiosTicketLineClient();
+    const {mutate: addTicketLine, isLoading: addTicketLineLoading} = useMutation(addTicketLinePromise, {
+        onSuccess: x => dispatch({type: Actions.UPDATE_SELECTED_TICKET, payload: x})
+    });
+
+    useEffect(() => setTableLoading(addTicketLineLoading), [addTicketLineLoading]);
 
     function handleInformationButton(event) {
         event.preventDefault();
         return undefined;
     }
 
-    function handleProductClick(event) {
-        let ticketLine = new TicketLinePayload({
-            lineNumber: ticketLines ? ticketLines.length + 1 : 1,
+    function handleProductClick() {
+        addTicketLine(new TicketLinePayload({
             product: product,
             quantity: 1,
-        });
-        console.log("TicketLine: ", ticketLine);
-        fetch(ticketLineClient.create(ticketLine), ticketLine => dispatch({type: Actions.NEW_TICKET_LINE, payload: ticketLine}));
+        }));
     }
 
     return (
         <Grow
             in={true}
-            style={{ transformOrigin: '0 0 0'}}
-              {...({timeout: index * 50})}
+            style={{transformOrigin: '0 0 0'}}
+            {...({timeout: index * 50})}
         >
             <GridListTile key={product.code} className={classes.productTile} onClick={handleProductClick}>
                 <img src={product.image ? product.image : noImage} alt={product.name}/>

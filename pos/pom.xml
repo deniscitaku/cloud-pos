@@ -168,6 +168,7 @@
                             <outputFileType>implementationFile</outputFileType>
                             <outputKind>module</outputKind>
                             <mapClasses>asClasses</mapClasses>
+                            <customTypeMappings>java.lang.Long:number</customTypeMappings>
                             <mapEnum>asEnum</mapEnum>
                             <optionalProperties>all</optionalProperties>
                             <generateConstructors>true</generateConstructors>

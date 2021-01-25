@@ -1,28 +1,30 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {AxiosCategoryClient, AxiosSubCategoryClient} from "../../../client/Client";
+import {AxiosCategoryClient, AxiosSubCategoryClient, QueryKeys} from "../../../client/Client";
 import ValidTableCell from "../../common/ValidTableCell";
 import NewSubCategory from "./NewSubCategory";
 import AutocompleteDropdown from "../../common/AutocompleteDropdown";
 import ValidTextField from "../../common/ValidTextField";
-import {useFindAll} from "../../../hooks/useFetch";
-import Table from "../../common/Table";
+import Table from "../../common/CustomTable";
 import SubCategoryIcon from "../../icons/SubCategoryIcon";
+import {useQueryClient} from "react-query";
 
 const subCategoryService = new AxiosSubCategoryClient();
 const categoryService = new AxiosCategoryClient();
 
-export default function SubCategory() {
+export default function SubCategoryView() {
     const tableRef = useRef();
     const errorsRef = useRef([]);
     const [open, setOpen] = useState(false);
-    const [findAllCategories, categories] = useFindAll(() => categoryService.findAll());
+    const queryClient = useQueryClient();
 
-    useEffect(findAllCategories, []);
+    useEffect(() => {
+        queryClient.prefetchQuery(QueryKeys.CATEGORIES, () => categoryService.findAll().then(x => x.data))
+    }, []);
 
     console.log("Sub-Category rendered!");
 
     const openDialog = useCallback(() => setOpen(true), []);
-    const subCategoryIcon = useCallback(() => <SubCategoryIcon/>, []);
+    const subCategoryIcon = useRef(<SubCategoryIcon/>);
     const columns = useCallback(() => [
         {title: '#', field: 'tableData.id', editable: "never", width: "1%"},
         {
@@ -37,18 +39,16 @@ export default function SubCategory() {
             width: "40%",
             render: rowData => rowData.category?.name,
             editComponent: props => ValidTableCell(props, errorsRef, AutocompleteDropdown, {
-                items: categories,
+                items: queryClient.getQueryData(QueryKeys.CATEGORIES),
                 variant: "standard",
+                isLoading: !!queryClient.isFetching(QueryKeys.CATEGORIES),
                 props: {
+                    value: props.value,
                     onChange: (event, newValue) => props.onChange(newValue)
                 }
             })
         }
-    ], [categories]);
-
-    function refreshTable() {
-        tableRef.current && tableRef.current.onQueryChange();
-    }
+    ], []);
 
     return (
         <>
@@ -62,8 +62,9 @@ export default function SubCategory() {
                 columns={columns}
                 tableRef={tableRef}
                 errorsRef={errorsRef}
+                queryKey={QueryKeys.SUB_CATEGORIES}
             />
-            <NewSubCategory isOpen={open} setOpen={setOpen} refreshTable={refreshTable} categories={categories}/>
+            {open && <NewSubCategory isOpen={open} setOpen={setOpen} refreshTable={() => tableRef.current && tableRef.current.onQueryChange()}/>}
         </>
     );
 }

@@ -1,9 +1,9 @@
-import {AxiosCustomerClient} from "../../client/Client";
+import {AxiosCustomerClient, QueryKeys} from "../../client/Client";
 import React from "react";
 import FormDialog from "../common/FormDialog";
-import {useSave} from "../../hooks/useFetch";
 import PeopleIcon from '@material-ui/icons/People';
 import {emptyCustomer} from "../../services/EmptyObjects";
+import {useMutation, useQueryClient} from "react-query";
 
 const customerService = new AxiosCustomerClient();
 const fields = [
@@ -28,22 +28,27 @@ const fields = [
 ];
 
 export default function NewCustomer({refreshTable, isOpen, setOpen}) {
-
-    const [saveCustomer, {errors, loading}, setState] = useSave(x => customerService.create(x));
-
     console.log("Inside new customer");
 
-    function handleSubmit(evt, customer, reset) {
-        saveCustomer(customer).then(() => {
+    const queryClient = useQueryClient();
+    const {mutate: saveCustomer, error, isLoading, reset} = useMutation(x => customerService.create(x.data).then(x => x.data), {
+        onSuccess: (data, vars) => {
             setOpen(false);
-            reset();
+            vars.reset();
             refreshTable();
-        })
+            if (queryClient.getQueryData(QueryKeys.CUSTOMERS)) {
+                queryClient.setQueryData(QueryKeys.CUSTOMERS, old => [...old, data]);
+            }
+        },
+    });
+
+    function handleSubmit(evt, customer, reset) {
+        saveCustomer({data: customer, reset: reset});
     }
 
     function handleClose() {
         setOpen(false);
-        setState(x => ({...x, errors: {}}));
+        reset();
     }
 
     return (
@@ -53,8 +58,8 @@ export default function NewCustomer({refreshTable, isOpen, setOpen}) {
             onSubmit={handleSubmit}
             onClose={handleClose}
             fields={fields}
-            errors={errors}
-            loading={loading}
+            errors={error?.response?.data}
+            loading={isLoading}
             icon={<PeopleIcon/>}
             initialObject={emptyCustomer}
         />

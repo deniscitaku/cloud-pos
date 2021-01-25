@@ -4,8 +4,12 @@ import annotation.FluentBuilder;
 import annotation.FluentBuilder.Optional;
 import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.payload.BaseAuditPayload;
+import com.denlir.pos.validation.ValidName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
  * Created on: 4/13/20
@@ -18,6 +22,7 @@ import lombok.EqualsAndHashCode;
 @GenerateTS
 public class SupplierPayload extends BaseAuditPayload {
 
+  @ValidName
   private String name;
 
   @Optional

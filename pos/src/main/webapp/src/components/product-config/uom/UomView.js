@@ -1,32 +1,30 @@
-import React, {useCallback, useRef, useState} from 'react';
-import {AxiosUomClient} from "../../../client/Client";
-import NewUom from "./NewUom";
+import React, {lazy, useCallback, useRef, useState} from 'react';
+import {AxiosUomClient, QueryKeys} from "../../../client/Client";
 import ValidTableCell from "../../common/ValidTableCell";
 import ValidTextField from "../../common/ValidTextField";
-import Table from "../../common/Table";
+import Table from "../../common/CustomTable";
 import UomIcon from "../../icons/UomIcon";
+
+const NewUom = lazy(() => import("./NewUom"));
 
 const uomService = new AxiosUomClient();
 
-export default function Uom() {
+export default function UomView() {
     console.log("Table rendered!");
+
+    const [open, setOpen] = useState(false);
 
     const tableRef = useRef();
     const errorsRef = useRef([]);
-    const [open, setOpen] = useState(false);
+    const uomIcon = useRef(<UomIcon/>);
 
     const openDialog = useCallback(() => setOpen(true), []);
-    const uomIcon = useCallback(() => <UomIcon/>, []);
     const columns = useCallback(() => [
         {title: '#', field: 'tableData.id', editable: "never", width: "1%"},
         {title: 'Smaller unit name', field: "smallerUnitName", width: "30%", editComponent: (props) => ValidTableCell(props, errorsRef, ValidTextField)},
         {title: 'Bigger unit name', field: "biggerUnitName", width: "30%", editComponent: (props) => ValidTableCell(props, errorsRef, ValidTextField)},
         {title: 'Convert value', field: "convertValue", width: "20%", type: 'numeric', editComponent: (props) => ValidTableCell(props, errorsRef, ValidTextField)},
     ], []);
-
-    function refreshTable() {
-        tableRef.current && tableRef.current.onQueryChange();
-    }
 
     return (
         <>
@@ -39,8 +37,9 @@ export default function Uom() {
                 columns={columns}
                 tableRef={tableRef}
                 errorsRef={errorsRef}
+                queryKey={QueryKeys.UOM}
             />
-            <NewUom isOpen={open} setOpen={setOpen} refreshTable={refreshTable} />
+            {open && <NewUom isOpen={open} setOpen={setOpen} refreshTable={() => tableRef.current && tableRef.current.onQueryChange()} />}
         </>
     );
 }

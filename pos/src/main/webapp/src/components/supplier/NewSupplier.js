@@ -1,9 +1,9 @@
-import {AxiosSupplierClient} from "../../client/Client";
+import {AxiosSupplierClient, QueryKeys} from "../../client/Client";
 import React from "react";
 import FormDialog from "../common/FormDialog";
-import {useSave} from "../../hooks/useFetch";
 import LocalShippingOutlinedIcon from '@material-ui/icons/LocalShippingOutlined';
 import {emptySupplier} from "../../services/EmptyObjects";
+import {useQueryClient, useMutation} from "react-query";
 
 const supplierService = new AxiosSupplierClient();
 const fields = [
@@ -21,24 +21,30 @@ const fields = [
     }
 ];
 
-function NewSupplier({savedSupplier, onClose = () => {}, isOpen, setOpen, initialSupplierOnAdd = emptySupplier, autoFocusIndex}) {
+function NewSupplier({savedSupplier, onClose = () => {}, isOpen, setOpen, initialSupplier = emptySupplier, autoFocusIndex}) {
 
     console.log("Inside NewSupplier!");
 
-    const [saveSupplier, {errors, loading}, setState] = useSave(x => supplierService.create(x));
+    const queryClient = useQueryClient();
+    const {mutate: saveSupplier, error, isLoading, reset} = useMutation(x => supplierService.create(x.data).then(x => x.data), {
+        onSuccess: (data, vars) => {
+            setOpen(false);
+            vars.reset();
+            savedSupplier(data);
+            if (queryClient.getQueryData(QueryKeys.SUPPLIERS)) {
+                queryClient.setQueryData(QueryKeys.SUPPLIERS, old => [...old, data]);
+            }
+        },
+    });
 
     function handleSubmit(event, supplier, reset) {
-        saveSupplier(supplier).then(x => {
-            setOpen(false);
-            reset();
-            savedSupplier(x);
-        })
+        saveSupplier({data: supplier, reset: reset});
     }
 
     function handleClose() {
         setOpen(false);
         onClose();
-        setState(x => ({...x, errors: {}}));
+        reset();
     }
 
     return (
@@ -48,14 +54,13 @@ function NewSupplier({savedSupplier, onClose = () => {}, isOpen, setOpen, initia
             onSubmit={handleSubmit}
             onClose={handleClose}
             fields={fields}
-            errors={errors}
-            loading={loading}
+            errors={error?.response?.data}
+            loading={isLoading}
             icon={<LocalShippingOutlinedIcon/>}
-            initialObject={emptySupplier}
-            initialObjectOnAdd={initialSupplierOnAdd}
+            initialObject={initialSupplier}
             autoFocusIndex={autoFocusIndex}
         />
     )
 }
 
-export default React.memo(NewSupplier);
+export default NewSupplier;

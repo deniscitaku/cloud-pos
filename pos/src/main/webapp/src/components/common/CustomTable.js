@@ -1,15 +1,28 @@
-import React, {useState} from "react";
-import {useDeleteAll} from "../../hooks/useFetch";
+import React, {lazy, useRef, useState} from "react";
 import {fetchPromise} from "../../services/fetch";
 import MaterialTable from "material-table";
 import GradientButton from "./GradientButton";
-import ConfirmationDialog from "./ConfirmationDialog";
+import {useMutation, useQueryClient} from "react-query";
 
-function Table({title, addNewLabel, addNewIcon, onAddNew, tableRef, errorsRef, service, findAllPagedExtraArgs, columns}) {
-    console.log("Table rendered!");
+const ConfirmationDialog = lazy(() => import("./ConfirmationDialog"));
+
+function CustomTable({title, addNewLabel, addNewIcon, onAddNew, tableRef, errorsRef, service, findAllPagedExtraArgs, columns, queryKey}) {
+    console.log("CustomTable rendered!");
 
     const [yesNoDialog, setYesNoDialog] = useState({open: false, itemsToRemove: []});
-    const [deleteAll, loading] = useDeleteAll(data => service.deleteAll(data));
+    const queryClient = useQueryClient();
+
+    const pageSize = useRef(20);
+    const {mutate: deleteAll, isLoading} = useMutation(data => service.deleteAll(data), {
+        onSuccess: () => {
+            setYesNoDialog({itemsToRemove: [], open: false});
+            tableRef.current && tableRef.current.onQueryChange();
+            queryClient.setQueryData(
+                queryKey,
+                old => (old || []).filter(x => !yesNoDialog.itemsToRemove.includes(x))
+            );
+        }
+    });
 
     function data(query) {
         console.log("Query: ", query);
@@ -24,19 +37,9 @@ function Table({title, addNewLabel, addNewIcon, onAddNew, tableRef, errorsRef, s
         if (query.search) {
             queryParams.search = query.search;
         }
+        pageSize.current = query.pageSize;
+
         return service.findAllPaged({...queryParams, ...findAllPagedExtraArgs}).then(x => x.data)
-    }
-
-    function deleteSelectedOnAction(evt, data) {
-        setYesNoDialog({open: true, itemsToRemove: data});
-    }
-
-    function handleDeleteSelected() {
-        deleteAll(yesNoDialog.itemsToRemove)
-            .then(() => {
-                setYesNoDialog(prevState => ({...prevState, open: false}));
-                refreshTable();
-            });
     }
 
     function onRowUpdate(newValue) {
@@ -49,16 +52,8 @@ function Table({title, addNewLabel, addNewIcon, onAddNew, tableRef, errorsRef, s
         });
     }
 
-    function onUpdateCancelled() {
-        errorsRef.current = [];
-    }
-
-    function refreshTable() {
-        tableRef.current && tableRef.current.onQueryChange();
-    }
-
     return (
-        <>
+        <div>
             <MaterialTable
                 localization={{
                     header: {
@@ -79,7 +74,7 @@ function Table({title, addNewLabel, addNewIcon, onAddNew, tableRef, errorsRef, s
                     paginationType: "stepped",
                     debounceInterval: 500,
                     grouping: true,
-                    pageSize: 10,
+                    pageSize: pageSize.current,
                     actionsColumnIndex: -1,
                     selection: true,
                     draggable: true,
@@ -93,30 +88,30 @@ function Table({title, addNewLabel, addNewIcon, onAddNew, tableRef, errorsRef, s
                 }}
                 actions={[
                     {
-                        icon: () => <GradientButton startIcon={addNewIcon()}>{addNewLabel}</GradientButton>,
+                        icon: () => <GradientButton startIcon={addNewIcon.current}>{addNewLabel}</GradientButton>,
                         isFreeAction: true,
                         onClick: onAddNew,
                     },
                     {
                         tooltip: 'Remove selected rows',
                         icon: 'delete',
-                        onClick: deleteSelectedOnAction
+                        onClick: (evt, data) => setYesNoDialog({open: true, itemsToRemove: data})
                     }
                 ]}
                 editable={{
                     onRowUpdate: onRowUpdate,
-                    onRowUpdateCancelled: onUpdateCancelled
+                    onRowUpdateCancelled: () => errorsRef.current = []
                 }}
             />
-            <ConfirmationDialog title={"Are you sure want do delete all selected records?"}
+            {yesNoDialog.open && <ConfirmationDialog title={"Are you sure want do delete all selected records?"}
                                 content={`There are (${yesNoDialog.itemsToRemove.length}) records to be deleted`}
                                 open={yesNoDialog.open}
                                 handleClose={() => setYesNoDialog(prevState => ({...prevState, open: false}))}
-                                handleConfirmation={handleDeleteSelected}
-                                loading={loading}
-            />
-        </>
+                                handleConfirmation={() => deleteAll(yesNoDialog.itemsToRemove)}
+                                loading={isLoading}
+            />}
+        </div>
     );
 }
 
-export default React.memo(Table);
+export default React.memo(CustomTable);

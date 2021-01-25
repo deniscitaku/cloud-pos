@@ -4,6 +4,7 @@ import annotation.FluentBuilder;
 import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.payload.BaseAuditPayload;
 import com.denlir.pos.validation.ValidName;
+import com.denlir.pos.validation.groups.ReferenceId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import javax.validation.groups.ConvertGroup;
 import java.math.BigDecimal;
 import java.util.Set;
 
@@ -50,9 +52,11 @@ public class ProductPayload extends BaseAuditPayload {
   private BigDecimal priceTax;
 
   @Valid
+  @ConvertGroup(to = ReferenceId.class)
   private CategoryPayload category;
 
   @Valid
+  @ConvertGroup(to = ReferenceId.class)
   private SubCategoryPayload subCategory;
 
   @Valid

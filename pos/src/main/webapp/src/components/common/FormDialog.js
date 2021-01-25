@@ -19,13 +19,7 @@ import Zoom from "@material-ui/core/Zoom";
 const useStyles = makeStyles((theme) => ({
     root: {
         flexGrow: 1
-    },
-    formControl: {
-        minWidth: 120,
-    },
-    selectEmpty: {
-        marginTop: theme.spacing(2),
-    },
+    }
 }));
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -35,22 +29,16 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 function FormDialog({
                         open, title, onSubmit, onClose, focusSubmit = false, fields, errors, loading, icon, customBody,
                         onValueChange = () => {
-                        }, initialObject = {}, initialObjectOnAdd = initialObject, autoFocusIndex
+                        }, initialObject = {}, autoFocusIndex
                     }) {
 
-    const [, setState] = useState(false);
     const object = useRef(initialObject);
-    const setObject = useCallback(obj => object.current = obj, []);
+    const setObject = obj => object.current = obj;
     const theme = useTheme();
     const classes = useStyles();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
     console.log("Inside form dialog!");
-
-    useEffect(() => {
-        setObject(initialObjectOnAdd);
-        setState(prev => !prev);
-    }, [initialObjectOnAdd]);
 
     return (
         <Dialog open={open} onClose={onClose} fullScreen={fullScreen} TransitionComponent={Transition} aria-labelledby="form-dialog-title">
@@ -71,26 +59,26 @@ function FormDialog({
                                 return (
                                     <Grid item key={index}>
                                         {item.customElement ?
-                                            item.customElement(object.current, setObject)
+                                            item.customElement(object, setObject)
                                             : <ValidTextField
                                                 onKeyPress={(ev) => {
                                                     if (ev.key === 'Enter') {
                                                         ev.preventDefault();
                                                     }
                                                 }}
-                                                autoFocus={autoFocusIndex ? index === autoFocusIndex : index === 0}
-                                                required={item.required}
-                                                error={errors && errors[item.field]}
-                                                id={item.field}
-                                                defaultValue={object.current[item.field]}
-                                                onBlur={(event) => {
-                                                    event.persist();
+                                                onChange={event => {
                                                     onValueChange(item.field, event.target.value, object.current, setObject);
                                                     setObject({
                                                         ...object.current,
                                                         [item.field]: event.target.value
                                                     });
-                                                }}
+                                                }
+                                                }
+                                                autoFocus={autoFocusIndex ? index === autoFocusIndex : index === 0}
+                                                required={item.required}
+                                                error={errors && errors[item.field]}
+                                                id={item.field}
+                                                defaultValue={object.current[item.field]}
                                                 label={item.title}
                                                 type={item.type ? item.type : 'text'}
                                             />
@@ -110,10 +98,7 @@ function FormDialog({
                         Cancel
                     </Button>
                     <Button autoFocus={focusSubmit}
-                            onClick={event => {
-                                console.log("Object on submit: ", object.current);
-                                onSubmit(event, object.current, () => setObject(initialObject))
-                            }}
+                            onClick={event => onSubmit(event, object.current, () => setObject(initialObject))}
                             color="primary"
                             variant={"outlined"}
                             style={{margin: '1em'}}
@@ -127,4 +112,4 @@ function FormDialog({
     )
 }
 
-export default React.memo(FormDialog);
+export default FormDialog;

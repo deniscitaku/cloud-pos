@@ -14,6 +14,8 @@ import reactor.core.publisher.Mono;
  **/
 public interface LocationRepository extends JpaRepository<Location, Long> {
 
-  Location findByName(String name);
+  boolean existsByName(String name);
+
+  boolean existsByNameAndIdIsNot(String name, Long id);
 
 }

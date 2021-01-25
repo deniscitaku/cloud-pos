@@ -23,27 +23,42 @@ public class ProductController extends BasicControllerOperations<ProductService,
 
   @GetMapping("/code/{code}")
   public ProductPayload findByCode(@PathVariable String code) {
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     return service.findByCode(code);
   }
 
   @GetMapping
   public Collection<ProductPayload> findByCodeOrName(@RequestParam String codeOrName) {
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     return service.findAllByCodeOrName(codeOrName);
   }
 
   @GetMapping("/category/{categoryId}")
   public List<ProductPayload> findByCategoryId(@PathVariable Long categoryId) {
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     return service.findAllByCategoryId(categoryId);
   }
 
   @GetMapping("/sub-category/{subCategoryId}")
   public List<ProductPayload> findBySubCategoryId(@PathVariable Long subCategoryId) {
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     return service.findAllBySubCategoryId(subCategoryId);
-  }
-
-  @PostMapping("/sale")
-  public ProductPayload saveFromSale(@RequestBody @Validated(value = {Partial.class}) ProductPayload productPayload) {
-    return service.save(productPayload);
   }
 
 }

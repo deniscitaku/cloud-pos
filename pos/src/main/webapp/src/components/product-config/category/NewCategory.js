@@ -1,28 +1,34 @@
-import {AxiosCategoryClient} from "../../../client/Client";
+import {AxiosCategoryClient, QueryKeys} from "../../../client/Client";
 import React from "react";
 import FormDialog from "../../common/FormDialog";
 import CategoryIcon from '@material-ui/icons/Category';
 import {useSave} from "../../../hooks/useFetch";
 import {emptyCategory} from "../../../services/EmptyObjects";
+import {default as queryCache, useMutation, useQuery, useQueryClient} from "react-query";
 
 const categoryService = new AxiosCategoryClient();
 
 export default function NewCategory({refreshTable, isOpen, setOpen}) {
 
-    const [createCategory, {errors, loading}, setState] = useSave(x => categoryService.create(x));
+    const queryClient = useQueryClient();
+    const {mutate: saveCategory, error, loading, reset} = useMutation(x => categoryService.create(x.data), {
+        onSuccess: (data, variables) => {
+            setOpen(false);
+            variables.reset();
+            refreshTable();
+            if (queryClient.getQueryData(QueryKeys.CATEGORIES)) {
+                queryClient.setQueryData(QueryKeys.CATEGORIES, old => [...old, data]);
+            }
+        }
+    });
 
     function handleSubmit(event, category, reset) {
-        createCategory(category)
-            .then(() => {
-                setOpen(false);
-                reset();
-                refreshTable();
-            })
+        saveCategory({data: category, reset: reset});
     }
 
     function handleClose() {
         setOpen(false);
-        setState(x => ({...x, errors: {}}));
+        reset();
     }
 
     return (
@@ -32,7 +38,7 @@ export default function NewCategory({refreshTable, isOpen, setOpen}) {
             onSubmit={handleSubmit}
             onClose={handleClose}
             fields={[{title: 'Name', field: "name"}]}
-            errors={errors}
+            errors={error?.response?.data}
             loading={loading}
             icon={<CategoryIcon/>}
             initialObject={emptyCategory}

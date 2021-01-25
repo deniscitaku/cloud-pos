@@ -1,22 +1,24 @@
-import React, {useCallback, useRef, useState} from 'react';
-import {AxiosTaxClient} from "../../../client/Client";
-import NewTax from "./NewTax";
+import React, {lazy, useCallback, useRef, useState} from 'react';
+import {AxiosTaxClient, QueryKeys} from "../../../client/Client";
 import ValidTableCell from "../../common/ValidTableCell";
 import ValidTextField from "../../common/ValidTextField";
-import Table from "../../common/Table";
+import CustomTable from "../../common/CustomTable";
 import TaxIcon from "../../icons/TaxIcon";
+
+const NewTax = lazy(() => import("./NewTax"));
 
 const taxService = new AxiosTaxClient();
 
-export default function Tax() {
+export default function TaxView() {
     console.log("Tax rendered!");
+
+    const [open, setOpen] = useState(false);
 
     const tableRef = useRef();
     const errorsRef = useRef([]);
-    const [open, setOpen] = useState(false);
+    const taxIcon = useRef(<TaxIcon/>);
 
     const openDialog = useCallback(() => setOpen(true), []);
-    const taxIcon = useCallback(() => <TaxIcon/>, []);
     const columns = useCallback(() => [
         {title: '#', field: 'tableData.id', editable: "never", width: "1%"},
         {
@@ -37,13 +39,9 @@ export default function Tax() {
         }
     ], []);
 
-    function refreshTable() {
-        tableRef.current && tableRef.current.onQueryChange();
-    }
-
     return (
         <>
-            <Table
+            <CustomTable
                 title="Taxes"
                 addNewLabel="Add tax"
                 addNewIcon={taxIcon}
@@ -52,8 +50,9 @@ export default function Tax() {
                 columns={columns}
                 tableRef={tableRef}
                 errorsRef={errorsRef}
+                queryKey={QueryKeys.TAXES}
             />
-            <NewTax isOpen={open} setOpen={setOpen} refreshTable={refreshTable}/>
+            {open && <NewTax isOpen={open} setOpen={setOpen} refreshTable={() => tableRef.current && tableRef.current.onQueryChange()}/>}
         </>
     );
 }

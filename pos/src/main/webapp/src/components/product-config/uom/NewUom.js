@@ -1,9 +1,9 @@
 import React from 'react';
 import FormDialog from "../../common/FormDialog";
-import {AxiosUomClient} from "../../../client/Client";
+import {AxiosUomClient, QueryKeys} from "../../../client/Client";
 import UomIcon from "../../icons/UomIcon";
-import {useSave} from "../../../hooks/useFetch";
 import {emptyUom} from "../../../services/EmptyObjects";
+import {useMutation, useQueryClient} from "react-query";
 
 const uomService = new AxiosUomClient();
 
@@ -15,20 +15,25 @@ const fields = [
 
 export default function NewUom({refreshTable, isOpen, setOpen}) {
 
-    const [createUom, {errors, loading}, setState] = useSave(x => uomService.create(x))
+    const queryClient = useQueryClient();
+    const {mutate: saveUom, error, loading, reset} = useMutation(x => uomService.create(x.data), {
+        onSuccess: (data, variables) => {
+            setOpen(false);
+            variables.reset();
+            refreshTable();
+            if (queryClient.getQueryData(QueryKeys.UOM)) {
+                queryClient.setQueryData(QueryKeys.UOM, old => [...old, data]);
+            }
+        }
+    });
 
     function handleSubmit(event, uom, reset) {
-        createUom(uom)
-            .then(() => {
-                handleClose();
-                reset();
-                refreshTable();
-            });
+        saveUom({data: uom, reset: reset});
     }
 
     function handleClose() {
         setOpen(false);
-        setState(x => ({...x, errors: {}}));
+        reset();
     }
 
     return (
@@ -38,7 +43,7 @@ export default function NewUom({refreshTable, isOpen, setOpen}) {
             onSubmit={handleSubmit}
             onClose={handleClose}
             fields={fields}
-            errors={errors}
+            errors={error?.response?.data}
             loading={loading}
             icon={<UomIcon/>}
             initialObject={emptyUom}

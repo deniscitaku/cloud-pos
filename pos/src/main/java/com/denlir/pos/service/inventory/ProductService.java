@@ -2,6 +2,8 @@ package com.denlir.pos.service.inventory;
 
 import com.denlir.pos.entity.inventory.Product;
 import com.denlir.pos.exception.EntityValidationException;
+import com.denlir.pos.exception.ValidationExceptionFluentBuilder;
+import com.denlir.pos.exception.ValidationExceptionPayload;
 import com.denlir.pos.payload.domain.PagePayload;
 import com.denlir.pos.payload.inventory.ProductMapper;
 import com.denlir.pos.payload.inventory.ProductPayload;
@@ -39,19 +41,27 @@ public class ProductService extends BasicServiceOperation<Product, ProductPayloa
 
   public Collection<ProductPayload> findAllByCodeOrName(String codeOrName) {
     List<Product> products = repository.findAllByCodeContainingIgnoreCaseOrNameContainingIgnoreCase(codeOrName, codeOrName);
-    return mapper.entitiesToPayloads(products);
+    return mapper.partialEntitiesToPayloads(products);
   }
 
   public List<ProductPayload> findAllByCategoryId(Long categoryId) {
     return mapper.partialEntitiesToPayloads(repository.findAllByCategoryId(categoryId));
   }
 
-  public List<ProductPayload> findAllBySubCategoryId(Long categoryId) {
-    return mapper.partialEntitiesToPayloads(repository.findAllBySubCategoryId(categoryId));
+  public List<ProductPayload> findAllBySubCategoryId(Long subCategoryId) {
+    return mapper.partialEntitiesToPayloads(repository.findAllBySubCategoryId(subCategoryId));
   }
 
   public ProductPayload findByCode(String code) {
-    return mapper.entityToPayload(repository.findByCode(code));
+    return repository.findByCode(code)
+        .map(mapper::entityToPayload)
+        .orElseThrow(() -> ValidationExceptionFluentBuilder.builder()
+            .fieldName("code")
+            .rejectedValue(code)
+            .message("Product with this code does not exist!")
+            .code("Product.NotExists")
+            .build()
+            .toEntityValidationException());
   }
 
   @Override

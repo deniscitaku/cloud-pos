@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {lazy, Suspense} from 'react';
 import clsx from 'clsx';
 import {createStyles, makeStyles, ThemeProvider} from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -13,7 +13,6 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DarkModeIcon from '@material-ui/icons/Brightness4';
 import LightModeIcon from '@material-ui/icons/Brightness7';
 
-import Sale from "../sale/Sale";
 import {BrowserRouter, Route, Switch} from "react-router-dom";
 import AppMenu from "./AppMenu";
 import {AccountCircle} from "@material-ui/icons";
@@ -28,16 +27,22 @@ import Button from "@material-ui/core/Button";
 import TranslateIcon from '@material-ui/icons/Translate';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {useTranslation} from "react-i18next";
-import Purchase from "../purchase/Purchase";
-import Uom from "../product-config/uom/Uom";
-import Tax from "../product-config/tax/Tax";
-import Category from "../product-config/category/Category";
-import SubCategory from "../product-config/sub-category/SubCategory";
-import Product from "../product-config/product/Product";
-import Supplier from "../supplier/Supplier";
-import Customer from "../customer/Customer";
+import UomView from "../product-config/uom/UomView";
+import TaxView from "../product-config/tax/TaxView";
+import CategoryView from "../product-config/category/CategoryView";
+import SubCategoryView from "../product-config/sub-category/SubCategoryView";
+import {QueryClient, QueryClientProvider} from "react-query";
+import {ReactQueryDevtools} from "react-query/devtools";
+import ProductView from "../product-config/product/ProductView";
+import CustomerView from "../customer/CustomerView";
+import SupplierView from "../supplier/SupplierView";
+import CustomBackdrop from "../common/CustomBackdrop";
+import queryClient from "../../hooks/queryClient";
 
 const drawerWidth = 270;
+
+const PurchaseView = lazy(() => import("../purchase/PurchaseView"));
+const SaleView = lazy(() => import("../sale/SaleView"));
 
 const useStyles = makeStyles((theme) =>
     createStyles({
@@ -239,129 +244,134 @@ const MainDrawer = () => {
     );
 
     return (
-        <ThemeProvider theme={themeConfig}>
-            <SnackbarProvider maxSnack={3}>
-                <BrowserRouter>
-                    <div className={classes.root}>
-                        <CssBaseline/>
-                        <AppBar
-                            style={{
-                                background: theme.palette.primary.mainGradient,
-                            }}
-                            position="fixed"
-                            className={clsx(classes.appBar, {
-                                [classes.appBarShift]: open,
-                            })}
-                        >
-                            <Toolbar>
-                                <IconButton
-                                    color="inherit"
-                                    aria-label="open drawer"
-                                    onClick={handleDrawerOpen}
-                                    edge="start"
-                                    className={clsx(classes.menuButton, {
-                                        [classes.hide]: open,
-                                    })}
-                                >
-                                    <MenuIcon/>
-                                </IconButton>
-                                <Typography variant="h6" noWrap>
-                                    D&L POS
-                                </Typography>
-                                <div className={classes.grow}/>
-                                <div className={classes.sectionDesktop}>
-                                    <Button aria-controls="locale-menu"
+        <QueryClientProvider client={queryClient}>
+            <ThemeProvider theme={themeConfig}>
+                <SnackbarProvider maxSnack={3}>
+                    <BrowserRouter>
+                        <div className={classes.root}>
+                            <CssBaseline/>
+                            <AppBar
+                                style={{
+                                    background: theme.palette.primary.mainGradient,
+                                }}
+                                position="fixed"
+                                className={clsx(classes.appBar, {
+                                    [classes.appBarShift]: open,
+                                })}
+                            >
+                                <Toolbar>
+                                    <IconButton
+                                        color="inherit"
+                                        aria-label="open drawer"
+                                        onClick={handleDrawerOpen}
+                                        edge="start"
+                                        className={clsx(classes.menuButton, {
+                                            [classes.hide]: open,
+                                        })}
+                                    >
+                                        <MenuIcon/>
+                                    </IconButton>
+                                    <Typography variant="h6" noWrap>
+                                        D&L POS
+                                    </Typography>
+                                    <div className={classes.grow}/>
+                                    <div className={classes.sectionDesktop}>
+                                        <Button aria-controls="locale-menu"
+                                                aria-haspopup="true"
+                                                color={"inherit"}
+                                                size={"medium"}
+                                                startIcon={<TranslateIcon/>}
+                                                endIcon={<ExpandMoreIcon/>}
+                                                onClick={e => setLocaleMenu(e.currentTarget)}>
+                                            {locale.get(i18n.language)}
+                                        </Button>
+                                        <Menu
+                                            id="locale-menu"
+                                            anchorEl={localeMenu}
+                                            keepMounted
+                                            open={Boolean(localeMenu)}
+                                            onClose={() => setLocaleMenu(null)}
+                                        >
+                                            <MenuItem onClick={() => setLocale('en')}>{locale.get('en')}</MenuItem>
+                                            <MenuItem onClick={() => setLocale('sq')}>{locale.get('sq')}</MenuItem>
+                                        </Menu>
+                                        <Tooltip title={"Toggle " + theme.palette.type + " theme"}>
+                                            <IconButton aria-label="dark mode" color="inherit" onClick={toggleDarkMode}>
+                                                {theme.palette.type === 'dark' ? <LightModeIcon/> : <DarkModeIcon/>}
+                                            </IconButton>
+                                        </Tooltip>
+                                        <IconButton
+                                            edge="end"
+                                            aria-label="account of current user"
+                                            aria-controls={menuId}
                                             aria-haspopup="true"
-                                            color={"inherit"}
-                                            size={"medium"}
-                                            startIcon={<TranslateIcon/>}
-                                            endIcon={<ExpandMoreIcon/>}
-                                            onClick={e => setLocaleMenu(e.currentTarget)}>
-                                        {locale.get(i18n.language)}
-                                    </Button>
-                                    <Menu
-                                        id="locale-menu"
-                                        anchorEl={localeMenu}
-                                        keepMounted
-                                        open={Boolean(localeMenu)}
-                                        onClose={() => setLocaleMenu(null)}
-                                    >
-                                        <MenuItem onClick={() => setLocale('en')}>{locale.get('en')}</MenuItem>
-                                        <MenuItem onClick={() => setLocale('sq')}>{locale.get('sq')}</MenuItem>
-                                    </Menu>
-                                    <Tooltip title={"Toggle " + theme.palette.type + " theme"}>
-                                        <IconButton aria-label="dark mode" color="inherit" onClick={toggleDarkMode}>
-                                            {theme.palette.type === 'dark' ? <LightModeIcon/> : <DarkModeIcon/>}
+                                            onClick={handleProfileMenuOpen}
+                                            color="inherit"
+                                        >
+                                            <AccountCircle/>
                                         </IconButton>
-                                    </Tooltip>
-                                    <IconButton
-                                        edge="end"
-                                        aria-label="account of current user"
-                                        aria-controls={menuId}
-                                        aria-haspopup="true"
-                                        onClick={handleProfileMenuOpen}
-                                        color="inherit"
-                                    >
-                                        <AccountCircle/>
-                                    </IconButton>
-                                </div>
-                                <div className={classes.sectionMobile}>
-                                    <IconButton
-                                        aria-label="show more"
-                                        aria-controls={mobileMenuId}
-                                        aria-haspopup="true"
-                                        onClick={handleMobileMenuOpen}
-                                        color="inherit"
-                                    >
-                                        <MoreIcon/>
-                                    </IconButton>
-                                </div>
-                            </Toolbar>
-                        </AppBar>
-                        {renderMobileMenu}
-                        {renderMenu}
-                        <Drawer
-                            variant="permanent"
-                            className={clsx(classes.drawer, {
-                                [classes.drawerOpen]: open,
-                                [classes.drawerClose]: !open,
-                            })}
-                            classes={{
-                                paper: clsx({
+                                    </div>
+                                    <div className={classes.sectionMobile}>
+                                        <IconButton
+                                            aria-label="show more"
+                                            aria-controls={mobileMenuId}
+                                            aria-haspopup="true"
+                                            onClick={handleMobileMenuOpen}
+                                            color="inherit"
+                                        >
+                                            <MoreIcon/>
+                                        </IconButton>
+                                    </div>
+                                </Toolbar>
+                            </AppBar>
+                            {renderMobileMenu}
+                            {renderMenu}
+                            <Drawer
+                                variant="permanent"
+                                className={clsx(classes.drawer, {
                                     [classes.drawerOpen]: open,
                                     [classes.drawerClose]: !open,
-                                }),
-                            }}
-                        >
-                            <div className={classes.toolbar}>
-                                <IconButton onClick={handleDrawerClose}>
-                                    {theme.direction === 'rtl' ? <ChevronRightIcon/> : <ChevronLeftIcon/>}
-                                </IconButton>
-                            </div>
-                            <AppMenu/>
-                        </Drawer>
-                        <main className={classes.grow}>
-                            <div className={classes.toolbar}/>
-                            <Switch>
-                                <Route path="/" exact component={Sale}/>
-                                <Route path="/sale" component={Sale}/>
-                                <Route path="/inventory-movement/purchase" component={Purchase}/>
-                                <Route path="/products" component={Product}/>
-                                <Route path="/categories" component={Category}/>
-                                <Route path="/sub-categories" component={SubCategory}/>
-                                <Route path="/uom" component={Uom}/>
-                                <Route path="/taxes" component={Tax}/>
-                                <Route path="/suppliers" component={Supplier}/>
-                                <Route path="/customers" component={Customer}/>
-                                <Route path="/reports" component={Sale}/>
-                                <Route path="/settings" component={Sale}/>
-                                <Route path="/log-out" component={Sale}/>
-                            </Switch>
-                        </main>
-                    </div>
-                </BrowserRouter>
-            </SnackbarProvider>
-        </ThemeProvider>
+                                })}
+                                classes={{
+                                    paper: clsx({
+                                        [classes.drawerOpen]: open,
+                                        [classes.drawerClose]: !open,
+                                    }),
+                                }}
+                            >
+                                <div className={classes.toolbar}>
+                                    <IconButton onClick={handleDrawerClose}>
+                                        {theme.direction === 'rtl' ? <ChevronRightIcon/> : <ChevronLeftIcon/>}
+                                    </IconButton>
+                                </div>
+                                <AppMenu/>
+                            </Drawer>
+                            <main className={classes.grow}>
+                                <div className={classes.toolbar}/>
+                                <Suspense fallback={<CustomBackdrop/>}>
+                                    <Switch>
+                                        <Route path="/" exact component={SaleView}/>
+                                        <Route path="/sale" component={SaleView}/>
+                                        <Route path="/inventory-movement/purchase" component={PurchaseView}/>
+                                        <Route path="/products" component={ProductView}/>
+                                        <Route path="/categories" component={CategoryView}/>
+                                        <Route path="/sub-categories" component={SubCategoryView}/>
+                                        <Route path="/uom" component={UomView}/>
+                                        <Route path="/taxes" component={TaxView}/>
+                                        <Route path="/customers" component={CustomerView}/>
+                                        <Route path="/suppliers" component={SupplierView}/>
+                                        <Route path="/reports" component={SaleView}/>
+                                        <Route path="/settings" component={SaleView}/>
+                                        <Route path="/log-out" component={SaleView}/>
+                                    </Switch>
+                                </Suspense>
+                            </main>
+                        </div>
+                        <ReactQueryDevtools initialIsOpen={true}/>
+                    </BrowserRouter>
+                </SnackbarProvider>
+            </ThemeProvider>
+        </QueryClientProvider>
     );
 };
 

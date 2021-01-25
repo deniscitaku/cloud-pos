@@ -1,37 +1,35 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {lazy, useEffect, useState} from 'react';
 import {AxiosInventoryMovementLineClient, MovementKind} from "../../client/Client";
 import {useDispatch, useSelector} from "react-redux";
 import Paper from "@material-ui/core/Paper";
 import MaterialTable from "material-table";
-import {
-    deleteInventoryMovementLines,
-    updateInventoryMovementLine
-} from "../../reducers/global/inventoryMovementReducer";
-import IntTextField from "../common/IntTextField";
-import {useDeleteAll, useSave} from "../../hooks/useFetch";
-import ValidTextField from "../common/ValidTextField";
-import ConfirmationDialog from "../common/ConfirmationDialog";
-import useTraceUpdate from "../../hooks/useTraceUpdate";
+import {deleteInventoryMovementLines} from "../../reducers/global/inventoryMovementReducer";
+import {useMutation} from "react-query";
+import QtyTextField from "./QtyTextField";
+
+const ConfirmationDialog = lazy(() => import("../common/ConfirmationDialog"));
 
 const movementKind = MovementKind.PURCHASE;
 const inventoryMovementLineService = new AxiosInventoryMovementLineClient();
 
-const PurchaseTable = ({searchProductRef}) => {
+const PurchaseTable = ({searchProductRef, setDisableCloseButton, tableLoading, setTableLoading}) => {
 
     console.log("Inside Purchase table");
 
-    useEffect(() => console.log('searchProductRef changed!'), [searchProductRef]);
-
-    const [yesNoDialog, setYesNoDialog] = useState({open: false, itemsToRemove: []});
-    const [saveInventoryMovementLine, {loading, errors}] = useSave(x => inventoryMovementLineService.update(x));
-    const [deleteSelectedLines, deleteLinesLoading] = useDeleteAll(lines => inventoryMovementLineService.deleteAll(lines));
     const dispatch = useDispatch();
-    const purchaseLines = useSelector((state) => state.inventoryMovement.get(movementKind).inventoryMovementLines, (oldVal, newVal) => {
-        return oldVal.length === newVal.length && oldVal.map(x => x.quantity).reduce((x,y) => x + y, 0) === newVal.map(x => x.quantity).reduce((x,y) => x + y, 0)
+    const [yesNoDialog, setYesNoDialog] = useState({open: false, itemsToRemove: []});
+    const {mutate: deleteSelectedLines, isLoading: deleteLinesLoading} = useMutation(lines => inventoryMovementLineService.deleteAll(lines), {
+        onSuccess: () => {
+            deleteInventoryMovementLines(movementKind, yesNoDialog.itemsToRemove, dispatch);
+            setYesNoDialog({itemsToRemove: [], open: false})
+        }
     });
-    const handleYesNoDialogOnClose = useCallback(() => setYesNoDialog(prevState => ({...prevState, open: false})), []);
-    const handleDeleteSelected = useCallback(deleteSelectedOnAction, [yesNoDialog.itemsToRemove]);
-    const qty = useRef(1);
+    const purchaseLines = useSelector((state) => state.inventoryMovement.get(movementKind).inventoryMovementLines);
+    const [errors, setErrors] = useState([]);
+
+    useEffect(() => {
+        setDisableCloseButton(errors.length > 0 && errors.some(x => x))
+    }, [errors]);
 
     const columns = [
         {title: '#', field: 'tableData.id', editable: "never", width: "1%", cellStyle: {padding: 0}},
@@ -43,28 +41,12 @@ const PurchaseTable = ({searchProductRef}) => {
             field: 'quantity',
             type: 'numeric',
             width: "1%",
-            render: rowData => {
-                qty.current = 1;
-                return (
-                    <ValidTextField
-                        type="number"
-                        size="small"
-                        autoFocus={rowData.lineNumber === purchaseLines.length}
-                        defaultValue={1}
-                        required={true}
-                        onFocus={event => event.target.select()}
-                        onKeyPress={(ev) => {
-                            if (ev.key === 'Enter') {
-                                ev.preventDefault();
-                                searchProductRef.current && searchProductRef.current.focus();
-                            }
-                        }}
-                        onChange={e => qty.current = e.target.value}
-                        onBlur={() => handleQtyOnBlur(rowData)}
-                        error={errors && errors.quantity}
-                    />
-                );
-            },
+            render: rowData => <QtyTextField
+                rowData={rowData}
+                searchProductRef={searchProductRef}
+                setErrors={setErrors}
+                setTableLoading={setTableLoading}
+            />,
             cellStyle: {padding: 0}
         },
         /*{title: 'UOM', field: 'product.uom.smallerUnitName', width: "5%", editable: "never", cellStyle: {padding: 0}},*/
@@ -75,7 +57,13 @@ const PurchaseTable = ({searchProductRef}) => {
         },
         {title: 'Price tax', field: 'product.priceTax', type: 'numeric', width: "10%", cellStyle: {padding: 0}},
         {
-            title: 'Amount', field: 'amount', type: 'numeric', editable: "never", width: "15%", cellStyle: {paddingRight: '1em'}, headerStyle: {paddingRight: '1em'}
+            title: 'Amount',
+            field: 'amount',
+            type: 'numeric',
+            editable: "never",
+            width: "15%",
+            cellStyle: {paddingRight: '1em'},
+            headerStyle: {paddingRight: '1em'}
         },
     ];
 
@@ -84,24 +72,10 @@ const PurchaseTable = ({searchProductRef}) => {
         setYesNoDialog({open: true, itemsToRemove: data});
     }
 
-    function deleteSelectedOnAction() {
-        deleteSelectedLines(yesNoDialog.itemsToRemove)
-            .then(() => deleteInventoryMovementLines(movementKind, yesNoDialog.itemsToRemove, dispatch))
-            .then(() => setYesNoDialog({itemsToRemove: [], open: false}));
-    }
-
-    function handleQtyOnBlur(inventoryMovementLine) {
-        if (!purchaseLines.length) {
-            return;
-        }
-        saveInventoryMovementLine({...inventoryMovementLine, quantity: qty.current})
-            .then(x => updateInventoryMovementLine(movementKind, x, dispatch));
-    }
-
     return (
         <Paper square variant="outlined">
             <MaterialTable
-                isLoading={loading}
+                isLoading={tableLoading}
                 title="Purchase"
                 columns={columns}
                 data={purchaseLines}
@@ -112,6 +86,7 @@ const PurchaseTable = ({searchProductRef}) => {
                     paging: false,
                     search: false,
                     maxBodyHeight: "60vh",
+                    loadingType: "linear",
                     rowStyle: {
                         padding: 0,
                     },
@@ -127,13 +102,15 @@ const PurchaseTable = ({searchProductRef}) => {
                     }
                 ]}
             />
-            <ConfirmationDialog title={"Are you sure want do delete all selected records?"}
-                                content={`There are (${yesNoDialog.itemsToRemove.length}) records to be deleted`}
-                                open={yesNoDialog.open}
-                                handleClose={handleYesNoDialogOnClose}
-                                handleConfirmation={handleDeleteSelected}
-                                loading={deleteLinesLoading}
-            />
+            {yesNoDialog.open && (
+                <ConfirmationDialog title={"Are you sure want do delete all selected records?"}
+                                    content={`There are (${yesNoDialog.itemsToRemove.length}) records to be deleted`}
+                                    open={yesNoDialog.open}
+                                    handleClose={() => setYesNoDialog(prevState => ({...prevState, open: false}))}
+                                    handleConfirmation={() => deleteSelectedLines(yesNoDialog.itemsToRemove)}
+                                    loading={deleteLinesLoading}
+                />
+            )}
         </Paper>
     );
 };

@@ -1,5 +1,8 @@
 import {useEffect, useState} from "react";
 import {useSnackbar} from "notistack";
+import axios, {CancelTokenSource} from "axios";
+
+
 
 export function useFindAll(request, errorMessage) {
     const [data, setData] = useState([]);
@@ -8,7 +11,7 @@ export function useFindAll(request, errorMessage) {
 
     function fireCall() {
         setLoading(true);
-        return request()
+        return request.apply(this, Array.prototype.slice.call(arguments))
             .then(x => x.data)
             .then(x => {
                 setData(x);
@@ -16,6 +19,40 @@ export function useFindAll(request, errorMessage) {
                 return x;
             })
             .catch(error => {
+                const message = errorMessage ?
+                    errorMessage :
+                    'Unexpected error occurred, please contact support for more information.\n' + JSON.stringify(error.response?.data);
+                enqueueSnackbar(message, {variant: "error"});
+                setLoading(false)
+            });
+    }
+
+    return [fireCall, data, loading, setData];
+}
+
+export function useCancelerFindAll(request, errorMessage) {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const {enqueueSnackbar} = useSnackbar();
+    let source = axios.CancelToken.source();
+
+    function fireCall() {
+        setLoading(true);
+        source && source.cancel();
+        // create the new request for cancellation
+        source = axios.CancelToken.source();
+
+        return request.apply(this, Array.prototype.slice.call([...arguments, source.token]))
+            .then(x => x.data)
+            .then(x => {
+                setData(x);
+                setLoading(false);
+                return x;
+            })
+            .catch(error => {
+                if (axios.isCancel(error)) {
+                    return;
+                }
                 const message = errorMessage ?
                     errorMessage :
                     'Unexpected error occurred, please contact support for more information.\n' + JSON.stringify(error.response?.data);
@@ -59,28 +96,33 @@ export function useMultipleFindAll(requests, errorMessage) {
     return [fireCall, data, setDataForIndex];
 }
 
-export function useFindOne(request, initialState = {}, errorMessage) {
-    const [data, setData] = useState(initialState);
+export function useFindOne(request, errorMessage) {
+    const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState();
     const {enqueueSnackbar} = useSnackbar();
 
     function fireCall() {
-        request()
+        setLoading(false);
+        return request()
             .then(x => x.data)
             .then(x => {
                 setData(x);
                 setLoading(false)
             })
             .catch(error => {
-                const message = errorMessage ?
-                    errorMessage :
-                    'Unexpected error occurred, please contact support for more information.\n' + error.response?.data;
-                enqueueSnackbar(message, {variant: "error"});
+                if (error.response?.status !== 400) {
+                    const message = errorMessage ?
+                        errorMessage :
+                        'Unexpected error occurred, please contact support for more information.\n' + error.response?.data;
+                    enqueueSnackbar(message, {variant: "error"});
+                }
+                setErrors(error.response?.data);
                 setLoading(false)
             });
     }
 
-    return [fireCall, data, loading];
+    return [fireCall, data, loading, errors];
 }
 
 export function useSave(request, initialState = {

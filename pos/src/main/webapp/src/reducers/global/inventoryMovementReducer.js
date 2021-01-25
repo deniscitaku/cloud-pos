@@ -26,7 +26,7 @@ export const setInventoryMovement = (inventoryMovement, dispatch) => {
     })
 };
 
-export const addInventoryMovementLine = (movementKind, inventoryMovementLine, dispatch) => {
+export const createInventoryMovementLine = (movementKind, inventoryMovementLine, dispatch) => {
     dispatch({
         type: CREATE_INVENTORY_MOVEMENT_LINE,
         payload: inventoryMovementLine,

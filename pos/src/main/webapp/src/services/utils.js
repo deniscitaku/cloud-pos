@@ -15,3 +15,9 @@ export function formatMoney(amount, decimalCount = 2, decimal = ".", thousands =
         console.log(e)
     }
 };
+
+export function resolveField(object, path, defaultValue) {
+    return path
+        .split('.')
+        .reduce((o, p) => o ? o[p] : defaultValue, object)
+}

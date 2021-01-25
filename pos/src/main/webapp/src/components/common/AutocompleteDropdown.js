@@ -2,6 +2,7 @@ import React, {useEffect} from "react";
 import Autocomplete, {createFilterOptions} from "@material-ui/lab/Autocomplete";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import ValidTextField from "./ValidTextField";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const filter = createFilterOptions();
 
@@ -15,9 +16,12 @@ function AutocompleteDropdown({
                                   minWidth = 180,
                                   items,
                                   enableAddOption = false,
-                                  inputRef = undefined
+                                  inputRef = undefined,
+                                  isLoading
                               }) {
     console.log("Inside AutocompleteDropdown");
+
+    const finalIcon = isLoading ? <CircularProgress style={{ width: "1.2em", height: "1.2em" }}/> : icon;
 
     return (
         <>
@@ -47,6 +51,7 @@ function AutocompleteDropdown({
                     }
                     return option.name;
                 }}
+                disabled={isLoading || props.disabled}
                 selectOnFocus
                 autoHighlight
                 clearOnEscape
@@ -55,14 +60,14 @@ function AutocompleteDropdown({
                 style={{minWidth: minWidth}}
                 freeSolo
                 renderInput={(params) => (
-                    icon ?
+                    finalIcon ?
                         <ValidTextField {...params} error={error} required={required} label={label} variant={variant}
                                         inputRef={inputRef}
                                         InputProps={{
                                             ...params.InputProps,
                                             startAdornment: (
                                                 <InputAdornment position="start">
-                                                    {icon}
+                                                    {finalIcon}
                                                 </InputAdornment>
                                             ),
                                         }}/> :
@@ -74,4 +79,4 @@ function AutocompleteDropdown({
     );
 }
 
-export default React.memo(AutocompleteDropdown)
+export default AutocompleteDropdown;

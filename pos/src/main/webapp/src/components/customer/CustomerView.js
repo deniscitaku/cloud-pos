@@ -1,22 +1,23 @@
-import {AxiosCustomerClient} from "../../client/Client";
-import React, {useCallback, useRef, useState} from "react";
+import {AxiosCustomerClient, QueryKeys} from "../../client/Client";
+import React, {lazy, useCallback, useRef, useState} from "react";
 import ValidTableCell from "../common/ValidTableCell";
 import ValidTextField from "../common/ValidTextField";
 import PeopleIcon from '@material-ui/icons/People';
-import NewCustomer from "./NewCustomer";
-import Table from "../common/Table";
+import Table from "../common/CustomTable";
+
+const NewCustomer = lazy(() => import("./NewCustomer"));
 
 const customerService = new AxiosCustomerClient();
 
-export default function Customer() {
-    console.log("Inside Customer!");
+export default function CustomerView() {
+    console.log("Inside CustomerView!");
 
     const errorsRef = useRef([]);
     const tableRef = useRef();
     const [open, setOpen] = useState(false);
 
     const openDialog = useCallback(() => setOpen(true), []);
-    const customerIcon = useCallback(() => <PeopleIcon/>, []);
+    const customerIcon = useRef(<PeopleIcon/>);
     const columns = useCallback(() => [
         {title: '#', field: 'tableData.id', editable: "never", width: "1%"},
         {
@@ -50,8 +51,9 @@ export default function Customer() {
                 tableRef={tableRef}
                 errorsRef={errorsRef}
                 onAddNew={openDialog}
+                queryKey={QueryKeys.CUSTOMERS}
             />
-            <NewCustomer isOpen={open} setOpen={val => setOpen(val)} refreshTable={() => tableRef.current && tableRef.current.onQueryChange()} />
+            {open && <NewCustomer isOpen={open} setOpen={val => setOpen(val)} refreshTable={() => tableRef.current && tableRef.current.onQueryChange()} />}
         </>
     );
 }

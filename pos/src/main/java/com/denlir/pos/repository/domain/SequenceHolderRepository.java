@@ -8,7 +8,7 @@ public interface SequenceHolderRepository extends JpaRepository<SequenceHolder, 
 
   @Query(value = "UPDATE sequence_holder " +
       "SET sequence = sequence + 1 " +
-      "WHERE sequence_holders_id = ?1 " +
+      "WHERE location_id = ?1 " +
       "AND movement_kind = ?2 RETURNING sequence",
       nativeQuery = true)
   Long getAndIncrementSequenceByIdAndMovementKind(Long locationId, String movementKind);

@@ -22,6 +22,7 @@ import com.denlir.pos.util.ControllerTester;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -128,7 +129,7 @@ public class TicketControllerTest extends ControllerTester<TicketPayload> {
       ticketPayload.setTotalAmount(new BigDecimal(2.4));
       ticketPayload.setGivenAmount(new BigDecimal(5));
       ticketPayload.setLocation(locationPayload);
-      ticketPayload.setTicketLines(Set.of(ticketLinePayload, ticketLinePayload1));
+      ticketPayload.setTicketLines(List.of(ticketLinePayload, ticketLinePayload1));
       ticketPayload.setModifiedByUser(userPayload);
       ticketPayload.setCreatedByUser(userPayload);
       return ticketPayload;

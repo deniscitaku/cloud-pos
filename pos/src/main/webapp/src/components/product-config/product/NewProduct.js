@@ -1,38 +1,58 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useState} from 'react';
 import FormDialog from "../../common/FormDialog";
-import {AxiosProductClient} from "../../../client/Client";
+import {
+    AxiosCategoryClient,
+    AxiosProductClient,
+    AxiosSubCategoryClient,
+    AxiosTaxClient,
+    QueryKeys
+} from "../../../client/Client";
 import FastFoodIcon from '@material-ui/icons/Fastfood';
 import ValidTextField from "../../common/ValidTextField";
-import {useSave} from "../../../hooks/useFetch";
 import AutocompleteDropdown from "../../common/AutocompleteDropdown";
 import {emptyProduct} from "../../../services/EmptyObjects";
+import {useMutation, useQueries, useQueryClient} from "react-query";
+import CustomBackdrop from "../../common/CustomBackdrop";
 
 const productService = new AxiosProductClient();
+const categoryService = new AxiosCategoryClient();
+const subCategoryService = new AxiosSubCategoryClient();
+const taxService = new AxiosTaxClient();
 
-function NewProduct({savedProduct, isOpen, setOpen, categories, subCategories, taxes, initialProductOnAdd, autoFocusIndex}) {
+function NewProduct({savedProduct, isOpen, setOpen, initialProduct = taxes => ({...emptyProduct, tax: taxes.find(x => x.default)}), autoFocusIndex}) {
     console.log("Inside New product");
 
-    const [saveProduct, {errors, loading}, setState] = useSave(x => productService.create(x));
     const [priceTax, setPriceTax] = useState(0);
 
-    const icon = useMemo(() => <FastFoodIcon/>, []);
-
-    const finalInitialProductOnAdd = initialProductOnAdd ? initialProductOnAdd() : {...emptyProduct, tax: taxes.find(x => x.default)};
-
-    const handleSubmit = useCallback((event, product, reset) => {
-        saveProduct(product).then((x) => {
+    const queryClient = useQueryClient();
+    const [
+        {data: categories, isLoading: categoriesLoading},
+        {data: subCategories, isLoading: subCategoriesLoading},
+        {data: taxes, isLoading: taxesLoading},
+    ] = useQueries([
+        {queryKey: QueryKeys.CATEGORIES, queryFn: () => categoryService.findAll().then(x => x.data)},
+        {queryKey: QueryKeys.SUB_CATEGORIES, queryFn: () => subCategoryService.findAll().then(x => x.data)},
+        {queryKey: QueryKeys.TAXES, queryFn: () => taxService.findAll().then(x => x.data)}
+    ]);
+    const {mutate: saveProduct, error, isLoading, reset} = useMutation(x => productService.create(x.data).then(x => x.data), {
+        onSuccess: (data, vars) => {
             setOpen(false);
-            reset();
-            savedProduct(x);
-        });
-    }, []);
+            vars.reset();
+            savedProduct(data);
+            if (queryClient.getQueryData(QueryKeys.PRODUCTS)) {
+                queryClient.setQueryData(QueryKeys.PRODUCTS, old => [...old, data]);
+            }
+        },
+    });
 
-    const handleClose = useCallback(() => {
-        setOpen(false);
-        setState(x => ({...x, errors: {}}));
-    }, []);
+    const multipleLoading = categoriesLoading || subCategoriesLoading || taxesLoading;
+    const errors = error?.response?.data;
 
-    const onValueChange = useCallback((fieldName, newValue, product, setProduct) => {
+    if (multipleLoading) {
+        return (<CustomBackdrop/>);
+    }
+
+    function onValueChange(fieldName, newValue, product, setProduct) {
         if (fieldName === 'priceSell') {
             setPriceTax((newValue * (product.tax ? product.tax.taxRate : 1)).toFixed(2));
             setProduct({...product, priceTax: priceTax});
@@ -40,53 +60,20 @@ function NewProduct({savedProduct, isOpen, setOpen, categories, subCategories, t
             setPriceTax((newValue ? newValue.taxRate * product.priceSell : product.priceSell).toFixed(2));
             setProduct({...product, priceTax: priceTax});
         }
-    }, []);
-
-    const categoryDropdown = useCallback((product, setProduct) => <AutocompleteDropdown
-        props={dropdownProps(product, setProduct, 'category')}
-        label={'Category'}
-        required
-        error={errors && errors['category']}
-        variant="standard"
-        items={categories}/>, []);
-
-    const subCategoryDropdown = useCallback((product, setProduct) => <AutocompleteDropdown
-        props={dropdownProps(product, setProduct, 'subCategory')}
-        label={'Sub-Category'}
-        required
-        error={errors && errors['subCategory']}
-        variant="standard"
-        items={subCategories}/>, []);
-
-    const taxDropdown = useCallback((product, setProduct) => <AutocompleteDropdown
-        props={dropdownProps(product, setProduct, 'tax')}
-        label={'Tax'}
-        required
-        error={errors && errors['tax']}
-        variant="standard"
-        items={taxes}/>, []);
-
-    const priceTaxTextField = useCallback(() => <ValidTextField
-        disabled
-        error={errors && errors['priceTax']}
-        id="priceTax"
-        value={priceTax}
-        label={"Final price"}
-    />, []);
+    }
 
     const dropdownProps = (product, setProduct, fieldName) => {
         const onChange = (event, newValue) => {
             event.preventDefault();
-            console.log("Autocomplete value changed: ", newValue);
             if (newValue && newValue.inputValue) {
-                setProduct({...product, [fieldName]: null});
+                setProduct({...product.current, [fieldName]: null});
             } else {
-                setProduct({...product, [fieldName]: newValue});
+                setProduct({...product.current, [fieldName]: newValue});
             }
         };
 
         return {
-            defaultValue: finalInitialProductOnAdd[fieldName],
+            defaultValue: initialProduct(taxes)[fieldName],
             onChange: onChange
         }
     };
@@ -118,24 +105,48 @@ function NewProduct({savedProduct, isOpen, setOpen, categories, subCategories, t
         {
             title: 'Taxes',
             field: "tax",
-            customElement: taxDropdown
+            customElement: (product, setProduct) => <AutocompleteDropdown
+                props={dropdownProps(product, setProduct, 'tax')}
+                label={'Tax'}
+                required
+                error={errors && errors['tax']}
+                variant="standard"
+                items={taxes}/>
         },
         {
             title: 'Final price',
             field: "priceTax",
             type: 'number',
-            customElement: priceTaxTextField
+            customElement: () => <ValidTextField
+                disabled
+                error={errors && errors['priceTax']}
+                id="priceTax"
+                value={priceTax}
+                label={"Final price"}
+            />
         },
         {
             title: 'Category',
             field: "category",
-            customElement: categoryDropdown,
+            customElement: (product, setProduct) => <AutocompleteDropdown
+                props={dropdownProps(product, setProduct, 'category')}
+                label={'Category'}
+                required
+                error={errors && errors['category']}
+                variant="standard"
+                items={categories}/>,
         },
         {
             title: 'Sub-Category',
             field: "subCategory",
             required: false,
-            customElement: subCategoryDropdown,
+            customElement: (product, setProduct) => <AutocompleteDropdown
+                props={dropdownProps(product, setProduct, 'subCategory')}
+                label={'Sub-Category'}
+                required
+                error={errors && errors['subCategory']}
+                variant="standard"
+                items={subCategories}/>,
         },
         {
             title: 'Min. stock',
@@ -145,22 +156,32 @@ function NewProduct({savedProduct, isOpen, setOpen, categories, subCategories, t
         }
     ];
 
+    function handleSubmit(event, product, reset) {
+        saveProduct({data: product, reset: reset});
+    }
+
+    function handleClose() {
+        setOpen(false);
+        reset();
+    }
+
     return (
-        <FormDialog
-            open={isOpen}
-            title="Product"
-            onSubmit={handleSubmit}
-            onClose={handleClose}
-            errors={errors}
-            loading={loading}
-            fields={fields}
-            onValueChange={onValueChange}
-            icon={icon}
-            initialObject={{...emptyProduct, tax: taxes.find(x => x.default)}}
-            initialObjectOnAdd={finalInitialProductOnAdd}
-            autoFocusIndex={autoFocusIndex}
-        />
+        !multipleLoading && isOpen && (
+            <FormDialog
+                open={isOpen}
+                title="Product"
+                onSubmit={handleSubmit}
+                onClose={handleClose}
+                errors={errors}
+                loading={isLoading}
+                fields={fields}
+                onValueChange={onValueChange}
+                icon={<FastFoodIcon/>}
+                initialObject={initialProduct(taxes)}
+                autoFocusIndex={autoFocusIndex}
+            />
+        )
     );
 }
 
-export default React.memo(NewProduct);
+export default NewProduct;

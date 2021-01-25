@@ -3,7 +3,6 @@ package com.denlir.pos.controller;
 import com.denlir.pos.entity.inventory.movement.MovementKind;
 import com.denlir.pos.payload.domain.LocationFluentBuilder;
 import com.denlir.pos.payload.domain.LocationPayload;
-import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementFluentBuilder;
 import com.denlir.pos.payload.inventory.movement.diary.InventoryMovementPayload;
 import com.denlir.pos.service.BasicServiceOperation;
 import com.denlir.pos.service.domain.LocationService;

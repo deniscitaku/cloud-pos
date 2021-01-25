@@ -2,26 +2,28 @@ package com.denlir.pos.service.inventory.movement.sale;
 
 import com.denlir.pos.entity.inventory.BaseLineEntity;
 import com.denlir.pos.entity.inventory.movement.MovementKind;
+import com.denlir.pos.entity.inventory.movement.sale.PaymentType;
+import com.denlir.pos.entity.inventory.movement.sale.Status;
 import com.denlir.pos.entity.inventory.movement.sale.Ticket;
-import com.denlir.pos.exception.ValidationExceptionFluentBuilder;
 import com.denlir.pos.payload.domain.LocationPayload;
 import com.denlir.pos.payload.inventory.BaseLinePayload;
+import com.denlir.pos.payload.inventory.movement.sale.TicketLinePayload;
 import com.denlir.pos.payload.inventory.movement.sale.TicketMapper;
 import com.denlir.pos.payload.inventory.movement.sale.TicketPayload;
 import com.denlir.pos.repository.inventory.movement.sale.TicketRepository;
 import com.denlir.pos.service.BasicServiceOperation;
 import com.denlir.pos.service.FieldInclude;
-import com.denlir.pos.service.domain.LocationService;
 import com.denlir.pos.service.domain.SequenceHolderService;
 import com.denlir.pos.service.inventory.ProductService;
 import com.denlir.pos.service.inventory.StockService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.HashSet;
+import java.util.ArrayList;
 
-import static java.util.Map.*;
+import static java.util.Map.of;
 
 /**
  * Created on: 4/10/20
@@ -38,46 +40,56 @@ public class TicketService extends BasicServiceOperation<Ticket, TicketPayload, 
 
   private final ProductService productService;
 
-  private final LocationService locationService;
+  private final TicketLineService ticketLineService;
 
   protected TicketService(TicketMapper ticketMapper,
                           TicketRepository repository,
                           StockService stockService,
                           SequenceHolderService sequenceHolderService,
                           ProductService productService,
-                          LocationService locationService) {
+                          TicketLineService ticketLineService) {
     super(ticketMapper, repository);
     this.stockService = stockService;
     this.sequenceHolderService = sequenceHolderService;
     this.productService = productService;
-    this.locationService = locationService;
+    this.ticketLineService = ticketLineService;
   }
 
   public TicketPayload openTicket(Long locationId) {
-    LocationPayload location = locationService.findById(locationId).orElseThrow(() -> ValidationExceptionFluentBuilder.builder()
-        .fieldName("location")
-        .rejectedValue(locationId)
-        .message("Location with id: " + locationId + " not found!")
-        .code("NotFound")
-        .build()
-        .toEntityValidationException());
+    LocationPayload locationPayload = new LocationPayload();
+    locationPayload.setId(locationId);
 
     TicketPayload ticket = new TicketPayload();
-    ticket.setLocation(location);
+    ticket.setLocation(locationPayload);
+    ticket.setStatus(Status.OPENED);
+
+    Long sequence = sequenceHolderService.getAndIncrementSequenceByIdAndMovementKind(locationId, MovementKind.SALE);
+    ticket.setSequence(sequence);
 
     return save(ticket);
+  }
+
+  public TicketPayload closeTicket(TicketPayload payload) {
+    if (payload.getGivenAmount() == null) {
+      payload.setGivenAmount(payload.getTotalAmount());
+    }
+
+    if (payload.getPaymentType() == null) {
+      payload.setPaymentType(PaymentType.CASH);
+    }
+
+    payload.setStatus(Status.CLOSED);
+
+    return save(payload);
   }
 
   @Override
   protected TicketPayload beforeSave(TicketPayload payload) {
     Long locationId = payload.getLocation().getId();
 
-    if (payload.getSequence() == null) {
-      Long sequence = sequenceHolderService.getAndIncrementSequenceByIdAndMovementKind(locationId, MovementKind.SALE);
-      payload.setSequence(sequence);
+    if (payload.getStatus() == Status.CLOSED) {
+      stockService.updateStock(payload.getTicketLines(), locationId, MovementKind.SALE);
     }
-
-    stockService.updateStock(payload.getTicketLines(), locationId, MovementKind.SALE);
 
     BigDecimal totalAmount = payload.getTicketLines()
         .stream()
@@ -89,6 +101,17 @@ public class TicketService extends BasicServiceOperation<Ticket, TicketPayload, 
     return payload;
   }
 
+  @Transactional
+  public TicketPayload addTicketLine(Long ticketId, TicketLinePayload ticketLine) {
+    TicketPayload ticket = getOne(ticketId);
+
+    TicketLinePayload tl = ticketLineService.beforeSave(ticketLine);
+    tl.setLineNumber(ticket.getTicketLines().size() + 1);
+    ticket.getTicketLines().add(tl);
+
+    return save(ticket);
+  }
+
   @Override
   public TicketPayload includeFields(FieldInclude<Ticket, TicketPayload> fieldInclude) {
     return fieldInclude.includeAuditFields()
@@ -97,8 +120,7 @@ public class TicketService extends BasicServiceOperation<Ticket, TicketPayload, 
         .withGetters(Ticket::getTicketLines, TicketPayload::getTicketLines)
         .furtherGetters(BaseLineEntity::getProduct, BaseLinePayload::getProduct)
         .useService(productService)
-        .withSetter((ticket, ticketLines) -> ticket.setTicketLines(new HashSet<>(ticketLines)))
+        .withSetter((ticket, ticketLines) -> ticket.setTicketLines(new ArrayList<>(ticketLines)))
         .get();
   }
-
 }

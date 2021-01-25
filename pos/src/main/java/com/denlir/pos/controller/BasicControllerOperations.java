@@ -37,12 +37,14 @@ public abstract class BasicControllerOperations<T extends BasicServiceOperation<
 
   @GetMapping("/{id}")
   public Optional<P> findById(@PathVariable @NotEmpty Long id,
-                              @RequestParam(required = false) String... include) {
+                              @RequestParam(required = false) String... include) throws InterruptedException {
+    Thread.sleep(1000);
     return service.findById(id, include);
   }
 
   @GetMapping("/all")
-  public Collection<P> findAll(@RequestParam(required = false) String... include) {
+  public Collection<P> findAll(@RequestParam(required = false) String... include) throws InterruptedException {
+    Thread.sleep(1000);
     return service.findAll(include);
   }
 
@@ -52,17 +54,20 @@ public abstract class BasicControllerOperations<T extends BasicServiceOperation<
                                      @RequestParam(required = false) String[] sortBy,
                                      @RequestParam(required = false) String direction,
                                      @RequestParam(required = false) String search,
-                                     @RequestParam(required = false) String... include) {
+                                     @RequestParam(required = false) String... include) throws InterruptedException {
+    Thread.sleep(1000);
     return service.findAllPaged(page, size, sortBy, direction, search, include);
   }
 
   @GetMapping("/sorted")
-  public Collection<P> findAllSorted(@RequestParam String direction, @RequestParam String[] sortBy, @RequestParam(required = false) String... include) {
+  public Collection<P> findAllSorted(@RequestParam String direction, @RequestParam String[] sortBy, @RequestParam(required = false) String... include) throws InterruptedException {
+    Thread.sleep(1000);
     return service.findAllSorted(direction, sortBy, include);
   }
 
   @PostMapping
-  public P create(@RequestBody @Validated P payload) {
+  public P create(@RequestBody @Validated P payload) throws InterruptedException {
+    Thread.sleep(1000);
     return service.save(payload);
   }
 
@@ -71,7 +76,8 @@ public abstract class BasicControllerOperations<T extends BasicServiceOperation<
     return service.saveAll(payload);
   }
 
-  @PutMapping P update(@RequestBody @Validated({Default.class, Update.class}) P payload) {
+  @PutMapping P update(@RequestBody @Validated({Default.class, Update.class}) P payload) throws InterruptedException {
+    Thread.sleep(1000);
     return service.save(payload);
   }
 
@@ -81,12 +87,14 @@ public abstract class BasicControllerOperations<T extends BasicServiceOperation<
   }
 
   @DeleteMapping("/{id}")
-  public void deleteById(@PathVariable @NotEmpty Long id) {
+  public void deleteById(@PathVariable @NotEmpty Long id) throws InterruptedException {
+    Thread.sleep(1000);
     service.deleteById(id);
   }
 
   @DeleteMapping
-  public void deleteAll(@RequestBody @Valid List<P> payloads) {
+  public void deleteAll(@RequestBody @Valid List<P> payloads) throws InterruptedException {
+    Thread.sleep(1000);
     service.deleteAll(payloads);
   }
 

@@ -1,7 +1,5 @@
 package com.denlir.pos.payload.inventory.movement.diary;
 
-import annotation.FluentBuilder;
-import annotation.FluentBuilder.Optional;
 import com.denlir.pos.common.GenerateTS;
 import com.denlir.pos.entity.inventory.movement.MovementKind;
 import com.denlir.pos.entity.inventory.movement.sale.Status;
@@ -23,7 +21,6 @@ import java.util.List;
  *
  * @author Denis Citaku
  **/
-@FluentBuilder
 @Data
 @EqualsAndHashCode(callSuper = true)
 @GenerateTS
@@ -34,7 +31,7 @@ public class InventoryMovementPayload extends BaseAuditPayload {
   @NotNull
   private MovementKind kind;
 
-  private List<InventoryMovementLinePayload> inventoryMovementLines;
+  private List<@Valid InventoryMovementLinePayload> inventoryMovementLines;
 
   @Valid
   @ConvertGroup(to = ReferenceId.class)
@@ -46,10 +43,8 @@ public class InventoryMovementPayload extends BaseAuditPayload {
   @NotNull(groups = Update.class)
   private SupplierPayload supplier;
 
-  @Optional
   private LocationPayload locationTo;
 
-  @Optional
   private Status status;
 
   public List<InventoryMovementLinePayload> getInventoryMovementLines() {

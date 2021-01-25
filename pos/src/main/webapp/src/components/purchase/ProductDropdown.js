@@ -1,39 +1,45 @@
-import React, {useCallback, useRef, useState} from 'react';
+import React, {lazy, useCallback, useEffect, useState} from 'react';
 import {emptyProduct} from "../../services/EmptyObjects";
 import FastFoodIcon from '@material-ui/icons/Fastfood';
 import AutocompleteDropdown from "../common/AutocompleteDropdown";
-import NewProduct from "../product-config/product/NewProduct";
 import {useDispatch, useSelector} from "react-redux";
-import {addInventoryMovementLine} from "../../reducers/global/inventoryMovementReducer";
-import {AxiosInventoryMovementClient, InventoryMovementLinePayload, MovementKind} from "../../client/Client";
-import {useSave} from "../../hooks/useFetch";
+import {createInventoryMovementLine} from "../../reducers/global/inventoryMovementReducer";
+import {AxiosInventoryMovementClient, InventoryMovementLinePayload, MovementKind, QueryKeys} from "../../client/Client";
 import store from "../../store";
+import {useMutation, useQuery} from "react-query";
+
+const NewProduct = lazy(() => import("../product-config/product/NewProduct"));
 
 const inventoryMovementService = new AxiosInventoryMovementClient();
 const kind = MovementKind.PURCHASE;
 
-function ProductDropdown({products, categories, subCategories, taxes, addProduct, searchProductRef}) {
+function addInventoryMovementLinePromise(inventoryMovementLine) {
+    const inventoryMovementId = store.getState().inventoryMovement.get(kind).id;
+
+    return inventoryMovementService.addInventoryMovementLine(inventoryMovementId, inventoryMovementLine).then(x => x.data)
+}
+
+export default function ProductDropdown({searchProductRef, setTableLoading}) {
+    console.log("Inside ProductDropdown");
+
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
     const [key, resetAutocompleteInput] = useState(false);
-    const [createInventoryMovement, {loading}] = useSave((x) => inventoryMovementService.create(x));
+
+    const {data: products, isLoading: productsLoading} = useQuery(QueryKeys.PRODUCTS);
+    const {mutate: addInventoryMovementLine, isLoading} = useMutation(addInventoryMovementLinePromise, {
+        onSuccess: data => createInventoryMovementLine(kind, data.inventoryMovementLines[data.inventoryMovementLines.length - 1], dispatch),
+    });
 
     const supplier = useSelector(x => x.inventoryMovement.get(kind).supplier);
     const dispatch = useDispatch();
 
-    console.log("Inside ProductDropdown");
+    useEffect(() => setTableLoading(isLoading), [isLoading]);
 
-    const handleOpenDialogChange = useCallback(x => setOpen(x), []);
     const handleSavedProduct = useCallback(savedProduct => {
         productChanged(savedProduct);
-        addProduct(savedProduct);
     }, []);
-    const initialProductOnAdd = useCallback(() => ({
-        ...emptyProduct,
-        code: name,
-        tax: taxes.find(x => x.default)
-    }), [open]);
-    const handleClose = useCallback(() => setName(''), []);
+
     const handleChange = useCallback((event, newValue) => {
         event.preventDefault();
         if (typeof newValue === 'string') {
@@ -57,13 +63,11 @@ function ProductDropdown({products, categories, subCategories, taxes, addProduct
         }
     }, []);
 
-    const icon = useRef(<FastFoodIcon/>);
-
     const autoCompleteProps = {
         key: key,
         defaultValue: emptyProduct,
         onChange: handleChange,
-        disabled: loading || !supplier || !supplier.id
+        disabled: !supplier || !supplier.id
     };
 
     function productChanged(newValue) {
@@ -73,16 +77,10 @@ function ProductDropdown({products, categories, subCategories, taxes, addProduct
 
     const handleValueChange = (value) => {
         if (value) {
-            const purchase = store.getState().inventoryMovement.get(kind);
-            const lines = purchase.inventoryMovementLines.length;
-            const newPurchaseLine = new InventoryMovementLinePayload({
-                lineNumber: lines + 1,
+            addInventoryMovementLine(new InventoryMovementLinePayload({
                 product: value,
                 quantity: 1
-            });
-            const newPurchase = {...purchase, inventoryMovementLines: [...purchase.inventoryMovementLines, newPurchaseLine]};
-            createInventoryMovement(newPurchase)
-                .then(x => addInventoryMovementLine(kind, x.inventoryMovementLines[lines], dispatch))
+            }));
         }
     };
 
@@ -91,28 +89,31 @@ function ProductDropdown({products, categories, subCategories, taxes, addProduct
             <AutocompleteDropdown
                 label="Product"
                 variant="outlined"
-                icon={icon.current}
+                icon={<FastFoodIcon/>}
                 required
                 items={products}
                 enableAddOption
                 minWidth={250}
                 props={autoCompleteProps}
                 inputRef={searchProductRef}
-
+                isLoading={productsLoading}
             />
-            <NewProduct
-                isOpen={open}
-                setOpen={handleOpenDialogChange}
-                savedProduct={handleSavedProduct}
-                initialProductOnAdd={initialProductOnAdd}
-                onClose={handleClose}
-                autoFocusIndex={1}
-                categories={categories}
-                subCategories={subCategories}
-                taxes={taxes}
-            />
+            {open && (
+                <NewProduct
+                    isOpen={open}
+                    setOpen={x => setOpen(x)}
+                    savedProduct={handleSavedProduct}
+                    initialProduct={(taxes) => {
+                        return {
+                            ...emptyProduct,
+                            code: name,
+                            tax: taxes?.find(x => x.default)
+                        }
+                    }}
+                    onClose={() => setName('')}
+                    autoFocusIndex={1}
+                />
+            )}
         </>
     );
 };
-
-export default React.memo(ProductDropdown);
