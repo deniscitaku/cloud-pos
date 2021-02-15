@@ -60,7 +60,7 @@ export default function NewCustomer({refreshTable, isOpen, setOpen}) {
             fields={fields}
             errors={error?.response?.data}
             loading={isLoading}
-            icon={<PeopleIcon/>}
+            Icon={PeopleIcon}
             initialObject={emptyCustomer}
         />
     )

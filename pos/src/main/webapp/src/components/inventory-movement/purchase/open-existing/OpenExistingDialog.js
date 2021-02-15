@@ -1,6 +1,6 @@
 import DialogTitle from "@material-ui/core/DialogTitle/DialogTitle";
-import Box from "@material-ui/core/Box";
-import Divider from "@material-ui/core/Divider";
+import Box from "@material-ui/core/Box/index";
+import Divider from "@material-ui/core/Divider/index";
 import DialogContent from "@material-ui/core/DialogContent/DialogContent";
 import CloseIcon from '@material-ui/icons/Close';
 import Dialog from "@material-ui/core/Dialog/Dialog";
@@ -9,15 +9,13 @@ import makeStyles from "@material-ui/core/styles/makeStyles";
 import Zoom from "@material-ui/core/Zoom/Zoom";
 import useTheme from "@material-ui/core/styles/useTheme";
 import useMediaQuery from "@material-ui/core/useMediaQuery/useMediaQuery";
-import BasicTable from "../../common/BasicTable";
-import IconButton from "@material-ui/core/IconButton";
-import GridList from "@material-ui/core/GridList";
-import GridListTile from "@material-ui/core/GridListTile";
-import GridListTileBar from "@material-ui/core/GridListTileBar";
-import {resolveField} from "../../../services/utils";
-import Skeleton from "@material-ui/lab/Skeleton";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Grid from "@material-ui/core/Grid";
+import BasicTable from "../../../common/BasicTable";
+import IconButton from "@material-ui/core/IconButton/index";
+import GridList from "@material-ui/core/GridList/index";
+import GridListTile from "@material-ui/core/GridListTile/index";
+import GridListTileBar from "@material-ui/core/GridListTileBar/index";
+import {resolveField} from "../../../../services/utils";
+import CircularProgress from "@material-ui/core/CircularProgress/index";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -67,17 +65,14 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Zoom ref={ref} {...props} />;
 });
 
-export default function OpenExistingDialog({open, setOpen, dialogTitle, icon, data, linesField, titleField, lineColumns, onTileClick, onCloseClick, isLoading}) {
+export default function OpenExistingDialog({open, setOpen, dialogTitle, Icon, data, linesField, titleField, lineColumns, onTileClick, onCloseClick, isLoading}) {
 
     const [loadingIndex, setLoadingIndex] = useState(-1);
     const theme = useTheme();
     const classes = useStyles();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
-    function handleTileClick(lineData, index) {
-        if (isLoading) return;
-
-        setLoadingIndex(index);
+    function handleTileClick(lineData) {
         onTileClick(lineData);
         setOpen(false);
     }
@@ -85,6 +80,7 @@ export default function OpenExistingDialog({open, setOpen, dialogTitle, icon, da
     function handleCloseClick(event, lineData, index) {
         event.stopPropagation();
         setLoadingIndex(index);
+        console.log("LineData: ", lineData);
         onCloseClick(lineData);
     }
 
@@ -101,7 +97,7 @@ export default function OpenExistingDialog({open, setOpen, dialogTitle, icon, da
                 <DialogTitle id="form-dialog-title" style={{backgroundColor: theme.palette.background.default}}>
                     <Box display="flex" justifyContent="center" alignItems="center">
                         <div style={{display: "flex", color: theme.palette.primary.main, marginRight: "0.5em"}}>
-                            {icon}
+                            <Icon/>
                         </div>
                         {dialogTitle}
                     </Box>
@@ -110,11 +106,11 @@ export default function OpenExistingDialog({open, setOpen, dialogTitle, icon, da
                 <DialogContent className={classes.root} style={{overflowY: "hidden", margin: '2em'}}>
                     <GridList cellHeight={200} spacing={15} className={classes.gridList}>
                         {data.map((x, i) => (
-                            <GridListTile key={i} classes={{tile: i === loadingIndex ? classes.disabledTile : classes.tile}} onClick={() => handleTileClick(x, i)}>
+                            <GridListTile key={i} classes={{tile: i === loadingIndex ? classes.disabledTile : classes.tile}} onClick={() => handleTileClick(x)}>
                                 {i === loadingIndex ? <CircularProgress style={{
                                     marginTop: "5.6em",
                                     marginLeft: "5.8em",
-                                }}/> : <BasicTable key={i} data={resolveField(x, linesField, [])} columns={lineColumns}/>}
+                                }}/> : <BasicTable data={resolveField(x, linesField, [])} columns={lineColumns}/>}
                                         <GridListTileBar
                                             title={resolveField(x, titleField)}
                                             titlePosition="top"

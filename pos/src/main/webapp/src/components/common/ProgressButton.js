@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const ProgressButton = ({onClick, icon, size, disabled, loading, success}) => {
+const ProgressButton = ({onClick, Icon, size, disabled, loading, success}) => {
     const classes = useStyles();
     let buttonSize, iconSize, circularProgressSize = 68;
 
@@ -54,7 +54,7 @@ const ProgressButton = ({onClick, icon, size, disabled, loading, success}) => {
             height: "8em"
         });
         iconSize = ({
-            fontSize: "5em"
+            fontSize: "4em"
         });
         circularProgressSize = 126;
     }
@@ -78,7 +78,7 @@ const ProgressButton = ({onClick, icon, size, disabled, loading, success}) => {
                     onClick={handleButtonClick}
                     disabled={disabled}
                 >
-                    {success ? <CheckIcon style={iconSize}/> : icon}
+                    {success ? <CheckIcon style={iconSize}/> : <Icon style={iconSize}/>}
                 </Fab>
                 {loading && <CircularProgress size={circularProgressSize} className={classes.fabProgress}/>}
             </div>

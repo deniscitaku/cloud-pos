@@ -72,7 +72,7 @@ export default function NewSubCategory({refreshTable, isOpen, setOpen}) {
             fields={fields}
             errors={errors}
             loading={loading}
-            icon={<SubCategoryIcon/>}
+            Icon={SubCategoryIcon}
             initialObject={emptySubCategory}
         />
     )

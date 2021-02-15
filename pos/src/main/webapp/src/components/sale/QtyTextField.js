@@ -1,5 +1,5 @@
 import ValidTextField from "../common/ValidTextField";
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useState} from "react";
 import {AxiosTicketLineClient} from "../../client/Client";
 import {useDispatch} from "react-redux";
 import {Actions} from "../../reducers/global/saleTabsReducer";
@@ -10,7 +10,7 @@ const ticketLineService = new AxiosTicketLineClient();
 export default function QtyTextField({rowData, searchRef, qtyRef, setErrors, setTableLoading}) {
 
     const dispatch = useDispatch();
-    const qty = useRef(1);
+    const [qty, setQty] = useState(rowData.quantity || 1);
 
     const {mutate: saveTicketLine, error, isLoading} = useMutation(x => ticketLineService.update(x)
         .then(y => y.data)
@@ -31,10 +31,11 @@ export default function QtyTextField({rowData, searchRef, qtyRef, setErrors, set
     });
 
     useEffect(() => setTableLoading(isLoading), [isLoading]);
+    useEffect(() => setQty(rowData.quantity), [rowData.quantity]);
 
     function handleQtyOnBlur() {
-        if (rowData.quantity !== qty.current) {
-            saveTicketLine({...rowData, quantity: qty.current});
+        if (rowData.quantity !== qty) {
+            saveTicketLine({...rowData, quantity: qty});
         }
     }
 
@@ -45,7 +46,7 @@ export default function QtyTextField({rowData, searchRef, qtyRef, setErrors, set
                 width: '3em'
             }}
             inputRef={qtyRef}
-            defaultValue={1}
+            value={qty}
             required={true}
             onFocus={event => event.target.select()}
             onKeyPress={(ev) => {
@@ -54,7 +55,7 @@ export default function QtyTextField({rowData, searchRef, qtyRef, setErrors, set
                     searchRef.current && searchRef.current.focus();
                 }
             }}
-            onChange={e => qty.current = e.target.value}
+            onChange={e => setQty(e.target.value)}
             onBlur={handleQtyOnBlur}
             error={error && error.lineNumber === rowData.lineNumber && error.quantity}
         />

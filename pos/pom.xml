@@ -40,13 +40,6 @@
             <version>${org.mapstruct.version}</version>
         </dependency>
 
-        <!-- Struct Mapper SPI Implementation-->
-        <dependency>
-            <groupId>com.denlir</groupId>
-            <artifactId>spi-impl</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -64,6 +57,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- Spring Security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <!-- PostgreSQL -->

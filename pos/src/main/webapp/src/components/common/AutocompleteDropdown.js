@@ -6,28 +6,29 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 
 const filter = createFilterOptions();
 
-function AutocompleteDropdown({
-                                  props,
-                                  label,
-                                  icon,
-                                  required,
-                                  error,
-                                  variant = 'standard',
-                                  minWidth = 180,
-                                  items,
-                                  enableAddOption = false,
-                                  inputRef = undefined,
-                                  isLoading
-                              }) {
+const AutocompleteDropdown = React.forwardRef(function AutocompleteDropdown({
+                                                   props,
+                                                   label,
+                                                   Icon,
+                                                   required,
+                                                   error,
+                                                   variant = 'standard',
+                                                   minWidth = 180,
+                                                   items,
+                                                   enableAddOption = false,
+                                                   inputRef,
+                                                   isLoading
+                                               }, ref) {
     console.log("Inside AutocompleteDropdown");
 
-    const finalIcon = isLoading ? <CircularProgress style={{ width: "1.2em", height: "1.2em" }}/> : icon;
+    const finalIcon = !Icon ? undefined : isLoading ? <CircularProgress style={{ width: "1.2em", height: "1.2em" }}/> : <Icon/>;
 
     return (
         <>
             <Autocomplete
                 {...props}
                 id={label}
+                ref={ref}
                 filterOptions={(options, params) => {
                     const filtered = filter(options, params);
 
@@ -77,6 +78,6 @@ function AutocompleteDropdown({
             />
         </>
     );
-}
+});
 
 export default AutocompleteDropdown;

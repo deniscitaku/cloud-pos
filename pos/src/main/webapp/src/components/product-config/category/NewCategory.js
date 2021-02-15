@@ -40,7 +40,7 @@ export default function NewCategory({refreshTable, isOpen, setOpen}) {
             fields={[{title: 'Name', field: "name"}]}
             errors={error?.response?.data}
             loading={loading}
-            icon={<CategoryIcon/>}
+            Icon={CategoryIcon}
             initialObject={emptyCategory}
         />
     )

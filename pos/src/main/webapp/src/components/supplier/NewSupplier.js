@@ -56,7 +56,7 @@ function NewSupplier({savedSupplier, onClose = () => {}, isOpen, setOpen, initia
             fields={fields}
             errors={error?.response?.data}
             loading={isLoading}
-            icon={<LocalShippingOutlinedIcon/>}
+            Icon={LocalShippingOutlinedIcon}
             initialObject={initialSupplier}
             autoFocusIndex={autoFocusIndex}
         />

@@ -45,7 +45,7 @@ export default function NewUom({refreshTable, isOpen, setOpen}) {
             fields={fields}
             errors={error?.response?.data}
             loading={loading}
-            icon={<UomIcon/>}
+            Icon={UomIcon}
             initialObject={emptyUom}
         />
     )

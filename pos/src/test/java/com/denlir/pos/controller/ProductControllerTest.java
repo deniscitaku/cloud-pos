@@ -72,6 +72,7 @@ public class ProductControllerTest extends ControllerTester<ProductPayload> {
         .displayName("Lucky Strike")
         .uoms(Set.of(uomPayload))
         .minStock(new BigDecimal(5))
+        .stock(BigDecimal.TEN)
         .modifiedByUser(userPayload)
         .createdByUser(userPayload)
         .build();

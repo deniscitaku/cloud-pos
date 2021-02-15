@@ -131,7 +131,7 @@ function NewProduct({savedProduct, isOpen, setOpen, initialProduct = taxes => ({
             customElement: (product, setProduct) => <AutocompleteDropdown
                 props={dropdownProps(product, setProduct, 'category')}
                 label={'Category'}
-                required
+                required={false}
                 error={errors && errors['category']}
                 variant="standard"
                 items={categories}/>,
@@ -139,11 +139,10 @@ function NewProduct({savedProduct, isOpen, setOpen, initialProduct = taxes => ({
         {
             title: 'Sub-Category',
             field: "subCategory",
-            required: false,
             customElement: (product, setProduct) => <AutocompleteDropdown
                 props={dropdownProps(product, setProduct, 'subCategory')}
                 label={'Sub-Category'}
-                required
+                required={false}
                 error={errors && errors['subCategory']}
                 variant="standard"
                 items={subCategories}/>,
@@ -176,7 +175,7 @@ function NewProduct({savedProduct, isOpen, setOpen, initialProduct = taxes => ({
                 loading={isLoading}
                 fields={fields}
                 onValueChange={onValueChange}
-                icon={<FastFoodIcon/>}
+                Icon={FastFoodIcon}
                 initialObject={initialProduct(taxes)}
                 autoFocusIndex={autoFocusIndex}
             />

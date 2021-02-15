@@ -37,7 +37,6 @@ public abstract class BaseLinePayload extends BasePayload implements Comparable<
   private BigDecimal priceSell;
 
   @NotNull
-  @Positive
   private BigDecimal quantity;
 
   private BigDecimal amount;

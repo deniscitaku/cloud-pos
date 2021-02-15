@@ -12,7 +12,8 @@ export const Actions = {
     REMOVE_SELECTED_TICKET: 'REMOVE_TICKET',
     CREATE_TICKET_LINE: 'CREATE_TICKET_LINE',
     UPDATE_TICKET_LINE: 'UPDATE_TICKET_LINE',
-    REMOVE_TICKET_LINE: 'REMOVE_TICKET_LINE'
+    REMOVE_TICKET_LINE: 'REMOVE_TICKET_LINE',
+    SET_TICKETS: 'SET_TICKETS'
 };
 
 const saleTabsReducer = (state = initialState, action) => {
@@ -40,6 +41,8 @@ const saleTabsReducer = (state = initialState, action) => {
             return {...state, selectedIndex: (selectedIndex + 1) % tickets.length};
         case Actions.PREV_TICKET :
             return {...state, selectedIndex: (selectedIndex - 1 + tickets.length) % tickets.length};
+        case Actions.SET_TICKETS :
+            return {...state, tickets: payload, selectedIndex: selectedIndex};
         default:
             return {...state};
     }

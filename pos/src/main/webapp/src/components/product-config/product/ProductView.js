@@ -34,7 +34,6 @@ export default function ProductView() {
 
     }, []);
 
-    const icon = useRef(<FastFoodIcon/>);
     const openDialog = useCallback(() => setOpen(true), []);
     const columns = useCallback(() => [
         {title: '#', field: 'tableData.id', editable: "never", width: "1%"},
@@ -142,7 +141,7 @@ export default function ProductView() {
             <Table
                 title="Products"
                 addNewLabel="Add product"
-                addNewIcon={icon}
+                AddNewIcon={FastFoodIcon}
                 onAddNew={openDialog}
                 service={productService}
                 columns={columns}

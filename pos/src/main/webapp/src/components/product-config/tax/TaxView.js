@@ -16,7 +16,6 @@ export default function TaxView() {
 
     const tableRef = useRef();
     const errorsRef = useRef([]);
-    const taxIcon = useRef(<TaxIcon/>);
 
     const openDialog = useCallback(() => setOpen(true), []);
     const columns = useCallback(() => [
@@ -44,7 +43,7 @@ export default function TaxView() {
             <CustomTable
                 title="Taxes"
                 addNewLabel="Add tax"
-                addNewIcon={taxIcon}
+                AddNewIcon={TaxIcon}
                 onAddNew={openDialog}
                 service={taxService}
                 columns={columns}

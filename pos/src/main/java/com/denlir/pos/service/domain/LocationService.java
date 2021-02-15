@@ -8,10 +8,9 @@ import com.denlir.pos.payload.domain.LocationPayload;
 import com.denlir.pos.payload.domain.SequenceHolderFluentBuilder;
 import com.denlir.pos.repository.domain.LocationRepository;
 import com.denlir.pos.service.BasicServiceOperation;
-import com.denlir.pos.validation.validators.UniqueValidator;
+import com.denlir.pos.validation.validators.Validator;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -42,10 +41,10 @@ public class LocationService extends BasicServiceOperation<Location, LocationPay
   }
 
   @Override
-  protected void checkUniqueness(UniqueValidator<LocationRepository, LocationPayload> uniqueValidator) throws EntityValidationException {
-    uniqueValidator
-        .onCreate((repo, location) -> repo.existsByName(location.getName()))
-        .onUpdate((repo, location) -> repo.existsByNameAndIdIsNot(location.getName(), location.getId()))
+  protected void validate(Validator<LocationPayload> validator) throws EntityValidationException {
+    validator
+        .onCreate(location -> repository.existsByName(location.getName()))
+        .onUpdate(location -> repository.existsByNameAndIdIsNot(location.getName(), location.getId()))
         .withName("name")
         .withValue(LocationPayload::getName)
         .end();

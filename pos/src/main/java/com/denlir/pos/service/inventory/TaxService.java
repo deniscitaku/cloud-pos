@@ -7,7 +7,7 @@ import com.denlir.pos.payload.inventory.TaxMapper;
 import com.denlir.pos.payload.inventory.TaxPayload;
 import com.denlir.pos.repository.inventory.TaxRepository;
 import com.denlir.pos.service.BasicServiceOperation;
-import com.denlir.pos.validation.validators.UniqueValidator;
+import com.denlir.pos.validation.validators.Validator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -34,10 +34,10 @@ public class TaxService extends BasicServiceOperation<Tax, TaxPayload, TaxReposi
   }
 
   @Override
-  protected void checkUniqueness(UniqueValidator<TaxRepository, TaxPayload> uniqueValidator) throws EntityValidationException {
-    uniqueValidator
-        .onCreate((r, p) -> p.isDefault() && r.existsByIsDefaultIsTrue())
-        .onUpdate((r, p) -> p.isDefault() && r.existsByIsDefaultIsTrueAndIdIsNot(p.getId()))
+  protected void validate(Validator<TaxPayload> validator) throws EntityValidationException {
+    validator
+        .onCreate(p -> p.isDefault() && repository.existsByIsDefaultIsTrue())
+        .onUpdate(p -> p.isDefault() && repository.existsByIsDefaultIsTrueAndIdIsNot(p.getId()))
         .withName("isDefault")
         .withValue(TaxPayload::isDefault)
         .end();

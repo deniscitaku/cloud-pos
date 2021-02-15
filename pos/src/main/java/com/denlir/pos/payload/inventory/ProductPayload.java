@@ -70,4 +70,7 @@ public class ProductPayload extends BaseAuditPayload {
   @Optional
   private BigDecimal minStock;
 
+  @Optional
+  private BigDecimal stock;
+
 }

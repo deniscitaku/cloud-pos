@@ -16,7 +16,6 @@ export default function UomView() {
 
     const tableRef = useRef();
     const errorsRef = useRef([]);
-    const uomIcon = useRef(<UomIcon/>);
 
     const openDialog = useCallback(() => setOpen(true), []);
     const columns = useCallback(() => [
@@ -31,7 +30,7 @@ export default function UomView() {
             <Table
                 title="Uom"
                 addNewLabel="Add UOM"
-                addNewIcon={uomIcon}
+                AddNewIcon={UomIcon}
                 onAddNew={openDialog}
                 service={uomService}
                 columns={columns}

@@ -21,6 +21,8 @@ public enum MovementKind {
 
   EXPIRATION(-1),
 
+  WASTE(-1),
+
   RETURN_SUPPLIER(-1),
 
   PURCHASE(1),

@@ -1,6 +1,7 @@
 package com.denlir.pos.payload.inventory.movement.diary;
 
 import com.denlir.pos.common.GenerateTS;
+import com.denlir.pos.entity.inventory.movement.MovementKind;
 import com.denlir.pos.payload.inventory.BaseLinePayload;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,5 +15,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @GenerateTS
 public class InventoryMovementLinePayload extends BaseLinePayload {
+
+  private MovementKind kind;
 
 }

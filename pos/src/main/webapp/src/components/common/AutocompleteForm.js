@@ -7,7 +7,7 @@ export default function AutocompleteForm(props) {
 
     const {
         label,
-        icon,
+        Icon,
         variant,
         dialogTitle,
         required = true,
@@ -83,7 +83,7 @@ export default function AutocompleteForm(props) {
             <AutocompleteDropdown
                 label={label}
                 variant={variant}
-                icon={icon}
+                Icon={Icon}
                 required={required}
                 error={error}
                 width={width}

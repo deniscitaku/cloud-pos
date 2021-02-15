@@ -8,7 +8,7 @@ public class EntityValidationException extends RuntimeException {
 
     private final ValidationExceptionPayload validationExceptionPayload;
 
-    public EntityValidationException(@NonNull ValidationExceptionPayload validationExceptionPayload) {
+    EntityValidationException(@NonNull ValidationExceptionPayload validationExceptionPayload) {
         super(validationExceptionPayload.getMessage());
         this.validationExceptionPayload = validationExceptionPayload;
     }

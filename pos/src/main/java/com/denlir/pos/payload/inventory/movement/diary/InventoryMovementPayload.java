@@ -6,7 +6,6 @@ import com.denlir.pos.entity.inventory.movement.sale.Status;
 import com.denlir.pos.payload.BaseAuditPayload;
 import com.denlir.pos.payload.domain.LocationPayload;
 import com.denlir.pos.validation.groups.ReferenceId;
-import com.denlir.pos.validation.groups.Update;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -40,7 +39,6 @@ public class InventoryMovementPayload extends BaseAuditPayload {
 
   @Valid
   @ConvertGroup(to = ReferenceId.class)
-  @NotNull(groups = Update.class)
   private SupplierPayload supplier;
 
   private LocationPayload locationTo;

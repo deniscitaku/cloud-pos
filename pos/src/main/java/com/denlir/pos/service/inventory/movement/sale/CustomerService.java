@@ -1,15 +1,12 @@
 package com.denlir.pos.service.inventory.movement.sale;
 
 import com.denlir.pos.entity.inventory.movement.sale.Customer;
-import com.denlir.pos.exception.EntityValidationException;
-import com.denlir.pos.exception.ValidationExceptionFluentBuilder;
 import com.denlir.pos.payload.domain.PagePayload;
-import com.denlir.pos.payload.inventory.movement.diary.SupplierPayload;
 import com.denlir.pos.payload.inventory.movement.sale.CustomerMapper;
 import com.denlir.pos.payload.inventory.movement.sale.CustomerPayload;
 import com.denlir.pos.repository.inventory.movement.sale.CustomerRepository;
 import com.denlir.pos.service.BasicServiceOperation;
-import com.denlir.pos.validation.validators.UniqueValidator;
+import com.denlir.pos.validation.validators.Validator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +28,10 @@ public class CustomerService extends BasicServiceOperation<Customer, CustomerPay
   }
 
   @Override
-  protected void checkUniqueness(UniqueValidator<CustomerRepository, CustomerPayload> uniqueValidator) {
-    uniqueValidator
-        .onCreate((r, p) -> r.existsByName(p.getName()))
-        .onUpdate((r, p) -> r.existsByNameAndIdIsNot(p.getName(), p.getId()))
+  protected void validate(Validator<CustomerPayload> validator) {
+    validator
+        .onCreate(p -> repository.existsByName(p.getName()))
+        .onUpdate(p -> repository.existsByNameAndIdIsNot(p.getName(), p.getId()))
         .withName("name")
         .withValue(CustomerPayload::getName)
         .end();

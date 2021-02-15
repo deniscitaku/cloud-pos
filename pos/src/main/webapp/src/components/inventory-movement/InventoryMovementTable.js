@@ -1,7 +1,7 @@
 import React, {lazy, useEffect, useState} from 'react';
-import {AxiosInventoryMovementLineClient, MovementKind} from "../../client/Client";
+import {AxiosInventoryMovementLineClient} from "../../client/Client";
 import {useDispatch, useSelector} from "react-redux";
-import Paper from "@material-ui/core/Paper";
+import Paper from "@material-ui/core/Paper/index";
 import MaterialTable from "material-table";
 import {deleteInventoryMovementLines} from "../../reducers/global/inventoryMovementReducer";
 import {useMutation} from "react-query";
@@ -9,10 +9,9 @@ import QtyTextField from "./QtyTextField";
 
 const ConfirmationDialog = lazy(() => import("../common/ConfirmationDialog"));
 
-const movementKind = MovementKind.PURCHASE;
 const inventoryMovementLineService = new AxiosInventoryMovementLineClient();
 
-const PurchaseTable = ({searchProductRef, setDisableCloseButton, tableLoading, setTableLoading}) => {
+const InventoryMovementTable = ({movementKind, searchProductRef, setDisableCloseButton, tableLoading, setTableLoading}) => {
 
     console.log("Inside Purchase table");
 
@@ -24,7 +23,8 @@ const PurchaseTable = ({searchProductRef, setDisableCloseButton, tableLoading, s
             setYesNoDialog({itemsToRemove: [], open: false})
         }
     });
-    const purchaseLines = useSelector((state) => state.inventoryMovement.get(movementKind).inventoryMovementLines);
+    const movementLines = useSelector((state) => state.inventoryMovement.get(movementKind).inventoryMovementLines);
+    console.log("MovementLines changed: ", movementLines);
     const [errors, setErrors] = useState([]);
 
     useEffect(() => {
@@ -42,6 +42,7 @@ const PurchaseTable = ({searchProductRef, setDisableCloseButton, tableLoading, s
             type: 'numeric',
             width: "1%",
             render: rowData => <QtyTextField
+                movementKind={movementKind}
                 rowData={rowData}
                 searchProductRef={searchProductRef}
                 setErrors={setErrors}
@@ -62,9 +63,17 @@ const PurchaseTable = ({searchProductRef, setDisableCloseButton, tableLoading, s
             type: 'numeric',
             editable: "never",
             width: "15%",
+        },
+        {
+            title: 'Stock',
+            field: 'product.stock',
+            type: "numeric",
+            emptyValue: 0,
+            editable: "never",
+            width: "1%",
             cellStyle: {paddingRight: '1em'},
             headerStyle: {paddingRight: '1em'}
-        },
+        }
     ];
 
     function openDeleteSelectedConfirmationDialog(event, data) {
@@ -76,9 +85,9 @@ const PurchaseTable = ({searchProductRef, setDisableCloseButton, tableLoading, s
         <Paper square variant="outlined">
             <MaterialTable
                 isLoading={tableLoading}
-                title="Purchase"
+                title={movementKind}
                 columns={columns}
-                data={purchaseLines}
+                data={movementLines}
                 options={{
                     actionsColumnIndex: -1,
                     selection: true,
@@ -115,4 +124,4 @@ const PurchaseTable = ({searchProductRef, setDisableCloseButton, tableLoading, s
     );
 };
 
-export default PurchaseTable;
+export default InventoryMovementTable;

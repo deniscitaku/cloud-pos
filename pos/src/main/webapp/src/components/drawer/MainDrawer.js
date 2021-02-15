@@ -31,17 +31,22 @@ import UomView from "../product-config/uom/UomView";
 import TaxView from "../product-config/tax/TaxView";
 import CategoryView from "../product-config/category/CategoryView";
 import SubCategoryView from "../product-config/sub-category/SubCategoryView";
-import {QueryClient, QueryClientProvider} from "react-query";
+import {QueryClientProvider} from "react-query";
 import {ReactQueryDevtools} from "react-query/devtools";
 import ProductView from "../product-config/product/ProductView";
 import CustomerView from "../customer/CustomerView";
 import SupplierView from "../supplier/SupplierView";
 import CustomBackdrop from "../common/CustomBackdrop";
 import queryClient from "../../hooks/queryClient";
+import MuiPickersUtilsProvider from "@material-ui/pickers/MuiPickersUtilsProvider";
 
 const drawerWidth = 270;
 
-const PurchaseView = lazy(() => import("../purchase/PurchaseView"));
+const PurchaseView = lazy(() => import("../inventory-movement/purchase/PurchaseView"));
+const ReturnSupplierView = lazy(() => import("../inventory-movement/return-supplier/ReturnSupplierView"));
+const RegistrationView = lazy(() => import("../inventory-movement/registration/RegistrationView"));
+const WasteView = lazy(() => import("../inventory-movement/waste/WasteView"));
+const ExpirationView = lazy(() => import("../inventory-movement/expiration/ExpirationView"));
 const SaleView = lazy(() => import("../sale/SaleView"));
 
 const useStyles = makeStyles((theme) =>
@@ -253,6 +258,7 @@ const MainDrawer = () => {
                             <AppBar
                                 style={{
                                     background: theme.palette.primary.mainGradient,
+                                    color: theme.palette.primary.contrastText
                                 }}
                                 position="fixed"
                                 className={clsx(classes.appBar, {
@@ -296,7 +302,8 @@ const MainDrawer = () => {
                                             <MenuItem onClick={() => setLocale('sq')}>{locale.get('sq')}</MenuItem>
                                         </Menu>
                                         <Tooltip title={"Toggle " + theme.palette.type + " theme"}>
-                                            <IconButton aria-label="dark mode" color="inherit" onClick={toggleDarkMode}>
+                                            <IconButton aria-label="dark mode" color="inherit"
+                                                        onClick={toggleDarkMode}>
                                                 {theme.palette.type === 'dark' ? <LightModeIcon/> : <DarkModeIcon/>}
                                             </IconButton>
                                         </Tooltip>
@@ -353,6 +360,12 @@ const MainDrawer = () => {
                                         <Route path="/" exact component={SaleView}/>
                                         <Route path="/sale" component={SaleView}/>
                                         <Route path="/inventory-movement/purchase" component={PurchaseView}/>
+                                        <Route path="/inventory-movement/return-supplier"
+                                               component={ReturnSupplierView}/>
+                                        <Route path="/inventory-movement/registration"
+                                               component={RegistrationView}/>
+                                        <Route path="/inventory-movement/waste" component={WasteView}/>
+                                        <Route path="/inventory-movement/expire" component={ExpirationView}/>
                                         <Route path="/products" component={ProductView}/>
                                         <Route path="/categories" component={CategoryView}/>
                                         <Route path="/sub-categories" component={SubCategoryView}/>

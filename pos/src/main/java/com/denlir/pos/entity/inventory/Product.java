@@ -4,13 +4,14 @@ package com.denlir.pos.entity.inventory;
 import com.denlir.pos.entity.BaseAuditEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.mapstruct.ap.spi.MappingExclusionProvider;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import java.math.BigDecimal;
 import java.util.Set;
-
-import static javax.persistence.FetchType.EAGER;
 
 /**
  * Created on: 3/1/20
@@ -25,7 +26,6 @@ public class Product extends BaseAuditEntity {
   @Column(unique = true)
   private String code;
 
-  @Column
   private String name;
 
   private String displayName;

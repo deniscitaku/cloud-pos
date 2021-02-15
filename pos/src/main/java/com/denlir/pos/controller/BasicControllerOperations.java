@@ -60,15 +60,18 @@ public abstract class BasicControllerOperations<T extends BasicServiceOperation<
   }
 
   @GetMapping("/sorted")
-  public Collection<P> findAllSorted(@RequestParam String direction, @RequestParam String[] sortBy, @RequestParam(required = false) String... include) throws InterruptedException {
+  public Collection<P> findAllSorted(@RequestParam String direction,
+                                     @RequestParam String[] sortBy,
+                                     @RequestParam(required = false) String... include) throws InterruptedException {
     Thread.sleep(1000);
     return service.findAllSorted(direction, sortBy, include);
   }
 
   @PostMapping
-  public P create(@RequestBody @Validated P payload) throws InterruptedException {
+  public P create(@RequestBody @Validated P payload,
+                  @RequestParam(required = false) String... include) throws InterruptedException {
     Thread.sleep(1000);
-    return service.save(payload);
+    return service.save(payload, include);
   }
 
   @PostMapping("/all")
@@ -76,9 +79,10 @@ public abstract class BasicControllerOperations<T extends BasicServiceOperation<
     return service.saveAll(payload);
   }
 
-  @PutMapping P update(@RequestBody @Validated({Default.class, Update.class}) P payload) throws InterruptedException {
+  @PutMapping P update(@RequestBody @Validated({Default.class, Update.class}) P payload,
+                       @RequestParam(required = false) String... include) throws InterruptedException {
     Thread.sleep(1000);
-    return service.save(payload);
+    return service.save(payload, include);
   }
 
   @PutMapping("/all")

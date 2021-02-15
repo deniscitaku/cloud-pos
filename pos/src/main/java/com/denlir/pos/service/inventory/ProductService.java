@@ -3,7 +3,6 @@ package com.denlir.pos.service.inventory;
 import com.denlir.pos.entity.inventory.Product;
 import com.denlir.pos.exception.EntityValidationException;
 import com.denlir.pos.exception.ValidationExceptionFluentBuilder;
-import com.denlir.pos.exception.ValidationExceptionPayload;
 import com.denlir.pos.payload.domain.PagePayload;
 import com.denlir.pos.payload.inventory.ProductMapper;
 import com.denlir.pos.payload.inventory.ProductPayload;
@@ -11,7 +10,7 @@ import com.denlir.pos.payload.inventory.UomMapper;
 import com.denlir.pos.repository.inventory.ProductRepository;
 import com.denlir.pos.service.BasicServiceOperation;
 import com.denlir.pos.service.FieldInclude;
-import com.denlir.pos.validation.validators.UniqueValidator;
+import com.denlir.pos.validation.validators.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -62,6 +61,7 @@ public class ProductService extends BasicServiceOperation<Product, ProductPayloa
             .code("Product.NotExists")
             .build()
             .toEntityValidationException());
+
   }
 
   @Override
@@ -83,10 +83,10 @@ public class ProductService extends BasicServiceOperation<Product, ProductPayloa
   }
 
   @Override
-  protected void checkUniqueness(UniqueValidator<ProductRepository, ProductPayload> uniqueValidator) throws EntityValidationException {
-    uniqueValidator
-        .onCreate((r, p) -> r.existsByCode(p.getCode()))
-        .onUpdate((r, p) -> r.existsByCodeAndIdIsNot(p.getCode(), p.getId()))
+  protected void validate(Validator<ProductPayload> validator) throws EntityValidationException {
+    validator
+        .onCreate(p -> repository.existsByCode(p.getCode()))
+        .onUpdate(p -> repository.existsByCodeAndIdIsNot(p.getCode(), p.getId()))
         .withName("code")
         .withValue(ProductPayload::getCode)
         .end();

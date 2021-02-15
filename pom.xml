@@ -12,6 +12,5 @@
         <module>pos</module>
         <module>gateway</module>
         <module>annotation-processing</module>
-        <module>spi-impl</module>
     </modules>
 </project>

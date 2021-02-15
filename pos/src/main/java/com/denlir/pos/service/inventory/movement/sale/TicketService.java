@@ -22,6 +22,9 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Map.of;
 
@@ -55,6 +58,14 @@ public class TicketService extends BasicServiceOperation<Ticket, TicketPayload, 
     this.ticketLineService = ticketLineService;
   }
 
+  public Collection<TicketPayload> findByStatus(Status status) {
+    List<TicketPayload> tickets = mapper.partialEntitiesToPayloads(repository.findByStatusOrderByCreatedOn(status));
+    tickets.forEach(x -> Collections.sort(x.getTicketLines()));
+
+    return tickets;
+  }
+
+  @Transactional
   public TicketPayload openTicket(Long locationId) {
     LocationPayload locationPayload = new LocationPayload();
     locationPayload.setId(locationId);
@@ -69,6 +80,7 @@ public class TicketService extends BasicServiceOperation<Ticket, TicketPayload, 
     return save(ticket);
   }
 
+  @Transactional
   public TicketPayload closeTicket(TicketPayload payload) {
     if (payload.getGivenAmount() == null) {
       payload.setGivenAmount(payload.getTotalAmount());
@@ -81,6 +93,25 @@ public class TicketService extends BasicServiceOperation<Ticket, TicketPayload, 
     payload.setStatus(Status.CLOSED);
 
     return save(payload);
+  }
+
+  @Transactional
+  public TicketPayload addTicketLine(Long ticketId, TicketLinePayload ticketLine) {
+    TicketPayload ticket = getOne(ticketId);
+
+    ticket.getTicketLines().stream()
+        .filter(x -> x.getProduct().getId().equals(ticketLine.getProduct().getId()))
+        .findFirst()
+        .ifPresentOrElse(x -> {
+          x.setQuantity(x.getQuantity().add(ticketLine.getQuantity()));
+          ticketLineService.beforeSave(x);
+        }, () -> {
+          TicketLinePayload tl = ticketLineService.beforeSave(ticketLine);
+          tl.setLineNumber(ticket.getTicketLines().size() + 1);
+          ticket.getTicketLines().add(tl);
+        });
+
+    return save(ticket);
   }
 
   @Override
@@ -99,17 +130,6 @@ public class TicketService extends BasicServiceOperation<Ticket, TicketPayload, 
     payload.setTotalAmount(totalAmount);
 
     return payload;
-  }
-
-  @Transactional
-  public TicketPayload addTicketLine(Long ticketId, TicketLinePayload ticketLine) {
-    TicketPayload ticket = getOne(ticketId);
-
-    TicketLinePayload tl = ticketLineService.beforeSave(ticketLine);
-    tl.setLineNumber(ticket.getTicketLines().size() + 1);
-    ticket.getTicketLines().add(tl);
-
-    return save(ticket);
   }
 
   @Override

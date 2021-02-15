@@ -1,6 +1,8 @@
 package com.denlir.pos.entity.inventory;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
@@ -11,11 +13,13 @@ import java.io.Serializable;
  * @author Denis Citaku
  **/
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Embeddable
 public class StockId implements Serializable {
 
-  private Long productId;
-
   private Long locationId;
+
+  private Long productId;
 
 }

@@ -1,14 +1,12 @@
 package com.denlir.pos.service.inventory.movement.diary;
 
 import com.denlir.pos.entity.inventory.movement.diary.Supplier;
-import com.denlir.pos.exception.EntityValidationException;
-import com.denlir.pos.exception.ValidationExceptionFluentBuilder;
 import com.denlir.pos.payload.domain.PagePayload;
 import com.denlir.pos.payload.inventory.movement.diary.SupplierMapper;
 import com.denlir.pos.payload.inventory.movement.diary.SupplierPayload;
 import com.denlir.pos.repository.inventory.movement.diary.SupplierRepository;
 import com.denlir.pos.service.BasicServiceOperation;
-import com.denlir.pos.validation.validators.UniqueValidator;
+import com.denlir.pos.validation.validators.Validator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -35,9 +33,9 @@ public class SupplierService extends BasicServiceOperation<Supplier, SupplierPay
   }
 
   @Override
-  protected void checkUniqueness(UniqueValidator<SupplierRepository, SupplierPayload> uniqueValidator) {
-    uniqueValidator.onCreate((r, p) -> r.existsByName(p.getName()))
-        .onUpdate((r, p) -> r.existsByNameAndIdIsNot(p.getName(), p.getId()))
+  protected void validate(Validator<SupplierPayload> validator) {
+    validator.onCreate(p -> repository.existsByName(p.getName()))
+        .onUpdate(p-> repository.existsByNameAndIdIsNot(p.getName(), p.getId()))
         .withName("name")
         .withValue(SupplierPayload::getName)
         .end();

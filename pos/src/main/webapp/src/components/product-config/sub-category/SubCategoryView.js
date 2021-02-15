@@ -24,7 +24,6 @@ export default function SubCategoryView() {
     console.log("Sub-Category rendered!");
 
     const openDialog = useCallback(() => setOpen(true), []);
-    const subCategoryIcon = useRef(<SubCategoryIcon/>);
     const columns = useCallback(() => [
         {title: '#', field: 'tableData.id', editable: "never", width: "1%"},
         {
@@ -55,7 +54,7 @@ export default function SubCategoryView() {
             <Table
                 title="Sub-Categories"
                 addNewLabel="Add sub-category"
-                addNewIcon={subCategoryIcon}
+                AddNewIcon={SubCategoryIcon}
                 onAddNew={openDialog}
                 service={subCategoryService}
                 findAllPagedExtraArgs={{include: 'category'}}

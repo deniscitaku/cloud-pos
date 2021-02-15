@@ -7,12 +7,11 @@ import com.denlir.pos.payload.inventory.BaseLinePayload;
 import com.denlir.pos.payload.inventory.StockMapper;
 import com.denlir.pos.payload.inventory.StockPayload;
 import com.denlir.pos.repository.inventory.StockRepository;
-import com.denlir.pos.service.BasicServiceOperation;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
-import java.util.List;
+import java.util.Optional;
 
 /**
  * Created on: 3/1/20
@@ -20,10 +19,15 @@ import java.util.List;
  * @author Denis Citaku
  **/
 @Service
-public class StockService extends BasicServiceOperation<Stock, StockPayload, StockRepository> {
+public class StockService {
+
+  private final StockMapper stockMapper;
+  private final StockRepository repository;
 
   protected StockService(StockMapper stockMapper, StockRepository repository) {
-    super(stockMapper, repository);
+
+    this.stockMapper = stockMapper;
+    this.repository = repository;
   }
 
   private void updateStock(Stock stock, MovementKind kind) {
@@ -48,4 +52,11 @@ public class StockService extends BasicServiceOperation<Stock, StockPayload, Sto
         .forEach(x -> updateStock(x, kind));
   }
 
+  public Collection<StockPayload> findAllById(Collection<StockId> ids) {
+    return stockMapper.entitiesToPayloads(repository.findAllById(ids));
+  }
+
+  public Optional<StockPayload> findById(StockId stockId) {
+    return repository.findById(stockId).map(stockMapper::entityToPayload);
+  }
 }

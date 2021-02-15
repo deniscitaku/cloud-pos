@@ -63,7 +63,7 @@ export default function NewTax({refreshTable, isOpen, setOpen}) {
             fields={fields}
             errors={errors}
             loading={loading}
-            icon={<TaxIcon/>}
+            Icon={TaxIcon}
             initialObject={emptyTax}
         />
     )

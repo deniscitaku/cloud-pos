@@ -6,7 +6,7 @@ import {useMutation, useQueryClient} from "react-query";
 
 const ConfirmationDialog = lazy(() => import("./ConfirmationDialog"));
 
-function CustomTable({title, addNewLabel, addNewIcon, onAddNew, tableRef, errorsRef, service, findAllPagedExtraArgs, columns, queryKey}) {
+function CustomTable({title, addNewLabel, AddNewIcon, onAddNew, tableRef, errorsRef, service, findAllPagedExtraArgs, columns, queryKey}) {
     console.log("CustomTable rendered!");
 
     const [yesNoDialog, setYesNoDialog] = useState({open: false, itemsToRemove: []});
@@ -84,11 +84,11 @@ function CustomTable({title, addNewLabel, addNewIcon, onAddNew, tableRef, errors
                     },
                     headerStyle: {
                         padding: 10,
-                    }
+                    },
                 }}
                 actions={[
                     {
-                        icon: () => <GradientButton startIcon={addNewIcon.current}>{addNewLabel}</GradientButton>,
+                        icon: () => <GradientButton startIcon={<AddNewIcon/>}>{addNewLabel}</GradientButton>,
                         isFreeAction: true,
                         onClick: onAddNew,
                     },

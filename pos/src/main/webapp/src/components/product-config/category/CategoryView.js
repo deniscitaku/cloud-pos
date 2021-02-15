@@ -16,7 +16,6 @@ export default function CategoryView() {
 
     const tableRef = useRef();
     const errorsRef = useRef([]);
-    const categoryIcon = useRef(<CategoryIcon/>);
 
     const openDialog = useCallback(() => setOpen(true), []);
     const columns = useCallback(() => [
@@ -34,7 +33,7 @@ export default function CategoryView() {
             <Table
                 title="Categories"
                 addNewLabel="Add category"
-                addNewIcon={categoryIcon}
+                AddNewIcon={CategoryIcon}
                 onAddNew={openDialog}
                 service={categoryService}
                 columns={columns}

@@ -103,7 +103,7 @@ const inventoryMovementReducer = (state = initialState, action) => {
 
     function updateInventoryMovementLine() {
         inventoryMovement.inventoryMovementLines = inventoryMovement.inventoryMovementLines
-            .map(x => x.lineNumber === payload.lineNumber ? payload : x);
+            .map(x => x.id === payload.id ? payload : x);
         return clonedState.set(movementKind, inventoryMovement)
     }
 

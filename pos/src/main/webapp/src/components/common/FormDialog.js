@@ -27,7 +27,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 function FormDialog({
-                        open, title, onSubmit, onClose, focusSubmit = false, fields, errors, loading, icon, customBody,
+                        open, title, onSubmit, onClose, focusSubmit = false, fields, errors, loading, Icon, customBody,
                         onValueChange = () => {
                         }, initialObject = {}, autoFocusIndex
                     }) {
@@ -46,7 +46,7 @@ function FormDialog({
                 <DialogTitle id="form-dialog-title" style={{backgroundColor: theme.palette.background.default}}>
                     <Box display="flex" justifyContent="center" alignItems="center">
                         <div style={{display: "flex", color: theme.palette.primary.main, marginRight: "0.5em"}}>
-                            {icon}
+                            {<Icon/>}
                         </div>
                         {title}
                     </Box>

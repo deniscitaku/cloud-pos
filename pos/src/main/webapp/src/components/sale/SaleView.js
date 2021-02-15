@@ -10,7 +10,7 @@ import ProductList from "./ProductList";
 import {Zoom} from "@material-ui/core";
 import Tools from "./Tools";
 import {useDispatch, useSelector} from "react-redux";
-import {AxiosProductClient, AxiosTicketClient, QueryKeys} from "../../client/Client";
+import {AxiosProductClient, AxiosTicketClient, QueryKeys, Status} from "../../client/Client";
 import Summary from "./Summary";
 import ProgressButton from "../common/ProgressButton";
 import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
@@ -22,7 +22,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from "@material-ui/core/Toolbar";
 import clsx from 'clsx';
 import CategoriesDrawer from "./CategoriesDrawer";
-import {useMutation, useQueryClient} from "react-query";
+import {useIsFetching, useMutation, useQuery, useQueryClient} from "react-query";
 import CustomBackdrop from "../common/CustomBackdrop";
 
 function a11yProps(index) {
@@ -114,6 +114,13 @@ export default function SaleView() {
             productService.findByCategoryId(id).then(x => x.data) :
             productService.findBySubCategoryId(id).then(x => x.data));
 
+    const isFetching = useIsFetching([QueryKeys.TICKET, Status.OPENED]);
+    const {data: openedTickets, status: openedTicketsStatus} = useQuery([QueryKeys.TICKET, Status.OPENED], () => ticketService
+        .findByStatus(Status.OPENED)
+        .then(x => x.data), {
+        refetchOnMount: true,
+    });
+
     const {mutate: openTicket, isLoading: openTicketLoading} = useMutation(() => ticketService.openTicket(1).then(x => x.data), {
         onSuccess: (data, variables) => dispatch({type: variables, payload: data})
     });
@@ -144,12 +151,25 @@ export default function SaleView() {
     });
 
     useEffect(() => {
-        if (tickets.length === 0) {
-            openTicket(Actions.CREATE_TICKET);
-        } else {
-            dispatch({type: Actions.GOTO_TICKET, payload: selectedIndex})
+        if (openedTicketsStatus === 'success') {
+            if (openedTickets && openedTickets.length) {
+                console.log("Latest updated: ", openedTickets.reduce((a, b) => a.updatedOn > b.updatedOn ? a : b));
+                const selectedTicketIndex = openedTickets.indexOf(openedTickets.reduce((a, b) => a.updatedOn > b.updatedOn ? a : b));
+                console.log("Selected ticket index: ", selectedTicketIndex);
+                dispatch({
+                    type: Actions.SET_TICKETS,
+                    payload: openedTickets.slice(0, MAX_TICKETS),
+                    selectedIndex: selectedTicketIndex >= 0 ? selectedTicketIndex : 0
+                });
+            } else {
+                if (tickets.length === 0) {
+                    openTicket(Actions.CREATE_TICKET);
+                } else {
+                    dispatch({type: Actions.GOTO_TICKET, payload: selectedIndex})
+                }
+            }
         }
-    }, []);
+    }, [isFetching]);
 
     useEffect(() => {
         queryClient.prefetchQuery(QueryKeys.PRODUCTS, () => productService.findAll().then(x => x.data));
@@ -224,7 +244,7 @@ export default function SaleView() {
                 </AppBar>
                 <CategoriesDrawer open={open} handleDrawerClose={() => setOpen(false)}
                                   onChange={findByCategoryOrSubCategory}/>
-                {!selectedTicket || openTicketLoading || removeTicketLoading ?
+                {!selectedTicket || openTicketLoading || removeTicketLoading || isFetching ?
                     <CustomBackdrop/>
                     :
                     <main
@@ -274,7 +294,7 @@ export default function SaleView() {
                                 unmountOnExit
                             >
                                 <ProgressButton size="large"
-                                                icon={<AddShoppingCartIcon style={{fontSize: "4em"}}/>}
+                                                Icon={AddShoppingCartIcon}
                                                 disabled={selectedTicket.ticketLines.length === 0 || disabledPayButton || tableLoading}
                                                 success={status === 'success'}
                                                 loading={status === 'loading'}

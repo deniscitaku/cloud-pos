@@ -31,6 +31,7 @@ public class FieldInclude<E, P> {
   @Getter
   private final P payload;
 
+  @Getter
   private final List<String> includeFields;
 
   public static <E, P> FieldInclude<E, P> ofEntityAndMapper(E entity, BaseMapper<E, P> mapper, String... includeFields) {

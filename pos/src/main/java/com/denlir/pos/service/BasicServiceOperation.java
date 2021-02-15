@@ -3,7 +3,7 @@ package com.denlir.pos.service;
 import com.denlir.pos.exception.EntityValidationException;
 import com.denlir.pos.payload.BaseMapper;
 import com.denlir.pos.payload.domain.PagePayload;
-import com.denlir.pos.validation.validators.UniqueValidator;
+import com.denlir.pos.validation.validators.Validator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -76,17 +76,17 @@ public abstract class BasicServiceOperation<E, P, R extends JpaRepository<E, Lon
   }
 
   @Transactional
-  public P save(P payload) throws EntityValidationException {
-    checkUniqueness(UniqueValidator.of(repository, payload));
+  public P save(P payload, String... includeFields) throws EntityValidationException {
+    validate(Validator.of(payload));
     P p = beforeSave(payload);
     E entity = mapper.payloadToEntity(p);
-    return mapper.partialEntityToPayload(repository.save(entity));
+    return includeFields(ofEntityAndMapper(repository.save(entity), mapper, includeFields));
   }
 
   @Transactional
   public Collection<P> saveAll(Collection<P> payloads) {
     Collection<P> beforeSavePayloads = payloads.stream()
-        .peek(x -> checkUniqueness(UniqueValidator.of(repository, x)))
+        .peek(x -> validate(Validator.of(x)))
         .map(this::beforeSave)
         .collect(Collectors.toList());
 
@@ -127,21 +127,21 @@ public abstract class BasicServiceOperation<E, P, R extends JpaRepository<E, Lon
   /**
    * This method is used when we need a database validation, for example check for duplicity
    */
-  protected void checkUniqueness(UniqueValidator<R, P> uniqueValidator) throws EntityValidationException {
+  protected void validate(Validator<P> validator) throws EntityValidationException {
   }
 
-  private PageRequest buildPageRequest(int page, int size, String direction, String... properties) {
+  protected PageRequest buildPageRequest(int page, int size, String direction, String... sortBy) {
     if (size == 0) {
       size = 10;
     }
 
-    if (direction == null || properties == null || properties.length == 0) {
+    if (direction == null || sortBy == null || sortBy.length == 0) {
       return PageRequest.of(page, size, Sort.unsorted());
     }
 
     try {
-      String[] formattedProperties = Stream.of(properties).map(x -> String.format("%s", x)).toArray(String[]::new);
-      return PageRequest.of(page, size, Sort.Direction.fromString(direction), formattedProperties);
+      String[] formattedSortBy = Stream.of(sortBy).map(x -> String.format("%s", x)).toArray(String[]::new);
+      return PageRequest.of(page, size, Sort.Direction.fromString(direction), formattedSortBy);
     } catch (IllegalArgumentException iae) {
       return PageRequest.of(page, size, Sort.unsorted());
     }
